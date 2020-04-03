@@ -1,0 +1,28 @@
+# Maven
+target/
+.flattened-pom.xml
+
+# Eclipse files
+.classpath
+.project
+.settings
+/workspace/
+
+# IntelliJ Idea files
+*.iml
+*.ipr
+*.iws
+*.idea
+
+# Mac
+.DS_Store
+
+# Test remnants
+objectstore/
+*.log
+temp/
+activemq-data/
+testdir/
+hostkey.ser
+*.h2.db
+*.factorypath

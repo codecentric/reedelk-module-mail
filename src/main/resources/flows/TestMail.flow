@@ -1,0 +1,27 @@
+{
+  "id": "a99a1043-586a-4e78-8ee2-8385ed2417ce",
+  "title": "Test Mail",
+  "description": "Test Mail Flow",
+  "flow": [
+    {
+      "implementor": "com.reedelk.rest.component.RestListener",
+      "description": "REST Listener",
+      "configuration": {"ref": "dc618f88-ab97-4954-a377-7d6b2670627e"},
+      "path": "/send",
+      "method": "GET",
+      "streaming": "AUTO",
+      "response": {
+        "body": "#[message.payload()]",
+        "status": 200
+      },
+      "errorResponse": {
+        "body": "#[error]",
+        "status": 500
+      }
+    },
+    {
+      "implementor": "com.reedelk.mail.component.MailSend",
+      "description": "Send Email"
+    }
+  ]
+}
