@@ -32,7 +32,17 @@
       },
       "cc": "",
       "bcc": "",
-      "attachmentsObject": "#[message.payload()]"
+      "attachmentsObject": "#[message.payload()]",
+      "attachments": [
+        {
+          "name": "superDUper",
+          "attachmentContentType": "RESOURCE"
+        },
+        {
+          "name": "BohNonSo",
+          "attachmentContentType": "RESOURCE"
+        }
+      ]
     }
   ]
 }

@@ -14,7 +14,14 @@ public class AttachmentDefinition implements Implementor {
 
     @Property("Name")
     @Hint("myAttachmentFile")
+    @Description("Sets the name of the attachment.")
     private String name;
+
+    @Property("Content Type")
+    @MimeTypeCombo
+    @Example(MimeType.AsString.TEXT_HTML)
+    @DefaultValue(MimeType.AsString.TEXT_PLAIN)
+    private String contentType;
 
     @Property("Transfer Encoding")
     @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
@@ -22,16 +29,19 @@ public class AttachmentDefinition implements Implementor {
     @Example("Base64")
     private String contentTransferEncoding;
 
-    @Property("Mime type")
-    @MimeTypeCombo
-    @Example(MimeType.AsString.APPLICATION_BINARY)
-    @DefaultValue(MimeType.AsString.APPLICATION_BINARY)
-    @Description("Sets the mime type of the attachment content.")
-    private String mimeType;
+    @Property("Charset")
+    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
+    @DefaultValue("UTF-8")
+    @Example("ISO-8859-1")
+    private String charset;
 
     @Property("Content Source")
     @InitValue("RESOURCE")
     @DefaultValue("RESOURCE")
+    @Description("Determines the source of the attachment. " +
+            "If 'RESOURCE', the attachment content is read from a file from the project's resources folder, " +
+            "if 'FILE', the content is read from a file on the filesystem, " +
+            "if 'EXPRESSION', the result of the evaluated script expression is used as attachment content.")
     private AttachmentContentType attachmentContentType;
 
     @Property("Resource file")
@@ -62,6 +72,14 @@ public class AttachmentDefinition implements Implementor {
         this.name = name;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
     public String getContentTransferEncoding() {
         return contentTransferEncoding;
     }
@@ -70,12 +88,12 @@ public class AttachmentDefinition implements Implementor {
         this.contentTransferEncoding = contentTransferEncoding;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getCharset() {
+        return charset;
     }
 
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
     public AttachmentContentType getAttachmentContentType() {

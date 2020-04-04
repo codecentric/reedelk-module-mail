@@ -34,19 +34,22 @@ public class MailSend implements ProcessorSync {
     private SMTPConfiguration connectionConfiguration;
 
     @Property("From address")
-    @Hint("from@domain.com")
     @Group("General")
-    @Description("The From address to be used in the email")
+    @Hint("from@domain.com")
+    @Description("The From address to be used in the email.")
     private DynamicString from;
 
     @Property("To addresses")
-    @Hint("dest1@domain.com,dest2@domain.com,dest3@domain.com")
     @Group("General")
+    @Hint("toAddress1@domain.com,toAddress2@domain.com,toAddress3@domain.com")
+    @Description("Sets the destination addresses of the email. " +
+            "It can contain a comma separated list of recipients.")
     private DynamicString to;
 
     @Property("Subject")
-    @Hint("My email subject")
     @Group("General")
+    @Hint("My email subject")
+    @Description("Sets the subject to be used in the email.")
     private DynamicString subject;
 
     @Property("Content")
@@ -54,22 +57,29 @@ public class MailSend implements ProcessorSync {
     private BodyConfiguration body;
 
     @Property("Cc addresses")
-    @Hint("cc1@my-domain.com,cc2@my-domain.com")
     @Group("Recipients")
+    @Hint("cc1@my-domain.com,cc2@my-domain.com,cc3@my-domain.com")
+    @Description("The 'CC' addresses to be used in the email. " +
+            "It can contain a comma separated list of addresses.")
     private DynamicString cc;
 
     @Property("Bcc addresses")
-    @Hint("bcc1@my-domain.com,bcc2@my-domain.com")
     @Group("Recipients")
+    @Hint("bcc1@my-domain.com,bcc2@my-domain.com,bcc3@my-domain.com")
+    @Description("The 'BCC' addresses to be used in the email. " +
+            "It can contain a comma separated list of addresses.")
     private DynamicString bcc;
 
-    @Property("Reply to addresses")
-    @Hint("replyTo1@my-domain.com,replyTo2@my-domain.com")
+    @Property("Reply To addresses")
     @Group("Recipients")
+    @Hint("replyTo1@my-domain.com,replyTo2@my-domain.com,replyTo3@my-domain.com")
+    @Description("The 'Reply To' addresses to be used in the email. " +
+            "It can contain a comma separated list of reply to addresses.")
     private DynamicString replyTo;
 
     @Property("Attachments Object")
     @Group("Attachments")
+    @Description("The Attachments object")
     private DynamicObject attachmentsObject;
 
     @Property("Attachments")
