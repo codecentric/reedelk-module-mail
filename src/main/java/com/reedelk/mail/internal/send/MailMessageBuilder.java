@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.send;
 
-import com.reedelk.mail.component.BodyConfiguration;
+import com.reedelk.mail.component.BodyDefinition;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.content.MimeType;
@@ -37,7 +37,7 @@ public class MailMessageBuilder {
     private DynamicString replyTo;
     private DynamicString subject;
 
-    private BodyConfiguration body;
+    private BodyDefinition body;
 
     private FlowContext context;
     private com.reedelk.runtime.api.message.Message message;
@@ -74,7 +74,7 @@ public class MailMessageBuilder {
         return this;
     }
 
-    public MailMessageBuilder body(BodyConfiguration body) {
+    public MailMessageBuilder body(BodyDefinition body) {
         this.body = body;
         return this;
     }

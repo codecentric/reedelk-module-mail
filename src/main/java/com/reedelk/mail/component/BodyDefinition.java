@@ -7,8 +7,8 @@ import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
-@Component(service = BodyConfiguration.class, scope = ServiceScope.PROTOTYPE)
-public class BodyConfiguration implements Implementor {
+@Component(service = BodyDefinition.class, scope = ServiceScope.PROTOTYPE)
+public class BodyDefinition implements Implementor {
 
     @Property("Content Expression")
     private DynamicString content;

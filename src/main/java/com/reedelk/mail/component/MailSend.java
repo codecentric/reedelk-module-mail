@@ -54,7 +54,7 @@ public class MailSend implements ProcessorSync {
 
     @Property("Content")
     @Group("Body")
-    private BodyConfiguration body;
+    private BodyDefinition body;
 
     @Property("Cc addresses")
     @Group("Recipients")
@@ -186,11 +186,11 @@ public class MailSend implements ProcessorSync {
         this.replyTo = replyTo;
     }
 
-    public BodyConfiguration getBody() {
+    public BodyDefinition getBody() {
         return body;
     }
 
-    public void setBody(BodyConfiguration body) {
+    public void setBody(BodyDefinition body) {
         this.body = body;
     }
 
