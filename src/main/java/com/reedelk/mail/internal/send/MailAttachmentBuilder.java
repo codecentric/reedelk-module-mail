@@ -2,15 +2,20 @@ package com.reedelk.mail.internal.send;
 
 import com.reedelk.mail.component.AttachmentDefinition;
 import com.reedelk.mail.internal.send.attachment.AttachmentStrategy;
+import com.reedelk.runtime.api.commons.DynamicValueUtils;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
+import com.reedelk.runtime.api.message.content.Attachment;
+import com.reedelk.runtime.api.message.content.Attachments;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MailAttachmentBuilder {
 
@@ -53,9 +58,29 @@ public class MailAttachmentBuilder {
     }
 
     public void build(Multipart multipart) {
+        if (DynamicValueUtils.isNotNullOrBlank(attachmentsObject)) {
+            scriptEngine.evaluate(attachmentsObject, context, message).ifPresent(new Consumer<Object>() {
+                @Override
+                public void accept(Object evaluationResult) {
+                    // The evaluated result must be an instance of attachments.
+                    if (!(evaluationResult instanceof Attachments)) {
+                        throw new ESBException("Expected mail attachments object");
+                    }
+                    Attachments attachments = (Attachments) evaluationResult;
+                    attachments.forEach(new BiConsumer<String, Attachment>() {
+                        @Override
+                        public void accept(String attachmentName, Attachment attachment) {
+                            // Convert data to bytes?
+                            Object data = attachment.content().data();
+                            // TODO: Finish this and create a Mail Multipart Builder.
+                        }
+                    });
+                }
+            });
+        }
+
         attachments.forEach(attachmentDefinition -> {
             try {
-
                 AttachmentStrategy.from(attachmentDefinition)
                         .attach(scriptEngine, attachmentDefinition, context, message)
                         .ifPresent(mimeBodyPart -> {

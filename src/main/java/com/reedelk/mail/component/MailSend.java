@@ -94,7 +94,7 @@ public class MailSend implements ProcessorSync {
     private List<AttachmentDefinition> attachments = new ArrayList<>();
 
     @Reference
-    private ScriptEngineService scriptService;
+    ScriptEngineService scriptService;
 
     private Session session;
 
