@@ -14,8 +14,8 @@ public class AttachmentStrategy {
             AttachmentSourceType.RESOURCE, new ResourceType());
 
     public static Strategy from(AttachmentDefinition definition) {
-        if (STRATEGY_MAP.containsKey(definition.getAttachmentSourceType())) {
-            return STRATEGY_MAP.get(definition.getAttachmentSourceType());
+        if (STRATEGY_MAP.containsKey(definition.getSourceType())) {
+            return STRATEGY_MAP.get(definition.getSourceType());
         }
         return STRATEGY_MAP.get(AttachmentSourceType.RESOURCE); // Default strategy.
     }

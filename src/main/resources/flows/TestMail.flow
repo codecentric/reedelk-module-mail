@@ -34,11 +34,19 @@
       "cc": "",
       "bcc": "",
       "attachmentsObject": "#[message.payload()]",
-      "attachments": [{
-        "name": "my-super-attachment",
-        "attachmentContentType": "RESOURCE",
-        "resourceFile": "assets/my-text-file.txt"
-      }]
+      "attachments": [
+        {
+          "name": "my-super-attachment",
+          "attachmentContentType": "RESOURCE",
+          "resourceFile": "assets/my-text-file.txt"
+        },
+        {
+          "name": "myFileAttachment",
+          "contentType": "image/png",
+          "attachmentContentType": "FILE",
+          "file": "/Users/lorenzo/Desktop/jjiopss.jpg"
+        }
+      ]
     }
   ]
 }
