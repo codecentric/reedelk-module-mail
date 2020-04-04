@@ -43,5 +43,13 @@
             <artifactId>javax.mail</artifactId>
             <version>1.6.2</version>
         </dependency>
+
+        <!-- JUnit -->
+        <dependency>
+            <groupId>com.github.sleroy</groupId>
+            <artifactId>fakesmtp-junit-runner</artifactId>
+            <version>0.1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

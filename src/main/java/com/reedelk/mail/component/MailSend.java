@@ -88,7 +88,7 @@ public class MailSend implements ProcessorSync {
 
     @Property("Attachments")
     @Group("Attachments")
-    @TabGroup("Attachments")
+    @TabGroup("Attachments List")
     @ListDisplayProperty("name")
     @DialogTitle("Attachment Configuration")
     private List<AttachmentDefinition> attachments = new ArrayList<>();
