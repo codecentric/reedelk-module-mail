@@ -2,10 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.send.MailMessageBuilder;
 import com.reedelk.mail.internal.send.SMTPSessionBuilder;
-import com.reedelk.runtime.api.annotation.Description;
-import com.reedelk.runtime.api.annotation.Group;
-import com.reedelk.runtime.api.annotation.ModuleComponent;
-import com.reedelk.runtime.api.annotation.Property;
+import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
@@ -21,6 +18,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
+import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
 
 
 @ModuleComponent("Mail Send")
@@ -33,18 +31,23 @@ public class MailSend implements ProcessorSync {
     private SMTPConfiguration connectionConfiguration;
 
     @Property("From address")
+    @Hint("from@domain.com")
     @Group("General")
+    @Description("The From address to be used in the email")
     private DynamicString from;
 
     @Property("To addresses")
+    @Hint("dest1@domain.com,dest2@domain.com,dest3@domain.com")
     @Group("General")
     private DynamicString to;
 
     @Property("Subject")
+    @Hint("My email subject")
     @Group("General")
     private DynamicString subject;
 
     @Property("Cc addresses")
+    @Hint("")
     @Group("Advanced")
     private DynamicString cc;
 
@@ -71,6 +74,8 @@ public class MailSend implements ProcessorSync {
 
     @Override
     public void initialize() {
+        requireNotNullOrBlank(MailSend.class, to, "To must not be blank");
+        requireNotNullOrBlank(MailSend.class, from, "From must not be blank");
         requireNotNull(MailSend.class, connectionConfiguration, "Connection configuration is mandatory");
         this.session = SMTPSessionBuilder.builder()
                 .configuration(connectionConfiguration)

@@ -10,8 +10,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class SMTPConfiguration implements Implementor {
 
     @Property("Host")
-    @Hint("smtp.gmail.com")
-    @Example("smtp.gmail.com")
+    @Hint("smtp.my-domain.com")
+    @Example("smtp.my-domain.com")
     @Description("Sets the SMTP server to be used for sending emails.")
     private String host;
 
@@ -22,10 +22,13 @@ public class SMTPConfiguration implements Implementor {
     private Integer port;
 
     @Property("Username")
+    @Hint("myUsername")
+    @Example("username@my-domain.com")
     private String username;
 
     @Property("Password")
     @Password
+    @Example("myPassword")
     private String password;
 
     public String getHost() {

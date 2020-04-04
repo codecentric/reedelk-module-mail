@@ -21,7 +21,17 @@
     },
     {
       "implementor": "com.reedelk.mail.component.MailSend",
-      "description": "Send Email"
+      "description": "Send Email",
+      "connectionConfiguration": {"ref": "1caf7199-fd33-4412-b159-daed994da418"},
+      "from": "info@reedelk.com",
+      "to": "gironi.lorenzo@gmail.com",
+      "subject": "This is a test",
+      "cc": "",
+      "bcc": "",
+      "body": {
+        "content": "my body content",
+        "contentType": "text/plain"
+      }
     }
   ]
 }

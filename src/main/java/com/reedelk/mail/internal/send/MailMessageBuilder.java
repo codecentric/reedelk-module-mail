@@ -15,6 +15,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.function.Consumer;
 
 import static java.util.Optional.*;
 import static javax.mail.Message.RecipientType.*;
@@ -114,14 +115,23 @@ public class MailMessageBuilder {
         mailMessage.setRecipients(TO, InternetAddress.parse(to, false));
 
         // Optional
-        String cc = scriptService.evaluate(this.cc, context, message)
-                .orElseThrow(() -> new ESBException("CC could not be evaluated."));
-        mailMessage.setRecipients(CC, InternetAddress.parse(cc, false));
+        scriptService.evaluate(this.cc, context, message).ifPresent(cc -> {
+            try {
+                mailMessage.setRecipients(CC, InternetAddress.parse(cc, false));
+            } catch (MessagingException exception) {
+                throw new ESBException("CC could not be evaluated");
+            }
+        });
 
         // Optional
-        String bcc = scriptService.evaluate(this.bcc, context, message)
-                .orElseThrow(() -> new ESBException("BCC could not be evaluated."));
-        mailMessage.setRecipients(BCC, InternetAddress.parse(bcc, false));
+        scriptService.evaluate(this.bcc, context, message).ifPresent(bcc -> {
+                    try {
+                        mailMessage.setRecipients(BCC, InternetAddress.parse(bcc, false));
+                    } catch (MessagingException exception) {
+                        throw new ESBException("BCC could not be evaluated");
+                    }
+                });
+
 
         // Optional
         scriptService.evaluate(this.replyTo, context, message).ifPresent(replyTo -> {
@@ -133,6 +143,7 @@ public class MailMessageBuilder {
         });
 
         // Optional
+        String charset = ofNullable(body.getCharset()).orElse(StandardCharsets.UTF_8.toString());
         scriptService.evaluate(this.subject, context, message).ifPresent(subject -> {
             try {
                 mailMessage.setSubject(subject, "UTF-8");
