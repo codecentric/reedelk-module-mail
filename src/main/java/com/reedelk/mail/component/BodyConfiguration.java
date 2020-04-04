@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 @Component(service = BodyConfiguration.class, scope = ServiceScope.PROTOTYPE)
 public class BodyConfiguration implements Implementor {
 
-    @Property("Body")
+    @Property("Content Expression")
     private DynamicString content;
 
     @Property("Content Type")
@@ -19,17 +19,17 @@ public class BodyConfiguration implements Implementor {
     @DefaultValue(MimeType.AsString.TEXT_PLAIN)
     private String contentType;
 
-    @Property("Charset")
-    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
-    @DefaultValue("UTF-8")
-    @Example("ISO-8859-1")
-    private String charset;
-
     @Property("Transfer Encoding")
     @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
     @DefaultValue("7bit")
     @Example("Base64")
     private String contentTransferEncoding;
+
+    @Property("Charset")
+    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
+    @DefaultValue("UTF-8")
+    @Example("ISO-8859-1")
+    private String charset;
 
     public DynamicString getContent() {
         return content;

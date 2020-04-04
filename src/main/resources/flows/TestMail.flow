@@ -26,13 +26,13 @@
       "from": "info@reedelk.com",
       "to": "gironi.lorenzo@gmail.com",
       "subject": "This is a test",
-      "cc": "",
-      "bcc": "",
       "body": {
         "content": "<h1>Hello<\/h1><p>Super duper<\/p>",
         "contentType": "text/html"
       },
-      "attachmentsObject": "#[]"
+      "cc": "",
+      "bcc": "",
+      "attachmentsObject": "#[message.payload()]"
     }
   ]
 }

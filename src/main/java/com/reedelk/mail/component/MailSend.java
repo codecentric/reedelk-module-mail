@@ -49,6 +49,10 @@ public class MailSend implements ProcessorSync {
     @Group("General")
     private DynamicString subject;
 
+    @Property("Content")
+    @Group("Body")
+    private BodyConfiguration body;
+
     @Property("Cc addresses")
     @Hint("cc1@my-domain.com,cc2@my-domain.com")
     @Group("Recipients")
@@ -63,10 +67,6 @@ public class MailSend implements ProcessorSync {
     @Hint("replyTo1@my-domain.com,replyTo2@my-domain.com")
     @Group("Recipients")
     private DynamicString replyTo;
-
-    @Property("Content")
-    @Group("Body")
-    private BodyConfiguration body;
 
     @Property("Attachments Object")
     @Group("Attachments")
