@@ -45,6 +45,7 @@ public class AttachmentDefinition implements Implementor {
     private AttachmentContentType attachmentContentType;
 
     @Property("Resource file")
+    @WidthAuto
     @Example("assets/my-document.pdf")
     @HintBrowseFile("Select Attachment File ...")
     @When(propertyName = "attachmentContentType", propertyValue = "RESOURCE")

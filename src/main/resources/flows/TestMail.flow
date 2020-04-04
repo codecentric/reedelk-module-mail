@@ -28,7 +28,8 @@
       "subject": "This is a test",
       "body": {
         "content": "<h1>Hello<\/h1><p>Super duper<\/p>",
-        "contentType": "text/html"
+        "contentType": "text/html",
+        "contentTransferEncoding": "7bit"
       },
       "cc": "",
       "bcc": "",
@@ -43,6 +44,11 @@
           "attachmentContentType": "RESOURCE"
         }
       ]
+    },
+    {
+      "implementor": "com.reedelk.core.component.ResourceReadText",
+      "description": "Resource Read Text",
+      "autoMimeType": true
     }
   ]
 }
