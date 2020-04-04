@@ -42,7 +42,7 @@ public class AttachmentDefinition implements Implementor {
             "If 'RESOURCE', the attachment content is read from a file from the project's resources folder, " +
             "if 'FILE', the content is read from a file on the filesystem, " +
             "if 'EXPRESSION', the result of the evaluated script expression is used as attachment content.")
-    private AttachmentContentType attachmentContentType;
+    private AttachmentSourceType attachmentSourceType;
 
     @Property("Resource file")
     @WidthAuto
@@ -97,12 +97,12 @@ public class AttachmentDefinition implements Implementor {
         this.charset = charset;
     }
 
-    public AttachmentContentType getAttachmentContentType() {
-        return attachmentContentType;
+    public AttachmentSourceType getAttachmentSourceType() {
+        return attachmentSourceType;
     }
 
-    public void setAttachmentContentType(AttachmentContentType attachmentContentType) {
-        this.attachmentContentType = attachmentContentType;
+    public void setAttachmentSourceType(AttachmentSourceType attachmentSourceType) {
+        this.attachmentSourceType = attachmentSourceType;
     }
 
     public ResourceBinary getResourceFile() {

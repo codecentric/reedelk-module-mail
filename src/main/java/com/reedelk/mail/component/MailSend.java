@@ -1,5 +1,7 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.send.MailAttachmentBuilder;
+import com.reedelk.mail.internal.send.MailBodyBuilder;
 import com.reedelk.mail.internal.send.MailMessageBuilder;
 import com.reedelk.mail.internal.send.SMTPSessionBuilder;
 import com.reedelk.runtime.api.annotation.*;
@@ -15,9 +17,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
-
+import javax.mail.internet.MimeMultipart;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
@@ -87,7 +91,7 @@ public class MailSend implements ProcessorSync {
     @TabGroup("Attachments")
     @ListDisplayProperty("name")
     @DialogTitle("Attachment Configuration")
-    private List<AttachmentDefinition> attachments;
+    private List<AttachmentDefinition> attachments = new ArrayList<>();
 
     @Reference
     private ScriptEngineService scriptService;
@@ -99,6 +103,7 @@ public class MailSend implements ProcessorSync {
         requireNotNullOrBlank(MailSend.class, to, "To must not be blank");
         requireNotNullOrBlank(MailSend.class, from, "From must not be blank");
         requireNotNull(MailSend.class, connectionConfiguration, "Connection configuration is mandatory");
+
         this.session = SMTPSessionBuilder.builder()
                 .configuration(connectionConfiguration)
                 .build();
@@ -108,26 +113,41 @@ public class MailSend implements ProcessorSync {
     public Message apply(FlowContext flowContext, Message message) {
         try {
 
-            javax.mail.Message mailMessage = MailMessageBuilder.builder()
+            javax.mail.Message mailMessage = MailMessageBuilder.get(session)
                     .cc(cc)
                     .to(to)
                     .bcc(bcc)
-                    .body(body)
                     .from(from)
-                    .session(session)
+                    .message(message)
                     .replyTo(replyTo)
                     .subject(subject)
-                    .message(message)
                     .context(flowContext)
                     .scriptService(scriptService)
                     .build();
 
+            Multipart multipart = new MimeMultipart();
+
+            MailBodyBuilder.get(body)
+                    .withMessage(message)
+                    .withFlowContext(flowContext)
+                    .withScriptEngine(scriptService)
+                    .build(multipart);
+
+            MailAttachmentBuilder.get()
+                    .withMessage(message)
+                    .withFlowContext(flowContext)
+                    .withAttachments(attachments)
+                    .withScriptEngine(scriptService)
+                    .withAttachmentsObject(attachmentsObject)
+                    .build(multipart);
+
+            mailMessage.setContent(multipart);
             Transport.send(mailMessage);
 
             return MessageBuilder.get().empty().build();
 
-        } catch (Exception e) {
-            throw new ESBException(e);
+        } catch (Exception exception) {
+            throw new ESBException(exception);
         }
     }
 

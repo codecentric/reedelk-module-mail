@@ -34,16 +34,10 @@
       "cc": "",
       "bcc": "",
       "attachmentsObject": "#[message.payload()]",
-      "attachments": [
-        {
-          "name": "superDUper",
-          "attachmentContentType": "RESOURCE"
-        },
-        {
-          "name": "BohNonSo",
-          "attachmentContentType": "RESOURCE"
-        }
-      ]
+      "attachments": [{
+        "name": "Test",
+        "attachmentContentType": "RESOURCE"
+      }]
     },
     {
       "implementor": "com.reedelk.core.component.ResourceReadText",

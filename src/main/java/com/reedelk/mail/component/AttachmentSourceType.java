@@ -2,7 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.runtime.api.annotation.DisplayName;
 
-public enum AttachmentContentType {
+public enum AttachmentSourceType {
 
     @DisplayName("File")
     FILE,
