@@ -7,6 +7,7 @@ import com.reedelk.runtime.api.message.content.MimeType;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 
+import javax.activation.DataHandler;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -15,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -154,28 +156,46 @@ public class MailMessageBuilder {
             }
         });
 
-        buildBody(mailMessage);
+        Multipart multipart = new MimeMultipart();
 
+        buildBody(multipart);
+
+        mailMessage.setContent(multipart);
         mailMessage.setSentDate(new Date());
         return mailMessage;
     }
 
-    private void buildBody(MimeMessage mailMessage) throws MessagingException {
-        Multipart multipart = new MimeMultipart();
-
+    private void buildBody(Multipart multipart) throws MessagingException {
         DynamicString content = body.getContent();
         scriptService.evaluate(content, context, message).ifPresent(evaluatedBody -> {
             try {
                 String contentTypeWithCharset = contentTypeWithCharset();
                 MimeBodyPart mimeBodyPart = new MimeBodyPart();
                 mimeBodyPart.setContent(evaluatedBody, contentTypeWithCharset);
+                /**
+                 * Content-Transfer-Encoding := "BASE64" / "QUOTED-PRINTABLE" /
+                 *                              "8BIT"   / "7BIT" /
+                 *                              "BINARY" / x-token
+                 */
+                mimeBodyPart.addHeader("Content-Transfer-Encoding", "asdf");
                 multipart.addBodyPart(mimeBodyPart);
             } catch (MessagingException e) {
                 throw new ESBException(e);
             }
         });
+    }
 
-        mailMessage.setContent(multipart);
+    private void attachAttachments(MimeMessage mailMessage) {
+        byte[] data = new byte[0];
+        MimeBodyPart att = new MimeBodyPart();
+        ByteArrayDataSource bds = new ByteArrayDataSource(data, "text/plain");
+        bds.setName("attachmentName");
+        try {
+            att.setDataHandler(new DataHandler(bds));
+            att.setFileName(bds.getName());
+        } catch (MessagingException e) {
+            throw new ESBException(e);
+        }
     }
 
     private String contentTypeWithCharset() {

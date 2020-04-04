@@ -26,6 +26,9 @@ public class BodyConfiguration implements Implementor {
     private String charset;
 
     @Property("Transfer Encoding")
+    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
+    @DefaultValue("7bit")
+    @Example("Base64")
     private String contentTransferEncoding;
 
     public DynamicString getContent() {

@@ -9,6 +9,7 @@ import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.script.ScriptEngineService;
+import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,6 +17,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import javax.mail.Session;
 import javax.mail.Transport;
+
+import java.util.List;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
@@ -47,25 +50,33 @@ public class MailSend implements ProcessorSync {
     private DynamicString subject;
 
     @Property("Cc addresses")
-    @Hint("")
-    @Group("Advanced")
+    @Hint("cc1@my-domain.com,cc2@my-domain.com")
+    @Group("Recipients")
     private DynamicString cc;
 
     @Property("Bcc addresses")
-    @Group("Advanced")
+    @Hint("bcc1@my-domain.com,bcc2@my-domain.com")
+    @Group("Recipients")
     private DynamicString bcc;
 
     @Property("Reply to addresses")
-    @Group("Advanced")
+    @Hint("replyTo1@my-domain.com,replyTo2@my-domain.com")
+    @Group("Recipients")
     private DynamicString replyTo;
 
     @Property("Content")
     @Group("Body")
     private BodyConfiguration body;
 
+    @Property("Attachments Object")
+    @Group("Attachments")
+    private DynamicObject attachmentsObject;
+
     @Property("Attachments")
     @Group("Attachments")
-    private AttachmentsConfiguration attachments;
+    @TabGroup("Attachments")
+    @ListDisplayProperty("name")
+    private List<AttachmentDefinition> attachments;
 
     @Reference
     private ScriptEngineService scriptService;
@@ -133,6 +144,14 @@ public class MailSend implements ProcessorSync {
         this.to = to;
     }
 
+    public DynamicString getSubject() {
+        return subject;
+    }
+
+    public void setSubject(DynamicString subject) {
+        this.subject = subject;
+    }
+
     public DynamicString getCc() {
         return cc;
     }
@@ -157,14 +176,6 @@ public class MailSend implements ProcessorSync {
         this.replyTo = replyTo;
     }
 
-    public DynamicString getSubject() {
-        return subject;
-    }
-
-    public void setSubject(DynamicString subject) {
-        this.subject = subject;
-    }
-
     public BodyConfiguration getBody() {
         return body;
     }
@@ -173,20 +184,19 @@ public class MailSend implements ProcessorSync {
         this.body = body;
     }
 
-    public AttachmentsConfiguration getAttachments() {
+    public DynamicObject getAttachmentsObject() {
+        return attachmentsObject;
+    }
+
+    public void setAttachmentsObject(DynamicObject attachmentsObject) {
+        this.attachmentsObject = attachmentsObject;
+    }
+
+    public List<AttachmentDefinition> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(AttachmentsConfiguration attachments) {
+    public void setAttachments(List<AttachmentDefinition> attachments) {
         this.attachments = attachments;
     }
-
-    public ScriptEngineService getScriptService() {
-        return scriptService;
-    }
-
-    public void setScriptService(ScriptEngineService scriptService) {
-        this.scriptService = scriptService;
-    }
-
 }
