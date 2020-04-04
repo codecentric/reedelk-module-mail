@@ -35,8 +35,9 @@
       "bcc": "",
       "attachmentsObject": "#[message.payload()]",
       "attachments": [{
-        "name": "Test",
-        "attachmentContentType": "RESOURCE"
+        "name": "my-super-attachment",
+        "attachmentContentType": "RESOURCE",
+        "resourceFile": "assets/my-text-file.txt"
       }]
     }
   ]
