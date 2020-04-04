@@ -9,8 +9,8 @@ import static java.util.Optional.ofNullable;
 public class ContentType {
 
     public static String from(String contentType, String charset) {
-        String theCharset = ofNullable(contentType).orElse(StandardCharsets.UTF_8.toString());
-        String theContentType = ofNullable(charset).orElse(MimeType.TEXT_PLAIN.toString());
+        String theContentType = ofNullable(contentType).orElse(MimeType.TEXT_PLAIN.toString());
+        String theCharset = ofNullable(charset).orElse(StandardCharsets.UTF_8.toString());
         return theContentType + "; charset=" + theCharset;
     }
 }

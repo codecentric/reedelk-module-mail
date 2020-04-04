@@ -52,7 +52,7 @@ public class MailBodyBuilder {
                 final String charset = definition.getCharset();
                 final String contentType = definition.getContentType();
                 final String contentTransferEncoding = definition.getContentTransferEncoding();
-                final String contentTypeWithCharset = ContentType.from(charset, contentType);
+                final String contentTypeWithCharset = ContentType.from(contentType, charset);
 
                 MimeBodyPart mimeBodyPart = new MimeBodyPart();
                 mimeBodyPart.setContent(evaluatedBody, contentTypeWithCharset);

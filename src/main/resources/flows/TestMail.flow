@@ -37,13 +37,13 @@
       "attachments": [
         {
           "name": "my-super-attachment",
-          "attachmentContentType": "RESOURCE",
+          "sourceType": "RESOURCE",
           "resourceFile": "assets/my-text-file.txt"
         },
         {
           "name": "myFileAttachment",
           "contentType": "image/png",
-          "attachmentContentType": "FILE",
+          "sourceType": "FILE",
           "file": "/Users/lorenzo/Desktop/jjiopss.jpg"
         }
       ]
