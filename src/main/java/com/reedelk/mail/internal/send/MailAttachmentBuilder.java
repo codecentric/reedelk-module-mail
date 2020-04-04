@@ -55,6 +55,7 @@ public class MailAttachmentBuilder {
     public void build(Multipart multipart) {
         attachments.forEach(attachmentDefinition -> {
             try {
+
                 AttachmentStrategy.from(attachmentDefinition)
                         .attach(scriptEngine, attachmentDefinition, context, message)
                         .ifPresent(mimeBodyPart -> {
