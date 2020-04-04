@@ -48,22 +48,28 @@ public class AttachmentDefinition implements Implementor {
     @WidthAuto
     @Example("assets/my-document.pdf")
     @HintBrowseFile("Select Attachment File ...")
-    @When(propertyName = "attachmentContentType", propertyValue = "RESOURCE")
-    @When(propertyName = "attachmentContentType", propertyValue = When.NULL)
+    @When(propertyName = "sourceType", propertyValue = "RESOURCE")
+    @When(propertyName = "sourceType", propertyValue = When.NULL)
     @Description("The path and name of the attachment file to be read from the project's resources folder.")
     private ResourceBinary resourceFile;
 
     @Property("File")
     @Hint("/var/documents/my-document.pdf")
     @Example("/var/documents/my-document.pdf")
-    @When(propertyName = "attachmentContentType", propertyValue = "FILE")
+    @When(propertyName = "sourceType", propertyValue = "FILE")
     private DynamicString file;
 
     @Property("Expression")
     @Example("<code>message.payload()</code>")
-    @When(propertyName = "attachmentContentType", propertyValue = "EXPRESSION")
+    @When(propertyName = "sourceType", propertyValue = "EXPRESSION")
     @Description("The expression to be evaluated as attachment content.")
     private DynamicByteArray expression;
+
+    @Property("File Name")
+    @Example("<code>'my-file-name.txt'</code>")
+    @When(propertyName = "sourceType", propertyValue = "EXPRESSION")
+    @Description("The file name to be used when expression is used.")
+    private DynamicString fileName;
 
     public String getName() {
         return name;
@@ -127,5 +133,13 @@ public class AttachmentDefinition implements Implementor {
 
     public void setExpression(DynamicByteArray expression) {
         this.expression = expression;
+    }
+
+    public DynamicString getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(DynamicString fileName) {
+        this.fileName = fileName;
     }
 }

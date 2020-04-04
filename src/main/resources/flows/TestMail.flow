@@ -42,9 +42,15 @@
         },
         {
           "name": "myFileAttachment",
-          "contentType": "image/png",
+          "contentType": "image/jpeg",
           "sourceType": "FILE",
           "file": "/Users/lorenzo/Desktop/jjiopss.jpg"
+        },
+        {
+          "name": "myPayload",
+          "sourceType": "EXPRESSION",
+          "expression": "#['this is my file content']",
+          "fileName": "my-file-name-payload.txt"
         }
       ]
     }
