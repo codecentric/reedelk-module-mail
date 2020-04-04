@@ -29,8 +29,8 @@
       "cc": "",
       "bcc": "",
       "body": {
-        "content": "my body content",
-        "contentType": "text/plain"
+        "content": "<h1>Hello<\/h1><p>Super duper<\/p>",
+        "contentType": "text/html"
       }
     }
   ]

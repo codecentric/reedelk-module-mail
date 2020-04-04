@@ -9,15 +9,17 @@ import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.function.Consumer;
 
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 import static javax.mail.Message.RecipientType.*;
 
 public class MailMessageBuilder {
@@ -158,25 +160,27 @@ public class MailMessageBuilder {
         return mailMessage;
     }
 
-    private void buildBody(MimeMessage mailMessage) {
-        // TODO: whats the point?
-        String contentTransferEncoding = body.getContentTransferEncoding();
+    private void buildBody(MimeMessage mailMessage) throws MessagingException {
+        Multipart multipart = new MimeMultipart();
 
         DynamicString content = body.getContent();
-        String charset = ofNullable(body.getCharset()).orElse(StandardCharsets.UTF_8.toString());
         scriptService.evaluate(content, context, message).ifPresent(evaluatedBody -> {
             try {
-                mailMessage.setText(evaluatedBody, charset);
+                String contentTypeWithCharset = contentTypeWithCharset();
+                MimeBodyPart mimeBodyPart = new MimeBodyPart();
+                mimeBodyPart.setContent(evaluatedBody, contentTypeWithCharset);
+                multipart.addBodyPart(mimeBodyPart);
             } catch (MessagingException e) {
                 throw new ESBException(e);
             }
         });
 
+        mailMessage.setContent(multipart);
+    }
+
+    private String contentTypeWithCharset() {
+        String charset = ofNullable(body.getCharset()).orElse(StandardCharsets.UTF_8.toString());
         String contentType = ofNullable(body.getContentType()).orElse(MimeType.TEXT_PLAIN.toString());
-        try {
-            mailMessage.addHeader("Content-type", contentType);
-        } catch (MessagingException e) {
-            throw new ESBException(e);
-        }
+        return contentType + "; charset=" + charset;
     }
 }
