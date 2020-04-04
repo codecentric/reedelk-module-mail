@@ -7,11 +7,12 @@ import com.reedelk.runtime.api.script.ScriptEngineService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
+import java.util.Optional;
 
 public interface Strategy {
 
-    MimeBodyPart attach(ScriptEngineService scriptEngine,
-                        AttachmentDefinition definition,
-                        FlowContext context,
-                        Message message) throws MessagingException;
+    Optional<MimeBodyPart> attach(ScriptEngineService scriptEngine,
+                                  AttachmentDefinition definition,
+                                  FlowContext context,
+                                  Message message) throws MessagingException;
 }

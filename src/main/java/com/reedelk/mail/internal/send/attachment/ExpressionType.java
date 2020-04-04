@@ -11,14 +11,15 @@ import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
+import java.util.Optional;
 
 public class ExpressionType implements Strategy {
 
     @Override
-    public MimeBodyPart attach(ScriptEngineService scriptEngine,
-                               AttachmentDefinition definition,
-                               FlowContext context,
-                               Message message) throws MessagingException {
+    public Optional<MimeBodyPart> attach(ScriptEngineService scriptEngine,
+                                         AttachmentDefinition definition,
+                                         FlowContext context,
+                                         Message message) throws MessagingException {
 
         String charset = definition.getCharset();
         String attachmentName = definition.getName();
@@ -37,6 +38,6 @@ public class ExpressionType implements Strategy {
         MimeBodyPart part = new MimeBodyPart();
         part.setDataHandler(new DataHandler(dataSource));
         part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
-        return part;
+        return Optional.of(part);
     }
 }

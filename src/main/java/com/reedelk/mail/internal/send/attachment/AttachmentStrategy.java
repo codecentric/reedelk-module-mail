@@ -3,7 +3,6 @@ package com.reedelk.mail.internal.send.attachment;
 import com.reedelk.mail.component.AttachmentDefinition;
 import com.reedelk.mail.component.AttachmentSourceType;
 import com.reedelk.runtime.api.commons.ImmutableMap;
-import com.reedelk.runtime.api.exception.ESBException;
 
 import java.util.Map;
 
@@ -18,6 +17,6 @@ public class AttachmentStrategy {
         if (STRATEGY_MAP.containsKey(definition.getAttachmentSourceType())) {
             return STRATEGY_MAP.get(definition.getAttachmentSourceType());
         }
-        throw new ESBException("Strategy not found");
+        return STRATEGY_MAP.get(AttachmentSourceType.RESOURCE); // Default strategy.
     }
 }

@@ -16,14 +16,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class FileType implements Strategy {
 
     @Override
-    public MimeBodyPart attach(ScriptEngineService scriptEngine,
-                               AttachmentDefinition definition,
-                               FlowContext context,
-                               Message message) throws MessagingException {
+    public Optional<MimeBodyPart> attach(ScriptEngineService scriptEngine,
+                                         AttachmentDefinition definition,
+                                         FlowContext context,
+                                         Message message) throws MessagingException {
 
         String charset = definition.getCharset();
         String attachmentName = definition.getName();
@@ -48,6 +49,6 @@ public class FileType implements Strategy {
         });
 
         part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
-        return part;
+        return Optional.of(part);
     }
 }

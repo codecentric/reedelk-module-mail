@@ -8,8 +8,8 @@ import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
 import java.util.List;
 
 public class MailAttachmentBuilder {
@@ -55,11 +55,17 @@ public class MailAttachmentBuilder {
     public void build(Multipart multipart) {
         attachments.forEach(attachmentDefinition -> {
             try {
-                MimeBodyPart part = AttachmentStrategy.from(attachmentDefinition)
-                        .attach(scriptEngine, attachmentDefinition, context, message);
-                multipart.addBodyPart(part);
-            } catch (Exception exception) {
-                throw new ESBException(exception);
+                AttachmentStrategy.from(attachmentDefinition)
+                        .attach(scriptEngine, attachmentDefinition, context, message)
+                        .ifPresent(mimeBodyPart -> {
+                            try {
+                                multipart.addBodyPart(mimeBodyPart);
+                            } catch (MessagingException e) {
+                                throw new ESBException(e);
+                            }
+                        });
+            } catch (MessagingException e) {
+                throw new ESBException(e);
             }
         });
     }

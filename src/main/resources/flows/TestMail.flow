@@ -38,11 +38,6 @@
         "name": "Test",
         "attachmentContentType": "RESOURCE"
       }]
-    },
-    {
-      "implementor": "com.reedelk.core.component.ResourceReadText",
-      "description": "Resource Read Text",
-      "autoMimeType": true
     }
   ]
 }
