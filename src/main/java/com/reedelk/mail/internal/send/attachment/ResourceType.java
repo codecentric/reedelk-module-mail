@@ -15,16 +15,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 import java.nio.file.Paths;
-import java.util.Optional;
 
-public class ResourceType implements Strategy {
+public class ResourceType extends AbstractAttachmentSourceStrategy {
 
     @Override
-    public Optional<MimeBodyPart> attach(ScriptEngineService scriptEngine,
-                                         AttachmentDefinition definition,
-                                         FlowContext context,
-                                         Message message) throws MessagingException {
-
+    MimeBodyPart buildInternal(ScriptEngineService scriptEngine, AttachmentDefinition definition, FlowContext context, Message message) throws MessagingException {
         final String charset = definition.getCharset();
         final String attachmentName = definition.getName();
         final String contentType = definition.getContentType();
@@ -32,20 +27,21 @@ public class ResourceType implements Strategy {
         final String contentTransferEncoding = definition.getContentTransferEncoding();
 
         ResourceBinary resourceFile = definition.getResourceFile();
+        if (resourceFile == null) {
+            throw new ESBException("Resource file was null"); // TODO: Add a check on initialize!
+        }
 
-        return Optional.ofNullable(resourceFile).map(resourceBinary -> {
-            byte[] data = StreamUtils.FromByteArray.consume(resourceBinary.data());
-            ByteArrayDataSource dataSource = new ByteArrayDataSource(data, attachmentContentType);
-            dataSource.setName(attachmentName);
-            try {
-                MimeBodyPart part = new MimeBodyPart();
-                part.setDataHandler(new DataHandler(dataSource));
-                part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
-                part.setFileName(Paths.get(resourceFile.path()).getFileName().toString());
-                return part;
-            } catch (MessagingException e) {
-                throw new ESBException(e);
-            }
-        });
+        byte[] data = StreamUtils.FromByteArray.consume(resourceFile.data());
+        ByteArrayDataSource dataSource = new ByteArrayDataSource(data, attachmentContentType);
+        dataSource.setName(attachmentName);
+        try {
+            MimeBodyPart part = new MimeBodyPart();
+            part.setDataHandler(new DataHandler(dataSource));
+            part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
+            part.setFileName(Paths.get(resourceFile.path()).getFileName().toString());
+            return part;
+        } catch (MessagingException e) {
+            throw new ESBException(e);
+        }
     }
 }

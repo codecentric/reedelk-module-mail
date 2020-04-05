@@ -6,17 +6,23 @@ import com.reedelk.runtime.api.commons.ImmutableMap;
 
 import java.util.Map;
 
-public class AttachmentStrategy {
+public class AttachmentSourceStrategyFactory {
 
-    private static final Map<AttachmentSourceType, Strategy> STRATEGY_MAP = ImmutableMap.of(
+    private static final Map<AttachmentSourceType, AttachmentSourceStrategy> STRATEGY_MAP = ImmutableMap.of(
             AttachmentSourceType.FILE, new FileType(),
             AttachmentSourceType.EXPRESSION, new ExpressionType(),
             AttachmentSourceType.RESOURCE, new ResourceType());
 
-    public static Strategy from(AttachmentDefinition definition) {
+    private static final AttachmentSourceStrategy FROM_ATTACHMENT = new AttachmentType();
+
+    public static AttachmentSourceStrategy from(AttachmentDefinition definition) {
         if (STRATEGY_MAP.containsKey(definition.getSourceType())) {
             return STRATEGY_MAP.get(definition.getSourceType());
         }
         return STRATEGY_MAP.get(AttachmentSourceType.RESOURCE); // Default strategy.
+    }
+
+    public static AttachmentSourceStrategy fromAttachment() {
+        return FROM_ATTACHMENT;
     }
 }

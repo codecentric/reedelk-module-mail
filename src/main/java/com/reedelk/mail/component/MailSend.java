@@ -6,6 +6,7 @@ import com.reedelk.mail.internal.send.MailMessageBuilder;
 import com.reedelk.mail.internal.send.SMTPSessionBuilder;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
+import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
@@ -95,6 +96,8 @@ public class MailSend implements ProcessorSync {
 
     @Reference
     ScriptEngineService scriptService;
+    @Reference
+    ConverterService converterService;
 
     private Session session;
 
@@ -137,6 +140,7 @@ public class MailSend implements ProcessorSync {
                     .withMessage(message)
                     .withFlowContext(flowContext)
                     .withAttachments(attachments)
+                    .withConverter(converterService)
                     .withScriptEngine(scriptService)
                     .withAttachmentsObject(attachmentsObject)
                     .build(multipart);

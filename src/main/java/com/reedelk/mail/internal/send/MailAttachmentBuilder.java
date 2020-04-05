@@ -1,21 +1,24 @@
 package com.reedelk.mail.internal.send;
 
 import com.reedelk.mail.component.AttachmentDefinition;
-import com.reedelk.mail.internal.send.attachment.AttachmentStrategy;
-import com.reedelk.runtime.api.commons.DynamicValueUtils;
+import com.reedelk.mail.internal.send.attachment.AttachmentSourceStrategyFactory;
+import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.message.content.Attachments;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+
+import static com.reedelk.runtime.api.commons.DynamicValueUtils.isNotNullOrBlank;
+import static com.reedelk.runtime.api.commons.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 public class MailAttachmentBuilder {
 
@@ -23,6 +26,7 @@ public class MailAttachmentBuilder {
     private FlowContext context;
     private DynamicObject attachmentsObject;
     private ScriptEngineService scriptEngine;
+    private ConverterService converterService;
     private List<AttachmentDefinition> attachments;
 
     private MailAttachmentBuilder() {
@@ -42,13 +46,18 @@ public class MailAttachmentBuilder {
         return this;
     }
 
-    public MailAttachmentBuilder withAttachmentsObject(DynamicObject attachmentsObject) {
-        this.attachmentsObject = attachmentsObject;
+    public MailAttachmentBuilder withConverter(ConverterService converterService) {
+        this.converterService = converterService;
         return this;
     }
 
     public MailAttachmentBuilder withScriptEngine(ScriptEngineService scriptEngine) {
         this.scriptEngine = scriptEngine;
+        return this;
+    }
+
+    public MailAttachmentBuilder withAttachmentsObject(DynamicObject attachmentsObject) {
+        this.attachmentsObject = attachmentsObject;
         return this;
     }
 
@@ -58,41 +67,42 @@ public class MailAttachmentBuilder {
     }
 
     public void build(Multipart multipart) {
-        if (DynamicValueUtils.isNotNullOrBlank(attachmentsObject)) {
-            scriptEngine.evaluate(attachmentsObject, context, message).ifPresent(new Consumer<Object>() {
-                @Override
-                public void accept(Object evaluationResult) {
-                    // The evaluated result must be an instance of attachments.
-                    if (!(evaluationResult instanceof Attachments)) {
-                        throw new ESBException("Expected mail attachments object");
-                    }
-                    Attachments attachments = (Attachments) evaluationResult;
-                    attachments.forEach(new BiConsumer<String, Attachment>() {
-                        @Override
-                        public void accept(String attachmentName, Attachment attachment) {
-                            // Convert data to bytes?
-                            Object data = attachment.content().data();
-                            // TODO: Finish this and create a Mail Multipart Builder.
-                        }
-                    });
-                }
-            });
+        if (isNotNullOrBlank(attachmentsObject)) {
+            fromAttachmentObject().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
         }
+        fromAttachmentDefinitions(multipart).forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
+    }
 
-        attachments.forEach(attachmentDefinition -> {
-            try {
-                AttachmentStrategy.from(attachmentDefinition)
-                        .attach(scriptEngine, attachmentDefinition, context, message)
-                        .ifPresent(mimeBodyPart -> {
-                            try {
-                                multipart.addBodyPart(mimeBodyPart);
-                            } catch (MessagingException e) {
-                                throw new ESBException(e);
-                            }
-                        });
-            } catch (MessagingException e) {
-                throw new ESBException(e);
-            }
+    private List<MimeBodyPart> fromAttachmentObject() {
+        Object evaluationResult = scriptEngine.evaluate(attachmentsObject, context, message)
+                .orElseThrow(() -> { throw new ESBException("Error"); });
+
+        // The evaluated result must be an instance of attachments.
+        checkArgument(evaluationResult instanceof Attachments,"Expected Attachments Objects");
+
+        List<MimeBodyPart> parts = new ArrayList<>();
+        Attachments attachments = (Attachments) evaluationResult;
+        attachments.forEach((attachmentName, attachment) -> {
+            MimeBodyPart part = AttachmentSourceStrategyFactory.fromAttachment()
+                    .build(scriptEngine, converterService, attachmentName, attachment);
+            parts.add(part);
         });
+
+        return parts;
+    }
+
+    private List<MimeBodyPart> fromAttachmentDefinitions(Multipart multipart) {
+        return attachments.stream().map(attachmentDefinition ->
+                AttachmentSourceStrategyFactory.from(attachmentDefinition)
+                        .build(scriptEngine, attachmentDefinition, context, message))
+                .collect(toList());
+    }
+
+    private void addPart(Multipart multipart, MimeBodyPart mimeBodyPart) {
+        try {
+            multipart.addBodyPart(mimeBodyPart);
+        } catch (MessagingException e) {
+            throw new ESBException(e);
+        }
     }
 }

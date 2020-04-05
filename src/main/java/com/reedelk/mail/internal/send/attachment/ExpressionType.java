@@ -12,22 +12,17 @@ import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
-import java.util.Optional;
 
-public class ExpressionType implements Strategy {
+public class ExpressionType extends AbstractAttachmentSourceStrategy {
 
     @Override
-    public Optional<MimeBodyPart> attach(ScriptEngineService scriptEngine,
-                                         AttachmentDefinition definition,
-                                         FlowContext context,
-                                         Message message) throws MessagingException {
-
+    MimeBodyPart buildInternal(ScriptEngineService scriptEngine, AttachmentDefinition definition, FlowContext context, Message message) throws MessagingException {
         String charset = definition.getCharset();
         String attachmentName = definition.getName();
         String contentType = definition.getContentType();
 
-        final String attachmentContentType = ContentType.from(contentType, charset);
-        final String contentTransferEncoding = definition.getContentTransferEncoding();
+        String attachmentContentType = ContentType.from(contentType, charset);
+        String contentTransferEncoding = definition.getContentTransferEncoding();
 
         MimeBodyPart part = new MimeBodyPart();
 
@@ -39,16 +34,16 @@ public class ExpressionType implements Strategy {
                 }).orElse(new ByteArrayDataSource(new byte[0], attachmentContentType));
 
         scriptEngine.evaluate(definition.getFileName(), context, message)
-                .ifPresent(theFileName -> {
+                .ifPresent(theFileName -> {//TODO: Replace with unchecked.
                     try {
                         part.setFileName(theFileName);
-                    } catch (MessagingException e) {
-                        throw new ESBException(e);
+                    } catch (MessagingException exception) {
+                        throw new ESBException(exception);
                     }
                 });
 
         part.setDataHandler(new DataHandler(dataSource));
         part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
-        return Optional.of(part);
+        return part;
     }
 }
