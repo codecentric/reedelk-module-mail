@@ -17,10 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileType extends AbstractAttachmentSourceStrategy {
+public class FileType implements AttachmentSourceStrategy {
 
     @Override
-    MimeBodyPart buildInternal(ScriptEngineService scriptEngine, AttachmentDefinition definition, FlowContext context, Message message) throws MessagingException {
+    public MimeBodyPart build(ScriptEngineService scriptEngine,
+                              AttachmentDefinition definition,
+                              FlowContext context,
+                              Message message) throws MessagingException {
         String charset = definition.getCharset();
         String attachmentName = definition.getName();
         String contentType = definition.getContentType();

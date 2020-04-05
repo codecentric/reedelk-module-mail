@@ -13,10 +13,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 
-public class ExpressionType extends AbstractAttachmentSourceStrategy {
+public class ExpressionType implements AttachmentSourceStrategy {
 
     @Override
-    MimeBodyPart buildInternal(ScriptEngineService scriptEngine, AttachmentDefinition definition, FlowContext context, Message message) throws MessagingException {
+    public MimeBodyPart build(ScriptEngineService scriptEngine,
+                              AttachmentDefinition definition,
+                              FlowContext context,
+                              Message message) throws MessagingException {
         String charset = definition.getCharset();
         String attachmentName = definition.getName();
         String contentType = definition.getContentType();

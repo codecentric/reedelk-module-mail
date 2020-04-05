@@ -5,8 +5,6 @@ import com.reedelk.mail.internal.commons.ContentType;
 import com.reedelk.mail.internal.commons.Headers;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.exception.ESBException;
-import com.reedelk.runtime.api.flow.FlowContext;
-import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 

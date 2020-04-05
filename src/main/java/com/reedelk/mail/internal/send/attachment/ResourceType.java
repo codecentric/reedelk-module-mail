@@ -16,10 +16,13 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 import java.nio.file.Paths;
 
-public class ResourceType extends AbstractAttachmentSourceStrategy {
+public class ResourceType implements AttachmentSourceStrategy {
 
     @Override
-    MimeBodyPart buildInternal(ScriptEngineService scriptEngine, AttachmentDefinition definition, FlowContext context, Message message) throws MessagingException {
+    public MimeBodyPart build(ScriptEngineService scriptEngine,
+                              AttachmentDefinition definition,
+                              FlowContext context,
+                              Message message) throws MessagingException {
         final String charset = definition.getCharset();
         final String attachmentName = definition.getName();
         final String contentType = definition.getContentType();

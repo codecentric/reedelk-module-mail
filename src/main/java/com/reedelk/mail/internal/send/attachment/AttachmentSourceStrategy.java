@@ -7,6 +7,7 @@ import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 
 public interface AttachmentSourceStrategy {
@@ -14,7 +15,7 @@ public interface AttachmentSourceStrategy {
     default MimeBodyPart build(ScriptEngineService scriptEngine,
                                AttachmentDefinition definition,
                                FlowContext context,
-                               Message message) {
+                               Message message) throws MessagingException {
         throw new UnsupportedOperationException("Operation not supported for type");
     }
 
