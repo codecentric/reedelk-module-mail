@@ -73,6 +73,10 @@ public class MailSend implements ProcessorSync {
     @Hint("bcc1@my-domain.com,bcc2@my-domain.com,bcc3@my-domain.com")
     @Description("The 'BCC' addresses to be used in the email. " +
             "It can contain a comma separated list of addresses.")
+    @Example("<ul>" +
+            "<li>Bcc string: bcc1@my-domain.com,bcc2@my-domain.com</li>" +
+            "<li>Bcc joined from list: <code>['one','two','three'].join(',')</code></li>" +
+            "</ul>")
     private DynamicString bcc;
 
     @Property("Reply To addresses")

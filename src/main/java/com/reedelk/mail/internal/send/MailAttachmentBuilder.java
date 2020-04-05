@@ -70,15 +70,17 @@ public class MailAttachmentBuilder {
         if (isNotNullOrBlank(attachmentsObject)) {
             fromAttachmentObject().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
         }
-        fromAttachmentDefinitions(multipart).forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
+        fromAttachmentDefinitions().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
     }
 
     private List<MimeBodyPart> fromAttachmentObject() {
         Object evaluationResult = scriptEngine.evaluate(attachmentsObject, context, message)
-                .orElseThrow(() -> { throw new ESBException("Error"); });
+                .orElseThrow(() -> {
+                    throw new ESBException("Error");
+                });
 
         // The evaluated result must be an instance of attachments.
-        checkArgument(evaluationResult instanceof Attachments,"Expected Attachments Objects");
+        checkArgument(evaluationResult instanceof Attachments, "Expected Attachments Objects");
 
         List<MimeBodyPart> parts = new ArrayList<>();
         Attachments attachments = (Attachments) evaluationResult;
@@ -91,11 +93,16 @@ public class MailAttachmentBuilder {
         return parts;
     }
 
-    private List<MimeBodyPart> fromAttachmentDefinitions(Multipart multipart) {
+    private List<MimeBodyPart> fromAttachmentDefinitions() {
         return attachments.stream().map(attachmentDefinition ->
-                AttachmentSourceStrategyFactory.from(attachmentDefinition)
-                        .build(scriptEngine, attachmentDefinition, context, message))
-                .collect(toList());
+        {
+            try {
+                return AttachmentSourceStrategyFactory.from(attachmentDefinition)
+                        .build(scriptEngine, attachmentDefinition, context, message);
+            } catch (MessagingException e) {
+                throw new ESBException(e);
+            }
+        }).collect(toList());
     }
 
     private void addPart(Multipart multipart, MimeBodyPart mimeBodyPart) {
