@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.exception.MailMessageException;
 import com.reedelk.mail.internal.send.MailAttachmentBuilder;
 import com.reedelk.mail.internal.send.MailBodyBuilder;
 import com.reedelk.mail.internal.send.MailMessageBuilder;
@@ -18,6 +19,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -25,6 +27,7 @@ import javax.mail.internet.MimeMultipart;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_MESSAGE_ERROR;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
 
@@ -118,9 +121,52 @@ public class MailSend implements ProcessorSync {
 
     @Override
     public Message apply(FlowContext flowContext, Message message) {
-        try {
 
-            javax.mail.Message mailMessage = MailMessageBuilder.get(session)
+        javax.mail.Message mailMessage = buildBaseMessage(flowContext, message);
+
+        // Build Body and Attachments
+        Multipart multipart = new MimeMultipart();
+
+
+        buildMessageBody(flowContext, message, multipart);
+        buildAttachments(flowContext, message, multipart);
+
+
+        // Send the message
+        try {
+            mailMessage.setContent(multipart);
+            Transport.send(mailMessage);
+        } catch (MessagingException exception) {
+            throw new ESBException(exception);
+        }
+
+        // TODO: Out message attributes
+        return MessageBuilder.get().empty().build();
+    }
+
+    private void buildAttachments(FlowContext flowContext, Message message, Multipart multipart) {
+        MailAttachmentBuilder.get()
+                .withMessage(message)
+                .withFlowContext(flowContext)
+                .withAttachments(attachments)
+                .withConverter(converterService)
+                .withScriptEngine(scriptService)
+                .withAttachmentsObject(attachmentsObject)
+                .build(multipart);
+    }
+
+    private void buildMessageBody(FlowContext flowContext, Message message, Multipart multipart) {
+        MailBodyBuilder.get(body)
+                .withMessage(message)
+                .withFlowContext(flowContext)
+                .withScriptEngine(scriptService)
+                .build(multipart);
+    }
+
+    private javax.mail.Message buildBaseMessage(FlowContext flowContext, Message message) {
+        try {
+            // Build Base Message
+            return MailMessageBuilder.get(session)
                     .cc(cc)
                     .to(to)
                     .bcc(bcc)
@@ -131,31 +177,8 @@ public class MailSend implements ProcessorSync {
                     .context(flowContext)
                     .scriptService(scriptService)
                     .build();
-
-            Multipart multipart = new MimeMultipart();
-
-            MailBodyBuilder.get(body)
-                    .withMessage(message)
-                    .withFlowContext(flowContext)
-                    .withScriptEngine(scriptService)
-                    .build(multipart);
-
-            MailAttachmentBuilder.get()
-                    .withMessage(message)
-                    .withFlowContext(flowContext)
-                    .withAttachments(attachments)
-                    .withConverter(converterService)
-                    .withScriptEngine(scriptService)
-                    .withAttachmentsObject(attachmentsObject)
-                    .build(multipart);
-
-            mailMessage.setContent(multipart);
-            Transport.send(mailMessage);
-
-            return MessageBuilder.get().empty().build();
-
         } catch (Exception exception) {
-            throw new ESBException(exception);
+            throw new MailMessageException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
     }
 

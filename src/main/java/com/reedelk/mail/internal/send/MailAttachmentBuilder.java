@@ -6,7 +6,7 @@ import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.content.Attachments;
+import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 
@@ -15,6 +15,7 @@ import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.reedelk.runtime.api.commons.DynamicValueUtils.isNotNullOrBlank;
 import static com.reedelk.runtime.api.commons.Preconditions.checkArgument;
@@ -80,10 +81,10 @@ public class MailAttachmentBuilder {
                 });
 
         // The evaluated result must be an instance of attachments.
-        checkArgument(evaluationResult instanceof Attachments, "Expected Attachments Objects");
+        checkArgument(Attachment.isAttachmentMap(evaluationResult), "Expected Attachments Objects");
 
         List<MimeBodyPart> parts = new ArrayList<>();
-        Attachments attachments = (Attachments) evaluationResult;
+        Map<String, Attachment> attachments = (Map<String, Attachment>) evaluationResult;
         attachments.forEach((attachmentName, attachment) -> {
             MimeBodyPart part = AttachmentSourceStrategyFactory.fromAttachment()
                     .build(scriptEngine, converterService, attachmentName, attachment);

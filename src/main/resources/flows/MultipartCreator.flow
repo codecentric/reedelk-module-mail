@@ -1,0 +1,37 @@
+{
+  "id": "400c1e5e-c0fa-48c5-963d-f9e18b00a550",
+  "title": "Multipart Creator",
+  "description": "Multipart Creator Flow",
+  "flow": [
+    {
+      "implementor": "com.reedelk.rest.component.RestListener",
+      "description": "REST Listener",
+      "configuration": {"ref": "dc618f88-ab97-4954-a377-7d6b2670627e"},
+      "path": "/create",
+      "method": "GET",
+      "streaming": "AUTO",
+      "response": {
+        "body": "#[message.payload()]",
+        "status": 200
+      },
+      "errorResponse": {
+        "body": "#[error]",
+        "status": 500
+      }
+    },
+    {
+      "implementor": "com.reedelk.core.component.ScriptEvaluator",
+      "description": "Script",
+      "mimeType": "text/plain",
+      "script": "Test.js"
+    },
+    {
+      "implementor": "com.reedelk.rest.component.RestClient",
+      "description": "REST Client",
+      "baseURL": "http://localhost:8080/api",
+      "path": "/multipart",
+      "method": "POST",
+      "body": "#[message.payload()]"
+    }
+  ]
+}

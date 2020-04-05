@@ -1,20 +1,21 @@
 package com.reedelk.mail.internal.send;
 
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.mail.internal.exception.NotValidAddressException;
+import com.reedelk.mail.internal.exception.NotValidSubjectException;
+import com.reedelk.runtime.api.commons.Unchecked;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.mail.Message.RecipientType.*;
 
 public class MailMessageBuilder {
@@ -89,56 +90,38 @@ public class MailMessageBuilder {
     public Message build() throws MessagingException {
 
         MimeMessage mailMessage = new MimeMessage(session);
-
-        // Mandatory
-        String from = scriptService.evaluate(this.from, context, message)
-                .orElseThrow(() -> new ESBException("From could not be evaluated"));
-        mailMessage.setFrom(new InternetAddress(from));
-
-        // Mandatory
-        String to = scriptService.evaluate(this.to, context, message)
-                .orElseThrow(() -> new ESBException("To could not be evaluated."));
-        mailMessage.setRecipients(TO, InternetAddress.parse(to, false));
-
-        // Optional
-        scriptService.evaluate(this.cc, context, message).ifPresent(cc -> {
-            try {
-                mailMessage.setRecipients(CC, InternetAddress.parse(cc, false));
-            } catch (MessagingException exception) {
-                throw new ESBException("CC could not be evaluated");
-            }
-        });
-
-        // Optional
-        scriptService.evaluate(this.bcc, context, message).ifPresent(bcc -> {
-            try {
-                mailMessage.setRecipients(BCC, InternetAddress.parse(bcc, false));
-            } catch (MessagingException exception) {
-                throw new ESBException("BCC could not be evaluated");
-            }
-        });
-
-        // Optional
-        scriptService.evaluate(this.replyTo, context, message).ifPresent(replyTo -> {
-            try {
-                mailMessage.setReplyTo(InternetAddress.parse(replyTo, false));
-            } catch (MessagingException exception) {
-                throw new ESBException(exception);
-            }
-        });
-
-        // Optional
-        scriptService.evaluate(this.subject, context, message).ifPresent(subject -> {
-            try {
-                mailMessage.setSubject(subject, StandardCharsets.UTF_8.toString());
-            } catch (MessagingException exceptions) {
-                throw new ESBException(exceptions);
-            }
-        });
-
-        Multipart multipart = new MimeMultipart();
-        mailMessage.setContent(multipart);
         mailMessage.setSentDate(new Date());
+
+        // Mandatory
+        String evaluatedFrom = scriptService.evaluate(from, context, message)
+                .orElseThrow(() -> new NotValidAddressException(FROM_ERROR.format(from.toString())));
+        mailMessage.setFrom(new InternetAddress(evaluatedFrom));
+
+        // Mandatory
+        String evaluatedTo = scriptService.evaluate(to, context, message)
+                .orElseThrow(() -> new NotValidAddressException(TO_ERROR.format(to.toString())));
+        mailMessage.setRecipients(TO, InternetAddress.parse(evaluatedTo));
+
+        // Optional
+        scriptService.evaluate(cc, context, message).ifPresent(
+                Unchecked.consumer(cc -> mailMessage.setRecipients(CC, InternetAddress.parse(cc)),
+                        (cc, exception) -> new NotValidAddressException(exception, CC_ERROR.format(cc, this.cc.toString()))));
+
+        // Optional
+        scriptService.evaluate(bcc, context, message).ifPresent(
+                Unchecked.consumer(bcc -> mailMessage.setRecipients(BCC, InternetAddress.parse(bcc)),
+                        (bcc, exception) -> new NotValidAddressException(exception, BCC_ERROR.format(bcc, this.bcc.toString()))));
+
+        // Optional
+        scriptService.evaluate(replyTo, context, message).ifPresent(
+                Unchecked.consumer(replyTo -> mailMessage.setReplyTo(InternetAddress.parse(replyTo)),
+                        (replyTo, exception) -> new NotValidAddressException(exception, REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()))));
+
+        // Optional
+        scriptService.evaluate(subject, context, message).ifPresent(
+                Unchecked.consumer(subject -> mailMessage.setSubject(subject, UTF_8.toString()),
+                        (subject, exception) -> new NotValidSubjectException(exception, SUBJECT_ERROR.format(subject, this.subject.toString()))));
+
         return mailMessage;
     }
 }

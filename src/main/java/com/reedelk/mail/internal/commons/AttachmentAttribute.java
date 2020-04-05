@@ -1,5 +1,7 @@
 package com.reedelk.mail.internal.commons;
 
+import com.reedelk.runtime.api.message.content.Attachment;
+
 import java.util.Map;
 
 public enum AttachmentAttribute {
@@ -21,5 +23,9 @@ public enum AttachmentAttribute {
 
     public void set(Map<String, String> attributes, String value) {
         attributes.put(attributeName, value);
+    }
+
+    public void set(Attachment.Builder builder, String value) {
+        builder.attribute(attributeName, value);
     }
 }
