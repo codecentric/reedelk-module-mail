@@ -1,98 +1,93 @@
 package com.reedelk.mail.component;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
-import com.reedelk.runtime.api.flow.FlowContext;
-import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
-import com.reedelk.runtime.api.script.dynamicvalue.DynamicValue;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class MailSendTest {
+class MailSendTest extends AbstractMailTest {
 
-    @Mock
-    private FlowContext context;
-    @Mock
-    private Message message;
-    @Mock
-    private ScriptEngineService mockScriptEngineService;
-
-    private static GreenMail mailServer;
     private MailSend component = new MailSend();
 
-    @BeforeAll
-    static void setUp() {
-        ServerSetup serverSetup = new ServerSetup(2525, "localhost", "smtp");
-        mailServer = new GreenMail(serverSetup);
-        mailServer.setUser("testUser", "testPassword");
-        mailServer.start();
-    }
+    @BeforeEach
+    void setUp() {
+        super.setUp();
+        SMTPConfiguration configuration = new SMTPConfiguration();
+        configuration.setPort(smtpPort);
+        configuration.setHost(smtpAddress);
+        configuration.setUsername(smtpUsername);
+        configuration.setPassword(smtpPassword);
 
-    @AfterAll
-    static void tearDown() throws Exception {
-        if (mailServer != null) {
-            mailServer.stop();
-        }
-        mailServer = null;
+        mockScriptEngineEvaluation();
+        component.setConnectionConfiguration(configuration);
+        component.scriptService = scriptEngine;
     }
 
     @Test
-    void shouldCorrectlySendEmail() throws MessagingException, IOException {
+    void shouldCorrectlySendEmailWithFromToSubjectAndBody() throws MessagingException, IOException {
         // Given
-        SMTPConfiguration configuration = new SMTPConfiguration();
-        configuration.setHost("localhost");
-        configuration.setPort(2525);
-        configuration.setUsername("testUser");
-        configuration.setPassword("testPassword");
-
-        component.setConnectionConfiguration(configuration);
-        component.setFrom(DynamicString.from("from@test.com"));
-        component.setTo(DynamicString.from("to@test.com"));
-        component.setSubject(DynamicString.from("My email subject"));
-
         BodyDefinition bodyDefinition = new BodyDefinition();
         bodyDefinition.setContent(DynamicString.from("My email body"));
+
         component.setBody(bodyDefinition);
-
-        doAnswer(invocation -> {
-            DynamicValue<?> dynamicValue = invocation.getArgument(0);
-            if (dynamicValue == null) return Optional.empty();
-            return Optional.ofNullable(dynamicValue.value());
-        }).when(mockScriptEngineService).evaluate(any(DynamicValue.class), eq(context), eq(message));
-
-        component.scriptService = mockScriptEngineService;
+        component.setTo(DynamicString.from("to@test.com"));
+        component.setFrom(DynamicString.from("from@test.com"));
+        component.setSubject(DynamicString.from("My email subject"));
         component.initialize();
 
         // When
-        Message result = component.apply(context, message); // TODO: Assert result
+        component.apply(context, message);
 
         // Then
-        assertThat(mailServer.getReceivedMessages()).hasSize(1);
-        MimeMessage received = mailServer.getReceivedMessages()[0];
+        assertReceivedMessagesCountIs(1);
 
-        assertThat(received.getSubject()).isEqualTo("My email subject");
+        MimeMessage received = firstReceivedMessage();
 
-        MimeMultipart content = (MimeMultipart) received.getContent();
-
-        BodyPart bodyPart = content.getBodyPart(0);
-        assertThat(bodyPart.getContent()).isEqualTo("My email body");
+        assertThatToIs(received, "to@test.com");
+        assertThatFromIs(received, "from@test.com");
+        assertThatSubjectIs(received, "My email subject");
+        assertThatBodyContentIs(received, "My email body");
     }
 
+    @Test
+    void shouldCorrectlySendEmailWithFromToCcBccAndReplyTo() throws MessagingException, IOException {
+        // Given
+        component.setTo(DynamicString.from("to@test.com"));
+        component.setCc(DynamicString.from("cc@test.com"));
+        component.setBcc(DynamicString.from("bcc@test.com"));
+        component.setFrom(DynamicString.from("from@test.com"));
+        component.setReplyTo(DynamicString.from("replyTo@test.com"));
+        component.initialize();
+
+        // When
+        component.apply(context, message);
+
+        // Then
+        assertReceivedMessagesCountIs(3); // to, cc, bcc
+
+        // To
+        MimeMessage first = receivedMessage(0); // to
+        assertThatToIs(first, "to@test.com");
+        assertThatFromIs(first, "from@test.com");
+        assertThatCcIs(first, "cc@test.com");
+        assertThatReplyToIs(first, "replyTo@test.com");
+
+        // Cc
+        MimeMessage second = receivedMessage(1); // cc
+        assertThatToIs(second, "to@test.com");
+        assertThatFromIs(second, "from@test.com");
+        assertThatCcIs(second, "cc@test.com");
+        assertThatReplyToIs(second, "replyTo@test.com");
+
+        // Bcc
+        MimeMessage third = receivedMessage(2); // bcc
+        assertThatToIs(third, "bcc@test.com");
+        assertThatFromIs(third, "from@test.com");
+        assertThatCcIs(third, "cc@test.com");
+        assertThatReplyToIs(third, "replyTo@test.com");
+    }
 }

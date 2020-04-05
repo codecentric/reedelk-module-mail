@@ -127,10 +127,8 @@ public class MailSend implements ProcessorSync {
         // Build Body and Attachments
         Multipart multipart = new MimeMultipart();
 
-
         buildMessageBody(flowContext, message, multipart);
         buildAttachments(flowContext, message, multipart);
-
 
         // Send the message
         try {

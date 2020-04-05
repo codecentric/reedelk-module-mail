@@ -20,8 +20,9 @@ public class Messages {
         TO_ERROR("'to' addresses must not be empty (expression=[%s])"),
         CC_ERROR("Could not evaluate 'cc' addresses=[%s] (expression=[%s])"),
         BCC_ERROR("Could not evaluate 'bcc' addresses=[%s] (expression=[%s])"),
+        SUBJECT_ERROR("Could not evaluate 'Subject' message=[%s] (expression=[%s])"),
         REPLY_TO_ERROR("Could not evaluate 'ReplyTo' addresses=[%s] (expression=[%s])"),
-        SUBJECT_ERROR("Could not evaluate 'Subject' message=[%s] (expression=[%s])");
+        MAIL_BODY_ERROR("The mail 'body' content=[%s] could not be evaluated (expression=[%s])");
 
         private String msg;
 
