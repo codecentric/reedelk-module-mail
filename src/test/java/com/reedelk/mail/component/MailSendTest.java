@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.runtime.api.commons.StringUtils;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,27 @@ class MailSendTest extends AbstractMailTest {
         mockScriptEngineEvaluation();
         component.setConnectionConfiguration(configuration);
         component.scriptService = scriptEngine;
+    }
+
+    @Test
+    void shouldCorrectlySendEmailWithJustFromAndTo() throws MessagingException, IOException {
+        // Given
+        component.setTo(DynamicString.from("to@test.com"));
+        component.setFrom(DynamicString.from("from@test.com"));
+        component.initialize();
+
+        // When
+        component.apply(context, message);
+
+        // Then
+        assertReceivedMessagesCountIs(1);
+
+        MimeMessage received = firstReceivedMessage();
+
+        assertThatToIs(received, "to@test.com");
+        assertThatFromIs(received, "from@test.com");
+        assertThatSubjectIs(received, null);
+        assertThatBodyContentIs(received, StringUtils.EMPTY);
     }
 
     @Test
@@ -85,7 +107,7 @@ class MailSendTest extends AbstractMailTest {
 
         // Bcc
         MimeMessage third = receivedMessage(2); // bcc
-        assertThatToIs(third, "bcc@test.com");
+        assertThatToIs(third, "to@test.com");
         assertThatFromIs(third, "from@test.com");
         assertThatCcIs(third, "cc@test.com");
         assertThatReplyToIs(third, "replyTo@test.com");

@@ -1,9 +1,0 @@
-{
-  "id": "8ac4afb0-736d-4f2f-89e1-5b99b3f4f997",
-  "title": "my Sched",
-  "description": "my Sched Flow",
-  "flow": [{
-    "implementor": "com.reedelk.mail.component.MailListener",
-    "description": "Mail Listener"
-  }]
-}

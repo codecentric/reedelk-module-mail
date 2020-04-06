@@ -1,7 +1,7 @@
 {
   "id": "72ee9c4b-17f3-48c2-b1bd-1fe1a9781a5d",
-  "title": "Multipart Receiver",
-  "description": "Multipart Receiver Flow",
+  "title": "Multipart Receiver Hellow",
+  "description": "Multipart Receiver Flow Super",
   "flow": [
     {
       "implementor": "com.reedelk.rest.component.RestListener",

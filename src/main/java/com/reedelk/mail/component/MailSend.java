@@ -44,7 +44,12 @@ public class MailSend implements ProcessorSync {
     @Property("From address")
     @Group("General")
     @Hint("from@domain.com")
-    @Description("The From address to be used in the email.")
+    @Description("Sets the source address to be used in the email. " +
+            "It can be a static or a dynamic expression.")
+    @Example("<ul>" +
+            "<li>Static string: from@domain.com</li>" +
+            "<li>Config property: ${my.source.email.config.property}</li>" +
+            "</ul>")
     private DynamicString from;
 
     @Property("To addresses")
@@ -52,10 +57,15 @@ public class MailSend implements ProcessorSync {
     @Hint("toAddress1@domain.com,toAddress2@domain.com,toAddress3@domain.com")
     @Description("Sets the destination addresses of the email. " +
             "It can contain a comma separated list of recipients.")
+    @Example("<ul>" +
+            "<li>To string: toAddress1@my-domain.com,toAddress2@my-domain.com</li>" +
+            "<li>To joined from list: <code>['toAddress1@my-domain.com','toAddress2@my-domain.com'].join(',')</code></li>" +
+            "</ul>")
     private DynamicString to;
 
     @Property("Subject")
     @Group("General")
+    @Example("An important subject")
     @Hint("My email subject")
     @Description("Sets the subject to be used in the email.")
     private DynamicString subject;
@@ -69,6 +79,10 @@ public class MailSend implements ProcessorSync {
     @Hint("cc1@my-domain.com,cc2@my-domain.com,cc3@my-domain.com")
     @Description("The 'CC' addresses to be used in the email. " +
             "It can contain a comma separated list of addresses.")
+    @Example("<ul>" +
+            "<li>Cc string: cc1@my-domain.com,cc2@my-domain.com</li>" +
+            "<li>Cc joined from list: <code>['cc1@my-domain.com','cc2@my-domain.com'].join(',')</code></li>" +
+            "</ul>")
     private DynamicString cc;
 
     @Property("Bcc addresses")
@@ -78,7 +92,7 @@ public class MailSend implements ProcessorSync {
             "It can contain a comma separated list of addresses.")
     @Example("<ul>" +
             "<li>Bcc string: bcc1@my-domain.com,bcc2@my-domain.com</li>" +
-            "<li>Bcc joined from list: <code>['one','two','three'].join(',')</code></li>" +
+            "<li>Bcc joined from list: <code>['bcc1@my-domain.com','bcc2@my-domain.com'].join(',')</code></li>" +
             "</ul>")
     private DynamicString bcc;
 
