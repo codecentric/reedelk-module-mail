@@ -76,7 +76,7 @@ class MailSendTest extends AbstractMailTest {
     }
 
     @Test
-    void shouldCorrectlySendEmailWithFromToCcBccAndReplyTo() throws MessagingException, IOException {
+    void shouldCorrectlySendEmailWithFromToCcBccAndReplyTo() throws MessagingException {
         // Given
         component.setTo(DynamicString.from("to@test.com"));
         component.setCc(DynamicString.from("cc@test.com"));
@@ -111,5 +111,10 @@ class MailSendTest extends AbstractMailTest {
         assertThatFromIs(third, "from@test.com");
         assertThatCcIs(third, "cc@test.com");
         assertThatReplyToIs(third, "replyTo@test.com");
+    }
+
+    @Test
+    void shouldCorrectlySendEmailWithAttachment() throws MessagingException {
+
     }
 }

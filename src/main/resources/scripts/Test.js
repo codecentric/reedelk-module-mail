@@ -4,5 +4,10 @@ function Test(context,message) {
         .attribute('filename','hello.txt')
         .text('Superz')
         .build();
-    return {'myfile': part}
+
+    var attachment1 = MailAttachmentBuilder.create()
+        .text('Myattachment')
+        .filename('mytext.txt')
+        .build();
+    return {'attachment1': attachment1 }
 }

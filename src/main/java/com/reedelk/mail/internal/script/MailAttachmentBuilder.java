@@ -8,9 +8,7 @@ import com.reedelk.runtime.api.annotation.AutocompleteType;
         description = "The MailAttachmentBuilder creates new Mail Attachment objects.")
 public class MailAttachmentBuilder {
 
-    @AutocompleteItem(
-            cursorOffset = 1,
-            signature = "create()",
+    @AutocompleteItem(signature = "create()",
             example = "MailAttachmentBuilder.create()",
             description = "Creates a new MailAttachment object.")
     public MailAttachment create() {

@@ -11,24 +11,28 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class BodyDefinition implements Implementor {
 
     @Property("Content Expression")
+    @Description("The result of the evaluation of this expression is set as mail body content.")
     private DynamicString content;
 
     @Property("Content Type")
     @MimeTypeCombo
     @Example(MimeType.AsString.TEXT_HTML)
     @DefaultValue(MimeType.AsString.TEXT_PLAIN)
+    @Description("Sets the content type of the mail body.")
     private String contentType;
 
     @Property("Transfer Encoding")
-    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
-    @DefaultValue("7bit")
     @Example("Base64")
+    @DefaultValue("7bit")
+    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
+    @Description("Sets the content transfer encoding header of the mail body.")
     private String contentTransferEncoding;
 
     @Property("Charset")
     @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
     @DefaultValue("UTF-8")
     @Example("ISO-8859-1")
+    @Description("Sets the charset of the mail body.")
     private String charset;
 
     public DynamicString getContent() {

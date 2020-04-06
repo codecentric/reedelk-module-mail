@@ -21,18 +21,21 @@ public class AttachmentDefinition implements Implementor {
     @MimeTypeCombo
     @Example(MimeType.AsString.TEXT_HTML)
     @DefaultValue(MimeType.AsString.TEXT_PLAIN)
+    @Description("Sets the mime type of the attachment to be sent in the email.")
     private String contentType;
 
     @Property("Transfer Encoding")
-    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
-    @DefaultValue("7bit")
     @Example("Base64")
+    @DefaultValue("7bit")
+    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
+    @Description("Sets the content transfer encoding header of the attachment.")
     private String contentTransferEncoding;
 
     @Property("Charset")
-    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
     @DefaultValue("UTF-8")
     @Example("ISO-8859-1")
+    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
+    @Description("Sets the charset of the attachment.")
     private String charset;
 
     @Property("Content Source")
@@ -42,9 +45,12 @@ public class AttachmentDefinition implements Implementor {
             "If 'RESOURCE', the attachment content is read from a file from the project's resources folder, " +
             "if 'FILE', the content is read from a file on the filesystem, " +
             "if 'EXPRESSION', the result of the evaluated script expression is used as attachment content.")
+    @Example("EXPRESSION")
     private AttachmentSourceType sourceType;
 
     @Property("Resource file")
+    // This is because the properties in this object are displayed in a dialog.
+    // Therefore the browse file input field must stretch / shrink according to the dialog size.
     @WidthAuto
     @Example("assets/my-document.pdf")
     @HintBrowseFile("Select Attachment File ...")
@@ -57,6 +63,7 @@ public class AttachmentDefinition implements Implementor {
     @Hint("/var/documents/my-document.pdf")
     @Example("/var/documents/my-document.pdf")
     @When(propertyName = "sourceType", propertyValue = "FILE")
+    @Description("The path and name of the file to be read from the filesystem.")
     private DynamicString file;
 
     @Property("Expression")
@@ -68,7 +75,7 @@ public class AttachmentDefinition implements Implementor {
     @Property("File Name")
     @Example("<code>'my-file-name.txt'</code>")
     @When(propertyName = "sourceType", propertyValue = "EXPRESSION")
-    @Description("The file name to be used when expression is used.")
+    @Description("The file name of the attachment to be used when attachment source 'Expression' is used.")
     private DynamicString fileName;
 
     public String getName() {

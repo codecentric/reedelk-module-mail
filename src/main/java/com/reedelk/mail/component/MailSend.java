@@ -103,10 +103,14 @@ public class MailSend implements ProcessorSync {
             "It can contain a comma separated list of reply to addresses.")
     private DynamicString replyTo;
 
-    @Property("Attachments Object")
+    @Property("Attachments Map")
     @Group("Attachments")
-    @Description("The Attachments object")
-    private DynamicObject attachmentsObject;
+    @Description("Sets the attachments map to be used as a source of the mail attachments. " +
+            "An attachments map can be created using: " +
+            "<code>" +
+            "{'attachment1': MailAttachmentBuilder.create().text('hello world').filename('my-text.txt').build() }" +
+            "</code>")
+    private DynamicObject attachmentsMap;
 
     @Property("Attachments")
     @Group("Attachments")
@@ -163,7 +167,7 @@ public class MailSend implements ProcessorSync {
                 .withAttachments(attachments)
                 .withConverter(converterService)
                 .withScriptEngine(scriptService)
-                .withAttachmentsObject(attachmentsObject)
+                .withAttachmentsObject(attachmentsMap)
                 .build(multipart);
     }
 
@@ -258,12 +262,12 @@ public class MailSend implements ProcessorSync {
         this.body = body;
     }
 
-    public DynamicObject getAttachmentsObject() {
-        return attachmentsObject;
+    public DynamicObject getAttachmentsMap() {
+        return attachmentsMap;
     }
 
-    public void setAttachmentsObject(DynamicObject attachmentsObject) {
-        this.attachmentsObject = attachmentsObject;
+    public void setAttachmentsMap(DynamicObject attachmentsMap) {
+        this.attachmentsMap = attachmentsMap;
     }
 
     public List<AttachmentDefinition> getAttachments() {
