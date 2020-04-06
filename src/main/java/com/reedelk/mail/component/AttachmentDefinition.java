@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class AttachmentDefinition implements Implementor {
 
     @Property("Name")
-    @Hint("myAttachmentFile")
-    @Description("Sets the name of the attachment.")
+    @Hint("PDF Attachment")
+    @Description("A display name of the attachment for display purposes.")
     private String name;
 
     @Property("Content Type")
@@ -38,7 +38,7 @@ public class AttachmentDefinition implements Implementor {
     @Description("Sets the charset of the attachment.")
     private String charset;
 
-    @Property("Content Source")
+    @Property("Attachment Source")
     @InitValue("RESOURCE")
     @DefaultValue("RESOURCE")
     @Description("Determines the source of the attachment. " +
@@ -67,15 +67,19 @@ public class AttachmentDefinition implements Implementor {
     private DynamicString file;
 
     @Property("Expression")
+    @InitValue("#[]")
     @Example("<code>message.payload()</code>")
     @When(propertyName = "sourceType", propertyValue = "EXPRESSION")
     @Description("The expression to be evaluated as attachment content.")
     private DynamicByteArray expression;
 
     @Property("File Name")
+    @Hint("my-picture.png")
     @Example("<code>'my-file-name.txt'</code>")
-    @When(propertyName = "sourceType", propertyValue = "EXPRESSION")
-    @Description("The file name of the attachment to be used when attachment source 'Expression' is used.")
+    @Description("The file name of the attachment to be used is used. A static or dynamic expression can be used in this property." +
+            "If attachment source is 'Resource' and this field is empty, the resource file name will be used instead. " +
+            "If attachment source is 'File' and this field is empty, the file name will be used instead. " +
+            "If attachment source is 'Expression' and this field is empty, an exception will be thrown.")
     private DynamicString fileName;
 
     public String getName() {

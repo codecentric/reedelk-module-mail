@@ -1,7 +1,6 @@
 package com.reedelk.mail.internal.send;
 
-import com.reedelk.mail.internal.exception.NotValidAddressException;
-import com.reedelk.mail.internal.exception.NotValidSubjectException;
+import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.runtime.api.commons.Unchecked;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -94,33 +93,33 @@ public class MailMessageBuilder {
 
         // Mandatory
         String evaluatedFrom = scriptService.evaluate(from, context, message)
-                .orElseThrow(() -> new NotValidAddressException(FROM_ERROR.format(from.toString())));
+                .orElseThrow(() -> new MailMessageConfigurationException(FROM_ERROR.format(from.toString())));
         mailMessage.setFrom(new InternetAddress(evaluatedFrom));
 
         // Mandatory
         String evaluatedTo = scriptService.evaluate(to, context, message)
-                .orElseThrow(() -> new NotValidAddressException(TO_ERROR.format(to.toString())));
+                .orElseThrow(() -> new MailMessageConfigurationException(TO_ERROR.format(to.toString())));
         mailMessage.setRecipients(TO, InternetAddress.parse(evaluatedTo));
 
         // Optional
         scriptService.evaluate(cc, context, message).ifPresent(
                 Unchecked.consumer(cc -> mailMessage.setRecipients(CC, InternetAddress.parse(cc)),
-                        (cc, exception) -> new NotValidAddressException(exception, CC_ERROR.format(cc, this.cc.toString()))));
+                        (cc, exception) -> new MailMessageConfigurationException(CC_ERROR.format(cc, this.cc.toString()), exception)));
 
         // Optional
         scriptService.evaluate(bcc, context, message).ifPresent(
                 Unchecked.consumer(bcc -> mailMessage.setRecipients(BCC, InternetAddress.parse(bcc)),
-                        (bcc, exception) -> new NotValidAddressException(exception, BCC_ERROR.format(bcc, this.bcc.toString()))));
+                        (bcc, exception) -> new MailMessageConfigurationException(BCC_ERROR.format(bcc, this.bcc.toString()), exception)));
 
         // Optional
         scriptService.evaluate(replyTo, context, message).ifPresent(
                 Unchecked.consumer(replyTo -> mailMessage.setReplyTo(InternetAddress.parse(replyTo)),
-                        (replyTo, exception) -> new NotValidAddressException(exception, REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()))));
+                        (replyTo, exception) -> new MailMessageConfigurationException(REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()), exception)));
 
         // Optional
         scriptService.evaluate(subject, context, message).ifPresent(
                 Unchecked.consumer(subject -> mailMessage.setSubject(subject, UTF_8.toString()),
-                        (subject, exception) -> new NotValidSubjectException(exception, SUBJECT_ERROR.format(subject, this.subject.toString()))));
+                        (subject, exception) -> new MailMessageConfigurationException(SUBJECT_ERROR.format(subject, this.subject.toString()), exception)));
 
         return mailMessage;
     }

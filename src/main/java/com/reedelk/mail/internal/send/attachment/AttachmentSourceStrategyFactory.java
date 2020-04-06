@@ -14,7 +14,7 @@ public class AttachmentSourceStrategyFactory {
                     AttachmentSourceType.EXPRESSION, new ExpressionType(),
                     AttachmentSourceType.RESOURCE, new ResourceType());
 
-    private static final AttachmentSourceStrategy FROM_ATTACHMENT = new AttachmentType();
+    private static final AttachmentSourceStrategy FROM_ATTACHMENT = new AttachmentObjectType();
 
     public static AttachmentSourceStrategy from(AttachmentDefinition definition) {
         if (STRATEGY_MAP.containsKey(definition.getSourceType())) {

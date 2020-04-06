@@ -14,7 +14,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 import java.util.Map;
 
-public class AttachmentType implements AttachmentSourceStrategy {
+public class AttachmentObjectType implements AttachmentSourceStrategy {
 
     @Override
     public MimeBodyPart build(ScriptEngineService scriptEngine,

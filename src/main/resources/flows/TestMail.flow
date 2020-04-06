@@ -37,20 +37,21 @@
       "attachments": [
         {
           "name": "my-super-attachment",
-          "sourceType": "RESOURCE",
-          "resourceFile": "assets/my-text-file.txt"
+          "sourceType": "EXPRESSION",
+          "expression": "#['hello test']",
+          "fileName": "my-"
         },
         {
           "name": "myFileAttachment",
           "contentType": "image/jpeg",
           "sourceType": "FILE",
-          "file": "/Users/lorenzo/Desktop/jjiopss.jpg"
+          "file": "/Users/lorenzo/Desktop/fffff.jpg"
         },
         {
           "name": "myPayload",
           "sourceType": "EXPRESSION",
           "expression": "#['this is my file content']",
-          "fileName": "my-file-name-payload.txt"
+          "fileName": "supertest"
         }
       ]
     }

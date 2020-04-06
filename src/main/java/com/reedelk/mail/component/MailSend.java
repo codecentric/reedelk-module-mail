@@ -1,6 +1,6 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.exception.MailMessageException;
+import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.send.MailAttachmentBuilder;
 import com.reedelk.mail.internal.send.MailBodyBuilder;
 import com.reedelk.mail.internal.send.MailMessageBuilder;
@@ -194,7 +194,7 @@ public class MailSend implements ProcessorSync {
                     .scriptService(scriptService)
                     .build();
         } catch (Exception exception) {
-            throw new MailMessageException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
+            throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
     }
 

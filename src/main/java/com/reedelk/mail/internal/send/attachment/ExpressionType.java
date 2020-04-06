@@ -3,7 +3,7 @@ package com.reedelk.mail.internal.send.attachment;
 import com.reedelk.mail.component.AttachmentDefinition;
 import com.reedelk.mail.internal.commons.ContentType;
 import com.reedelk.mail.internal.commons.Headers;
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -13,40 +13,38 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 
+import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.ATTACHMENT_FILE_NAME;
+
 public class ExpressionType implements AttachmentSourceStrategy {
 
     @Override
     public MimeBodyPart build(ScriptEngineService scriptEngine,
                               AttachmentDefinition definition,
                               FlowContext context,
-                              Message message) throws MessagingException {
+                              Message message) {
         String charset = definition.getCharset();
-        String attachmentName = definition.getName();
         String contentType = definition.getContentType();
-
         String attachmentContentType = ContentType.from(contentType, charset);
         String contentTransferEncoding = definition.getContentTransferEncoding();
 
         MimeBodyPart part = new MimeBodyPart();
 
+        // We accept the fact that we can send an empty file.
         ByteArrayDataSource dataSource = scriptEngine.evaluate(definition.getExpression(), context, message)
-                .map(bytes -> {
-                    ByteArrayDataSource ds = new ByteArrayDataSource(bytes, attachmentContentType);
-                    ds.setName(attachmentName);
-                    return ds;
-                }).orElse(new ByteArrayDataSource(new byte[0], attachmentContentType));
+                .map(bytes -> new ByteArrayDataSource(bytes, attachmentContentType))
+                .orElse(new ByteArrayDataSource(new byte[0], attachmentContentType));
 
-        scriptEngine.evaluate(definition.getFileName(), context, message)
-                .ifPresent(theFileName -> {//TODO: Replace with unchecked.
-                    try {
-                        part.setFileName(theFileName);
-                    } catch (MessagingException exception) {
-                        throw new ESBException(exception);
-                    }
-                });
+        // The file name is mandatory, otherwise the attachment cannot be sent.
+        String fileName = scriptEngine.evaluate(definition.getFileName(), context, message)
+                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME.format(definition.toString())));
 
-        part.setDataHandler(new DataHandler(dataSource));
-        part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
-        return part;
+        try {
+            part.setFileName(fileName);
+            part.setDataHandler(new DataHandler(dataSource));
+            part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
+            return part;
+        } catch (MessagingException exception) {
+            throw new AttachmentConfigurationException(exception.getMessage(), exception);
+        }
     }
 }

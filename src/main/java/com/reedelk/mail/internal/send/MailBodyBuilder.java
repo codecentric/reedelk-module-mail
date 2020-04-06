@@ -3,7 +3,7 @@ package com.reedelk.mail.internal.send;
 import com.reedelk.mail.component.BodyDefinition;
 import com.reedelk.mail.internal.commons.ContentType;
 import com.reedelk.mail.internal.commons.Headers;
-import com.reedelk.mail.internal.exception.NotValidBodyException;
+import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.content.MimeType;
@@ -70,7 +70,7 @@ public class MailBodyBuilder {
             multipart.addBodyPart(mimeBodyPart);
         } catch (MessagingException exception) {
             String error = MAIL_BODY_ERROR.format(bodyContent, content == null ? null : content.toString());
-            throw new NotValidBodyException(error, exception);
+            throw new MailMessageConfigurationException(error, exception);
         }
     }
 

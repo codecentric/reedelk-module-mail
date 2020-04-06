@@ -2,6 +2,7 @@ package com.reedelk.mail.internal.send;
 
 import com.reedelk.mail.component.AttachmentDefinition;
 import com.reedelk.mail.internal.send.attachment.AttachmentSourceStrategyFactory;
+import com.reedelk.runtime.api.commons.Unchecked;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
@@ -74,6 +75,7 @@ public class MailAttachmentBuilder {
         fromAttachmentDefinitions().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
     }
 
+    @SuppressWarnings("unchecked")
     private List<MimeBodyPart> fromAttachmentObject() {
         Object evaluationResult = scriptEngine.evaluate(attachmentsMap, context, message)
                 .orElseThrow(() -> {
@@ -95,22 +97,16 @@ public class MailAttachmentBuilder {
     }
 
     private List<MimeBodyPart> fromAttachmentDefinitions() {
-        return attachments.stream().map(attachmentDefinition ->
-        {
-            try {
-                return AttachmentSourceStrategyFactory.from(attachmentDefinition)
-                        .build(scriptEngine, attachmentDefinition, context, message);
-            } catch (MessagingException e) {
-                throw new ESBException(e);
-            }
-        }).collect(toList());
+        return attachments.stream().map(Unchecked.function(definition ->
+                AttachmentSourceStrategyFactory.from(definition).build(scriptEngine, definition, context, message)))
+                .collect(toList());
     }
 
     private void addPart(Multipart multipart, MimeBodyPart mimeBodyPart) {
         try {
             multipart.addBodyPart(mimeBodyPart);
-        } catch (MessagingException e) {
-            throw new ESBException(e);
+        } catch (MessagingException exception) {
+            throw new ESBException(exception);
         }
     }
 }
