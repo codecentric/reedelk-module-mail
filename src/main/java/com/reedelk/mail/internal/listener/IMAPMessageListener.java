@@ -1,5 +1,6 @@
 package com.reedelk.mail.internal.listener;
 
+import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
 
 import javax.mail.Message;

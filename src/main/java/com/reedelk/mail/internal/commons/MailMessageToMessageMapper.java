@@ -1,4 +1,4 @@
-package com.reedelk.mail.internal.listener;
+package com.reedelk.mail.internal.commons;
 
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageBuilder;
