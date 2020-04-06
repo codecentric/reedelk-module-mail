@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.commons.Address;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.send.*;
 import com.reedelk.runtime.api.annotation.*;
@@ -154,12 +155,12 @@ public class MailSend implements ProcessorSync {
             Transport.send(mailMessage);
 
             Map<String, Serializable> attributesMap = new HashMap<>();
-            MessageAttributes attributes = new DefaultMessageAttributes(MailSend.class, attributesMap);
-            MailSendAttributes.FROM.set(attributesMap, mailMessage.getFrom());
+            MailSendAttributes.FROM.set(attributesMap, Address.asSerializableList(mailMessage.getFrom()));
             MailSendAttributes.SUBJECT.set(attributesMap, mailMessage.getSubject());
-            MailSendAttributes.REPLY_TO.set(attributesMap, mailMessage.getReplyTo());
-            MailSendAttributes.RECIPIENTS.set(attributesMap, mailMessage.getAllRecipients());
+            MailSendAttributes.REPLY_TO.set(attributesMap, Address.asSerializableList(mailMessage.getReplyTo()));
+            MailSendAttributes.RECIPIENTS.set(attributesMap, Address.asSerializableList(mailMessage.getAllRecipients()));
             MailSendAttributes.SENT_DATE.set(attributesMap, mailMessage.getSentDate().getTime());
+            MessageAttributes attributes = new DefaultMessageAttributes(MailSend.class, attributesMap);
 
             return MessageBuilder.get().attributes(attributes).empty().build();
 
