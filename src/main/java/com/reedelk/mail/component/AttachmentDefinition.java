@@ -14,7 +14,7 @@ public class AttachmentDefinition implements Implementor {
 
     @Property("Name")
     @Hint("PDF Attachment")
-    @Description("A display name of the attachment for display purposes.")
+    @Description("A display name of the attachment used only for display purposes in the Flow Designer.")
     private String name;
 
     @Property("Content Type")

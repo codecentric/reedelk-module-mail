@@ -42,7 +42,7 @@ public class FileType implements AttachmentSourceStrategy {
 
         String finalFileName;
         if (isNotNullOrBlank(fileName)) {
-            // We take the final file name from the file name field.
+            // We take the final file name from the file name field if the user defined it.
             finalFileName = scriptEngine.evaluate(fileName, context, message)
                     .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME_EMPTY.format(fileName.toString())));
         } else {
@@ -51,6 +51,7 @@ public class FileType implements AttachmentSourceStrategy {
         }
 
         try {
+
             byte[] data = Files.readAllBytes(theFilePath);
             String attachmentContentType = ContentType.from(contentType, charset);
             ByteArrayDataSource dataSource = new ByteArrayDataSource(data, attachmentContentType);
@@ -60,6 +61,7 @@ public class FileType implements AttachmentSourceStrategy {
             part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
             part.setFileName(finalFileName);
             return part;
+
         } catch (IOException | MessagingException exception) {
             throw new AttachmentConfigurationException(exception.getMessage(), exception);
         }

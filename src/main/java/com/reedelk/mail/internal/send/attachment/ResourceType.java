@@ -5,7 +5,6 @@ import com.reedelk.mail.internal.commons.ContentType;
 import com.reedelk.mail.internal.commons.Headers;
 import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
 import com.reedelk.runtime.api.commons.StreamUtils;
-import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.resource.ResourceBinary;
@@ -18,10 +17,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.ATTACHMENT_FILE_NAME_EMPTY;
+import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.ATTACHMENT_RESOURCE_MUST_NOT_BE_EMPTY;
 import static com.reedelk.runtime.api.commons.DynamicValueUtils.isNotNullOrBlank;
-import static com.reedelk.runtime.api.commons.Preconditions.checkState;
 
 public class ResourceType implements AttachmentSourceStrategy {
 
@@ -34,15 +34,15 @@ public class ResourceType implements AttachmentSourceStrategy {
         final String contentType = definition.getContentType();
         final DynamicString fileName = definition.getFileName();
         final String contentTransferEncoding = definition.getContentTransferEncoding();
-        final ResourceBinary resourceFile = definition.getResourceFile();
 
-        checkState(resourceFile != null, "resource file");
+        final ResourceBinary resourceFile = Optional.ofNullable(definition.getResourceFile())
+                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_RESOURCE_MUST_NOT_BE_EMPTY.format()));
 
         Path theResourceFilePath = Paths.get(resourceFile.path());
 
         String finalFileName;
         if (isNotNullOrBlank(fileName)) {
-            // We take the final file name from the file name field.
+            // We take the final file name from the file name field if the user defined it.
             finalFileName = scriptEngine.evaluate(fileName, context, message)
                     .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME_EMPTY.format(fileName.toString())));
         } else {
@@ -51,6 +51,7 @@ public class ResourceType implements AttachmentSourceStrategy {
         }
 
         try {
+
             byte[] data = StreamUtils.FromByteArray.consume(resourceFile.data());
             String attachmentContentType = ContentType.from(contentType, charset);
             ByteArrayDataSource dataSource = new ByteArrayDataSource(data, attachmentContentType);
@@ -60,8 +61,9 @@ public class ResourceType implements AttachmentSourceStrategy {
             part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
             part.setFileName(finalFileName);
             return part;
+
         } catch (MessagingException exception) {
-            throw new ESBException(exception);
+            throw new AttachmentConfigurationException(exception.getMessage(), exception);
         }
     }
 }

@@ -17,9 +17,9 @@ public class Messages {
 
         MAIL_MESSAGE_ERROR("The Mail message could not be built, error=[%s]"),
         ATTACHMENT_FILE_NAME("The attachment file name must not be empty (expression=[%s])"),
-        ATTACHMENT_FILE_NAME_NOT_SET("The attachment filename=[%s] could not be set"),
         ATTACHMENT_FILE_EMPTY("The attachment file from expression=[%s] is empty"),
         ATTACHMENT_FILE_NAME_EMPTY("The attachment file name from expression=[%s] is empty"),
+        ATTACHMENT_RESOURCE_MUST_NOT_BE_EMPTY("The attachment resource file must not be empty for attachment source type 'Resource'"),
         FROM_ERROR("'from' address must not be empty (expression=[%s])"),
         TO_ERROR("'to' addresses must not be empty (expression=[%s])"),
         CC_ERROR("Could not evaluate 'cc' addresses=[%s] (expression=[%s])"),

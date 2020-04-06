@@ -22,27 +22,28 @@ public class ExpressionType implements AttachmentSourceStrategy {
                               AttachmentDefinition definition,
                               FlowContext context,
                               Message message) {
-        String charset = definition.getCharset();
-        String contentType = definition.getContentType();
-        String attachmentContentType = ContentType.from(contentType, charset);
-        String contentTransferEncoding = definition.getContentTransferEncoding();
+        final String charset = definition.getCharset();
+        final String contentType = definition.getContentType();
+        final String attachmentContentType = ContentType.from(contentType, charset);
+        final String contentTransferEncoding = definition.getContentTransferEncoding();
 
-        MimeBodyPart part = new MimeBodyPart();
+        // The file name is mandatory, otherwise the attachment cannot be sent.
+        String finalFileName = scriptEngine.evaluate(definition.getFileName(), context, message)
+                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME.format(definition.toString())));
 
         // We accept the fact that we can send an empty file.
         ByteArrayDataSource dataSource = scriptEngine.evaluate(definition.getExpression(), context, message)
                 .map(bytes -> new ByteArrayDataSource(bytes, attachmentContentType))
                 .orElse(new ByteArrayDataSource(new byte[0], attachmentContentType));
 
-        // The file name is mandatory, otherwise the attachment cannot be sent.
-        String fileName = scriptEngine.evaluate(definition.getFileName(), context, message)
-                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME.format(definition.toString())));
-
         try {
-            part.setFileName(fileName);
+
+            MimeBodyPart part = new MimeBodyPart();
+            part.setFileName(finalFileName);
             part.setDataHandler(new DataHandler(dataSource));
             part.addHeader(Headers.CONTENT_TRANSFER_ENCODING, contentTransferEncoding);
             return part;
+
         } catch (MessagingException exception) {
             throw new AttachmentConfigurationException(exception.getMessage(), exception);
         }
