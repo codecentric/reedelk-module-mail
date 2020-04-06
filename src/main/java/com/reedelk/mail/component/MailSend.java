@@ -1,13 +1,11 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.commons.Address;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.send.*;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.flow.FlowContext;
-import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
@@ -23,11 +21,8 @@ import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMultipart;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_MESSAGE_ERROR;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
@@ -142,7 +137,7 @@ public class MailSend implements ProcessorSync {
     @Override
     public Message apply(FlowContext flowContext, Message message) {
         try {
-            javax.mail.Message mailMessage = buildBaseMessage(flowContext, message);
+            javax.mail.Message mail = buildBaseMessage(flowContext, message);
 
             // Build Body and Attachments
             Multipart multipart = new MimeMultipart();
@@ -151,18 +146,15 @@ public class MailSend implements ProcessorSync {
             buildAttachments(flowContext, message, multipart);
 
             // Send the message
-            mailMessage.setContent(multipart);
-            Transport.send(mailMessage);
+            mail.setContent(multipart);
+            Transport.send(mail);
 
-            Map<String, Serializable> attributesMap = new HashMap<>();
-            MailSendAttributes.FROM.set(attributesMap, Address.asSerializableList(mailMessage.getFrom()));
-            MailSendAttributes.SUBJECT.set(attributesMap, mailMessage.getSubject());
-            MailSendAttributes.REPLY_TO.set(attributesMap, Address.asSerializableList(mailMessage.getReplyTo()));
-            MailSendAttributes.RECIPIENTS.set(attributesMap, Address.asSerializableList(mailMessage.getAllRecipients()));
-            MailSendAttributes.SENT_DATE.set(attributesMap, mailMessage.getSentDate().getTime());
-            MessageAttributes attributes = new DefaultMessageAttributes(MailSend.class, attributesMap);
+            MessageAttributes attributes = MessageAttributesMapper.from(mail);
 
-            return MessageBuilder.get().attributes(attributes).empty().build();
+            return MessageBuilder.get()
+                    .attributes(attributes)
+                    .empty()
+                    .build();
 
         } catch (MessagingException exception) {
             throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);

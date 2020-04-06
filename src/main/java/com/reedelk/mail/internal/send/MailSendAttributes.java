@@ -6,10 +6,12 @@ import java.util.Map;
 public enum MailSendAttributes {
 
     FROM("from"),
+    TO("to"),
+    CC("cc"),
+    BCC("bcc"),
     SUBJECT("subject"),
     REPLY_TO("replyTo"),
-    SENT_DATE("sentDate"),
-    RECIPIENTS("recipients");
+    SENT_DATE("sentDate");
 
     private final String attributeName;
 

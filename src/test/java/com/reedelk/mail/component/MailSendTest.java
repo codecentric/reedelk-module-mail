@@ -148,7 +148,9 @@ class MailSendTest extends AbstractMailTest {
 
         assertThat(attributes).containsEntry("from", asSerializableList("from@test.com"));
         assertThat(attributes).containsEntry("replyTo", asSerializableList("replyTo@test.com"));
-        assertThat(attributes).containsEntry("recipients", asSerializableList("to@test.com", "cc@test.com", "bcc@test.com"));
+        assertThat(attributes).containsEntry("to", asSerializableList("to@test.com"));
+        assertThat(attributes).containsEntry("cc", asSerializableList("cc@test.com"));
+        assertThat(attributes).containsEntry("bcc", asSerializableList("bcc@test.com"));
     }
 
     private ArrayList<String> asSerializableList(String ...elements) {

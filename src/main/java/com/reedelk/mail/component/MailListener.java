@@ -55,9 +55,8 @@ public class MailListener extends AbstractInbound {
                 throw new RuntimeException("IDLE not supported");
             }
 
-            this.folder = store.getFolder(folderName);
-
-            this.folder.addMessageCountListener(new IMAPMessageListener());
+            folder = store.getFolder(folderName);
+            folder.addMessageCountListener(new IMAPMessageListener(this));
 
             listenerThread = new IMAPListenerThread(username, password, this.folder);
             listenerThread.start();
