@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 @Component(service = BodyDefinition.class, scope = ServiceScope.PROTOTYPE)
 public class BodyDefinition implements Implementor {
 
-    @Property("Content Expression")
+    @Property("Content")
     @Description("The result of the evaluation of this expression is set as mail body content.")
     private DynamicString content;
 

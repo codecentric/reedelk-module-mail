@@ -1,20 +1,25 @@
 package com.reedelk.mail.internal.listener;
 
+import com.reedelk.mail.component.MailListener;
 import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
 
 public class IMAPMessageListener extends MessageCountAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(IMAPMessageListener.class);
 
     private final InboundEventListener listener;
 
     public IMAPMessageListener(InboundEventListener listener) {
         this.listener = listener;
     }
+
     @Override
     public void messagesAdded(MessageCountEvent event) {
         Message[] messages = event.getMessages();
@@ -22,12 +27,10 @@ public class IMAPMessageListener extends MessageCountAdapter {
         for (Message message : messages) {
             try {
                 com.reedelk.runtime.api.message.Message inMessage =
-                        MailMessageToMessageMapper.map(message);
+                        MailMessageToMessageMapper.map(MailListener.class, message);
                 listener.onEvent(inMessage);
-
-                System.out.println("Mail Subject:- " + message.getSubject());
-            } catch (MessagingException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                logger.error(String.format("Could not map IMAP Message=[%s]", e.getMessage()));
             }
         }
     }

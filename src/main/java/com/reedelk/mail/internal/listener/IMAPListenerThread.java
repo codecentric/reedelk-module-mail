@@ -26,7 +26,6 @@ public class IMAPListenerThread extends Thread implements Closeable {
         while (running) {
             try {
                 ensureOpen(folder);
-                System.out.println("enter idle");
                 ((IMAPFolder) folder).idle();
             } catch (Exception e) {
                 // something went wrong
@@ -54,7 +53,6 @@ public class IMAPListenerThread extends Thread implements Closeable {
         }
 
         if (folder.exists() && !folder.isOpen() && (folder.getType() & Folder.HOLDS_MESSAGES) != 0) {
-            System.out.println("open folder " + folder.getFullName());
             folder.open(Folder.READ_ONLY);
             if (!folder.isOpen())
                 throw new MessagingException("Unable to open folder " + folder.getFullName());

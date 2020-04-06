@@ -1,7 +1,11 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.commons.MailMessageToMessageAttributesMapper;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
-import com.reedelk.mail.internal.send.*;
+import com.reedelk.mail.internal.send.MailAttachmentBuilder;
+import com.reedelk.mail.internal.send.MailBodyBuilder;
+import com.reedelk.mail.internal.send.MailMessageBuilder;
+import com.reedelk.mail.internal.send.SMTPSessionBuilder;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
@@ -149,7 +153,7 @@ public class MailSend implements ProcessorSync {
             mail.setContent(multipart);
             Transport.send(mail);
 
-            MessageAttributes attributes = MessageAttributesMapper.from(mail);
+            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(MailSend.class, mail);
 
             return MessageBuilder.get()
                     .attributes(attributes)

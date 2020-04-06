@@ -8,6 +8,7 @@ import com.reedelk.runtime.api.annotation.Group;
 import com.reedelk.runtime.api.annotation.ModuleComponent;
 import com.reedelk.runtime.api.annotation.Property;
 import com.reedelk.runtime.api.component.AbstractInbound;
+import com.reedelk.runtime.api.exception.ESBException;
 import com.sun.mail.imap.IMAPStore;
 import org.osgi.service.component.annotations.Component;
 
@@ -48,11 +49,11 @@ public class MailListener extends AbstractInbound {
 
         Session session = Session.getInstance(properties);
         try {
-            IMAPStore store = (IMAPStore) session.getStore("imaps");
+            store = (IMAPStore) session.getStore("imaps");
             store.connect(username, password);
 
             if (!store.hasCapability("IDLE")) {
-                throw new RuntimeException("IDLE not supported");
+                throw new ESBException("IDLE not supported");
             }
 
             folder = store.getFolder(folderName);
@@ -61,7 +62,7 @@ public class MailListener extends AbstractInbound {
             listenerThread = new IMAPListenerThread(username, password, this.folder);
             listenerThread.start();
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
             // TODO: Log this exception
             CloseableUtils.close(listenerThread);
             CloseableUtils.close(this.folder);
@@ -74,5 +75,13 @@ public class MailListener extends AbstractInbound {
         CloseableUtils.close(listenerThread);
         CloseableUtils.close(folder);
         CloseableUtils.close(store);
+    }
+
+    public IMAPConfiguration getConnectionConfiguration() {
+        return connectionConfiguration;
+    }
+
+    public void setConnectionConfiguration(IMAPConfiguration connectionConfiguration) {
+        this.connectionConfiguration = connectionConfiguration;
     }
 }

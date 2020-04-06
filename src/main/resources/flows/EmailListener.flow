@@ -1,0 +1,18 @@
+{
+  "id": "bb3c0883-cbe5-43da-88aa-1d32b42d024b",
+  "title": "Email Listener",
+  "description": "Email Listener Flow",
+  "flow": [
+    {
+      "implementor": "com.reedelk.mail.component.MailListener",
+      "description": "Mail Listener",
+      "connectionConfiguration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"}
+    },
+    {
+      "implementor": "com.reedelk.core.component.LoggerComponent",
+      "description": "Logger",
+      "level": "INFO",
+      "message": "#[message]"
+    }
+  ]
+}

@@ -11,7 +11,9 @@ public enum MailSendAttributes {
     BCC("bcc"),
     SUBJECT("subject"),
     REPLY_TO("replyTo"),
-    SENT_DATE("sentDate");
+    SENT_DATE("sentDate"),
+    ATTACHMENTS("attachments"),
+    MESSAGE_NUMBER("messageNumber");
 
     private final String attributeName;
 
