@@ -20,11 +20,17 @@
       }
     },
     {
+      "implementor": "com.reedelk.core.component.ScriptEvaluator",
+      "description": "Create parts",
+      "mimeType": "*/*",
+      "script": "CreateMailAttachments.js"
+    },
+    {
       "implementor": "com.reedelk.mail.component.MailSend",
       "description": "Send Email",
       "connectionConfiguration": {"ref": "1caf7199-fd33-4412-b159-daed994da418"},
       "from": "info@reedelk.com",
-      "to": "gironi.lorenzo@gmail.com",
+      "to": "#[['gironi.lorenzo@gmail.com','info@reedelk.com'].join(',')]",
       "subject": "This is a test",
       "body": {
         "content": "<h1>Hello<\/h1><p>Super duper<\/p>",
@@ -33,19 +39,20 @@
       },
       "cc": "",
       "bcc": "",
-      "attachmentsMap": "#[]",
+      "attachmentsMap": "#[message.payload()]",
       "attachments": [
         {
           "name": "my-super-attachment",
           "sourceType": "EXPRESSION",
           "expression": "#['hello test']",
-          "fileName": "my-"
+          "fileName": "my-hello-expression.txt"
         },
         {
           "name": "myFileAttachment",
           "contentType": "image/jpeg",
           "sourceType": "FILE",
-          "file": "/Users/lorenzo/Desktop/fffff.jpg"
+          "file": "/Users/lorenzo/Desktop/fffff.jpg",
+          "fileName": "overidden-picture.jpg"
         },
         {
           "name": "myPayload",
