@@ -112,9 +112,4 @@ class MailSendTest extends AbstractMailTest {
         assertThatCcIs(third, "cc@test.com");
         assertThatReplyToIs(third, "replyTo@test.com");
     }
-
-    @Test
-    void shouldCorrectlySendEmailWithAttachment() throws MessagingException {
-
-    }
 }
