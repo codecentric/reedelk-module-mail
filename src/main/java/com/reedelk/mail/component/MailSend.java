@@ -167,7 +167,7 @@ public class MailSend implements ProcessorSync {
                 .withAttachments(attachments)
                 .withConverter(converterService)
                 .withScriptEngine(scriptService)
-                .withAttachmentsObject(attachmentsMap)
+                .withAttachmentsMap(attachmentsMap)
                 .build(multipart);
     }
 

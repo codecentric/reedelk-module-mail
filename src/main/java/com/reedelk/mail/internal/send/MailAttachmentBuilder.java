@@ -25,7 +25,7 @@ public class MailAttachmentBuilder {
 
     private Message message;
     private FlowContext context;
-    private DynamicObject attachmentsObject;
+    private DynamicObject attachmentsMap;
     private ScriptEngineService scriptEngine;
     private ConverterService converterService;
     private List<AttachmentDefinition> attachments;
@@ -57,8 +57,8 @@ public class MailAttachmentBuilder {
         return this;
     }
 
-    public MailAttachmentBuilder withAttachmentsObject(DynamicObject attachmentsObject) {
-        this.attachmentsObject = attachmentsObject;
+    public MailAttachmentBuilder withAttachmentsMap(DynamicObject attachmentsObject) {
+        this.attachmentsMap = attachmentsObject;
         return this;
     }
 
@@ -68,14 +68,14 @@ public class MailAttachmentBuilder {
     }
 
     public void build(Multipart multipart) {
-        if (isNotNullOrBlank(attachmentsObject)) {
+        if (isNotNullOrBlank(attachmentsMap)) {
             fromAttachmentObject().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
         }
         fromAttachmentDefinitions().forEach(mimeBodyPart -> addPart(multipart, mimeBodyPart));
     }
 
     private List<MimeBodyPart> fromAttachmentObject() {
-        Object evaluationResult = scriptEngine.evaluate(attachmentsObject, context, message)
+        Object evaluationResult = scriptEngine.evaluate(attachmentsMap, context, message)
                 .orElseThrow(() -> {
                     throw new ESBException("Error");
                 });

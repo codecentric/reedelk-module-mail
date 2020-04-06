@@ -33,7 +33,7 @@
       },
       "cc": "",
       "bcc": "",
-      "attachmentsObject": "#[message.payload()]",
+      "attachmentsMap": "#[]",
       "attachments": [
         {
           "name": "my-super-attachment",
