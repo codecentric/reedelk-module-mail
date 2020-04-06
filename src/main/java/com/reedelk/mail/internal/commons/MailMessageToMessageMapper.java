@@ -65,7 +65,7 @@ public class MailMessageToMessageMapper {
             }
 
             ArrayList<Attachment> result = new ArrayList<>();
-            for (int i = 1; i < multipart.getCount(); i++) {
+            for (int i = 0; i < multipart.getCount(); i++) {
                 result.addAll(extractMail(multipart.getBodyPart(i)));
             }
             mailContent.attachments = result;
@@ -90,6 +90,8 @@ public class MailMessageToMessageMapper {
                 result.add(attachment);
                 return result;
             } else {
+                String contentType = part.getContentType();
+                System.out.println("It is not an attachment");
                 return new ArrayList<>();
             }
         }

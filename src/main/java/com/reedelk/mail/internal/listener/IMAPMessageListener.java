@@ -29,8 +29,9 @@ public class IMAPMessageListener extends MessageCountAdapter {
                 com.reedelk.runtime.api.message.Message inMessage =
                         MailMessageToMessageMapper.map(MailListener.class, message);
                 listener.onEvent(inMessage);
-            } catch (Exception e) {
-                logger.error(String.format("Could not map IMAP Message=[%s]", e.getMessage()));
+            } catch (Exception exception) {
+                String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
+                logger.error(error, exception);
             }
         }
     }
