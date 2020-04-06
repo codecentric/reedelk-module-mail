@@ -39,7 +39,7 @@ import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.require
 @Component(service = MailSend.class, scope = ServiceScope.PROTOTYPE)
 public class MailSend implements ProcessorSync {
 
-    @Property("Connection")
+    @Property("SMTP Connection")
     @Group("General")
     private SMTPConfiguration connectionConfiguration;
 
@@ -60,8 +60,8 @@ public class MailSend implements ProcessorSync {
     @Description("Sets the destination addresses of the email. " +
             "It can contain a comma separated list of recipients.")
     @Example("<ul>" +
-            "<li>To string: toAddress1@my-domain.com,toAddress2@my-domain.com</li>" +
-            "<li>To joined from list: <code>['toAddress1@my-domain.com','toAddress2@my-domain.com'].join(',')</code></li>" +
+            "<li>To string: toAddress1@domain.com,toAddress2@domain.com</li>" +
+            "<li>To joined from list: <code>['toAddress1@domain.com','toAddress2@domain.com'].join(',')</code></li>" +
             "</ul>")
     private DynamicString to;
 
@@ -78,29 +78,29 @@ public class MailSend implements ProcessorSync {
 
     @Property("Cc addresses")
     @Group("Recipients")
-    @Hint("cc1@my-domain.com,cc2@my-domain.com,cc3@my-domain.com")
+    @Hint("cc1@domain.com,cc2@domain.com,cc3@domain.com")
     @Description("The 'CC' addresses to be used in the email. " +
             "It can contain a comma separated list of addresses.")
     @Example("<ul>" +
-            "<li>Cc string: cc1@my-domain.com,cc2@my-domain.com</li>" +
-            "<li>Cc joined from list: <code>['cc1@my-domain.com','cc2@my-domain.com'].join(',')</code></li>" +
+            "<li>Cc string: cc1@domain.com,cc2@domain.com</li>" +
+            "<li>Cc joined from list: <code>['cc1@domain.com','cc2@domain.com'].join(',')</code></li>" +
             "</ul>")
     private DynamicString cc;
 
     @Property("Bcc addresses")
     @Group("Recipients")
-    @Hint("bcc1@my-domain.com,bcc2@my-domain.com,bcc3@my-domain.com")
+    @Hint("bcc1@domain.com,bcc2@domain.com,bcc3@domain.com")
     @Description("The 'BCC' addresses to be used in the email. " +
             "It can contain a comma separated list of addresses.")
     @Example("<ul>" +
-            "<li>Bcc string: bcc1@my-domain.com,bcc2@my-domain.com</li>" +
-            "<li>Bcc joined from list: <code>['bcc1@my-domain.com','bcc2@my-domain.com'].join(',')</code></li>" +
+            "<li>Bcc string: bcc1@domain.com,bcc2@domain.com</li>" +
+            "<li>Bcc joined from list: <code>['bcc1@domain.com','bcc2@domain.com'].join(',')</code></li>" +
             "</ul>")
     private DynamicString bcc;
 
     @Property("Reply To addresses")
     @Group("Recipients")
-    @Hint("replyTo1@my-domain.com,replyTo2@my-domain.com,replyTo3@my-domain.com")
+    @Hint("replyTo1@domain.com,replyTo2@domain.com,replyTo3@domain.com")
     @Description("The 'Reply To' addresses to be used in the email. " +
             "It can contain a comma separated list of reply to addresses.")
     private DynamicString replyTo;

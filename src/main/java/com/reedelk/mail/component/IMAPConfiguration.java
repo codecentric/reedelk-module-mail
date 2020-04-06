@@ -6,32 +6,41 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
 @Shared
-@Component(service = SMTPConfiguration.class, scope = ServiceScope.PROTOTYPE)
-public class SMTPConfiguration implements Implementor {
+@Component(service = IMAPConfiguration.class, scope = ServiceScope.PROTOTYPE)
+public class IMAPConfiguration implements Implementor {
 
     @Property("Host")
-    @Hint("smtp.domain.com")
-    @Example("smtp.domain.com")
-    @Description("The SMTP server host to be used for sending emails.")
+    @Hint("imap.domain.com")
+    @Example("imap.gmail.com")
+    @Description("The IMAP server host to be used for listening on new emails.")
     private String host;
 
     @Property("Port")
-    @Hint("587")
-    @Example("587")
-    @Description("The SMTP server port to be used for sending emails.")
+    @Hint("993")
+    @Example("993")
+    @Description("The IMAP server port to be used for listening on new emails.")
     private Integer port;
 
     @Property("Username")
     @Hint("myUsername")
     @Example("username@domain.com")
-    @Description("The username to be used to connect to the SMTP server.")
     private String username;
 
     @Property("Password")
     @Password
     @Example("myPassword")
-    @Description("The password to be used to connect to the SMTP server.")
     private String password;
+
+    @Property("Timeout")
+    @Example("10000")
+    private Integer timeout;
+
+    @Property("IMAP Folder")
+    @Example("INBOX")
+    @InitValue("INBOX")
+    @DefaultValue("INBOX")
+    @Description("The IMAP folder from which the listener should be listening from.")
+    private String folder;
 
     public String getHost() {
         return host;
@@ -63,5 +72,21 @@ public class SMTPConfiguration implements Implementor {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 }
