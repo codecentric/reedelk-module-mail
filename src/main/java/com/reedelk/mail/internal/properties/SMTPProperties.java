@@ -6,6 +6,7 @@ import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import java.util.Optional;
 import java.util.Properties;
 
+
 public class SMTPProperties extends Properties {
 
     private static final int DEFAULT_SMTP_PORT = 587;
@@ -18,8 +19,9 @@ public class SMTPProperties extends Properties {
         setProperty("mail.transport.protocol", "smtp");
         setProperty("mail.smtp.port", String.valueOf(port));
         setProperty("mail.smtp.host", host);
-        setProperty("mail.debug", String.valueOf(false));
         setProperty("mail.smtp.auth", String.valueOf(authenticate));
+
+
        // setProperty("mail.smtp.starttls.enable", this.isStartTLSEnabled() ? "true" : "false");
         //setProperty("mail.smtp.starttls.required", this.isStartTLSRequired() ? "true" : "false");
         //setProperty("mail.smtp.sendpartial", this.isSendPartial() ? "true" : "false");
