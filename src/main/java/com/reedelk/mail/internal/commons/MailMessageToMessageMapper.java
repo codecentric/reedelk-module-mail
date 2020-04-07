@@ -15,9 +15,7 @@ import org.apache.commons.mail.util.MimeMessageParser;
 
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -70,23 +68,15 @@ public class MailMessageToMessageMapper {
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) {
         try {
-            byte[] attachmentData = toByteArray(dataSource.getInputStream());
+            byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());
             Attachment attachment = Attachment.builder()
                     .content(new ByteArrayContent(attachmentData, MimeType.parse(dataSource.getContentType().toLowerCase())))
                     .build();
             attachmentMap.put(dataSource.getName(), attachment);
         } catch (IOException e) {
+            // TODO: Fixme
+            // Fail silently? With a warning? Or throw an exception ?
             e.printStackTrace();
         }
-    }
-
-    public static byte[] toByteArray(final InputStream input) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[16384];
-        while ((nRead = input.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
-        }
-        return buffer.toByteArray();
     }
 }

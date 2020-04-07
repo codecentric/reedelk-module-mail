@@ -53,6 +53,7 @@ public class MailListener extends AbstractInbound {
             store.connect(username, password);
 
             if (!store.hasCapability("IDLE")) {
+                // TODO: Switch to polling instead.
                 throw new ESBException("IDLE not supported");
             }
 

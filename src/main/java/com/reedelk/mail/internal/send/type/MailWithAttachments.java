@@ -2,9 +2,6 @@ package com.reedelk.mail.internal.send.type;
 
 import com.reedelk.mail.component.BodyDefinition;
 import com.reedelk.mail.component.MailSend;
-import com.reedelk.mail.internal.send.MailAttachmentBuilder;
-import com.reedelk.mail.internal.send.MailMessageBuilder;
-import com.reedelk.mail.internal.send.SMTPEmailFactory;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -18,10 +15,8 @@ import static java.util.Optional.ofNullable;
 
 public class MailWithAttachments extends AbstractMailType {
 
-    private final MailSend component;
-
     public MailWithAttachments(MailSend component) {
-        this.component = component;
+        super(component);
     }
 
     @Override
@@ -29,24 +24,11 @@ public class MailWithAttachments extends AbstractMailType {
 
         MultiPartEmail email = new MultiPartEmail();
 
-        SMTPEmailFactory.builder(email)
-                .configuration(component.getConnectionConfiguration())
-                .build();
+        configureConnection(email);
+        configureBaseMessage(context, message, email);
+        configureAttachments(context, message, email);
 
-        // Base Message
-        MailMessageBuilder.get(email)
-                .scriptService(component.getScriptService())
-                .replyTo(component.getReplyTo())
-                .subject(component.getSubject())
-                .from(component.getFrom())
-                .bcc(component.getBcc())
-                .to(component.getTo())
-                .cc(component.getCc())
-                .context(context)
-                .message(message)
-                .build();
-
-        // Body
+        // Text/Plain body
         BodyDefinition body = component.getBody();
 
         // The Body is optional. We can send a Mail without body content.
@@ -60,18 +42,6 @@ public class MailWithAttachments extends AbstractMailType {
 
         email.setCharset(charset);
         email.setMsg(bodyContent);
-
-
-        // Attachments
-        MailAttachmentBuilder.get(email)
-                .attachmentsMap(component.getAttachmentsMap())
-                .converter(component.getConverterService())
-                .scriptEngine(component.getScriptService())
-                .attachments(component.getAttachments())
-                .message(message)
-                .context(context)
-                .build();
-
         return email;
     }
 }

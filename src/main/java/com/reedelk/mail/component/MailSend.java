@@ -136,8 +136,7 @@ public class MailSend implements ProcessorSync {
 
             email.send();
 
-            MessageAttributes attributes =
-                    MailMessageToMessageAttributesMapper.from(MailSend.class, email);
+            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(MailSend.class, email);
 
             return MessageBuilder.get()
                     .attributes(attributes)
