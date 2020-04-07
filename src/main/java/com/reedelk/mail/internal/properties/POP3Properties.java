@@ -15,8 +15,9 @@ public class POP3Properties extends Properties {
                 .orElseThrow(() -> new MailMessageConfigurationException("Host is mandatory"));
         Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_POP3_PORT);
 
-        setProperty("mail.transport.protocol", "pop3");
-        setProperty("mail.pop3.host", host);
-        setProperty("mail.pop3.port", String.valueOf(port));
+        setProperty("mail.transport.protocol", "pop3s");
+        setProperty("mail.store.protocol", "pop3s");
+        setProperty("mail.pop3s.host", host);
+        setProperty("mail.pop3s.port", String.valueOf(port));
     }
 }

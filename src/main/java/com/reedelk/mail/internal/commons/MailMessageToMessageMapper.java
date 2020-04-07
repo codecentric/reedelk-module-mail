@@ -48,7 +48,10 @@ public class MailMessageToMessageMapper {
 
             Map<String, Serializable> attributesMap = new HashMap<>();
             MailSendAttributes.ATTACHMENTS.set(attributesMap, attachmentMap);
-            MailSendAttributes.SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
+            if (mail != null && mail.getSentDate() != null) {
+                MailSendAttributes.SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
+            }
+
             MailSendAttributes.MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
             MailSendAttributes.FROM.set(attributesMap, parsed.getFrom());
             MailSendAttributes.SUBJECT.set(attributesMap, parsed.getSubject());
