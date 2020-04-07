@@ -1,4 +1,4 @@
-package com.reedelk.mail.internal.listener;
+package com.reedelk.mail.internal.listener.imap;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -7,14 +7,14 @@ import javax.mail.MessagingException;
 import javax.mail.Store;
 import java.io.Closeable;
 
-public class IMAPListenerThread extends Thread implements Closeable {
+public class ImapIdleListenerThread extends Thread implements Closeable {
 
     private final Folder folder;
     private final String username;
     private final String password;
     private volatile boolean running = true;
 
-    public IMAPListenerThread(String username, String password, Folder folder) {
+    public ImapIdleListenerThread(String username, String password, Folder folder) {
         super();
         this.folder = folder;
         this.username = username;

@@ -1,7 +1,9 @@
-package com.reedelk.mail.internal.listener;
+package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.listener.OnMessageListener;
+import com.reedelk.mail.internal.listener.PollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 
 import javax.mail.*;
@@ -9,12 +11,12 @@ import javax.mail.search.FlagTerm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IMAPPollingStrategy implements PollingStrategy {
+public class IMAPPollingStrategy1 implements PollingStrategy {
 
     private final List<Integer> processMessageIds = new ArrayList<>();
     private final IMAPConfiguration configuration;
 
-    public IMAPPollingStrategy(IMAPConfiguration configuration) {
+    public IMAPPollingStrategy1(IMAPConfiguration configuration) {
         this.configuration = configuration;
     }
 
@@ -78,7 +80,6 @@ public class IMAPPollingStrategy implements PollingStrategy {
     private boolean processMessage(Message message) throws Exception {
         // TODO: Call the listener. ... if process success, (the flow executed correctly)
         // Then ... otherwise wait...
-
         return true;
     }
 
