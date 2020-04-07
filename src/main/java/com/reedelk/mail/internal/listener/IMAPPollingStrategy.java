@@ -1,31 +1,42 @@
 package com.reedelk.mail.internal.listener;
 
-public class IMAPPoller implements Poller {
+import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.properties.IMAPProperties;
+
+import javax.mail.*;
+import javax.mail.search.FlagTerm;
+import java.util.ArrayList;
+import java.util.List;
+
+public class IMAPPollingStrategy implements PollingStrategy {
+
+    private final List<Integer> processMessageIds = new ArrayList<>();
+    private final IMAPConfiguration configuration;
+
+    public IMAPPollingStrategy(IMAPConfiguration configuration) {
+        this.configuration = configuration;
+    }
 
     @Override
     public void poll() {
-        /**
         Store store = null;
         Folder folder = null;
-        try {
-            Properties properties = new Properties();
-            properties.put("mail.host", this.config.getHost());
-            properties.put(EmailPollerConstants.PORT, this.config.getPort());
-            properties.put(EmailPollerConstants.TLS_ENABLED, this.config.isTlsEnabled());
 
-            // create session
-            Session session = Session.getDefaultInstance(properties);
-            store = session.getStore(this.config.getProtocol());
+        try {
+            Session session = Session.getDefaultInstance(new IMAPProperties(configuration));
+            store = session.getStore();
 
             // authenticate
-            store.connect(this.config.getHost(), this.config.getUsername(), this.config.getPassword());
+            // TODO: If authenticate then connect with authentication.
+            store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
 
             // create the lookup folder and open with read and write access
-            folder = store.getFolder(this.config.getLookupFolder());
+            folder = store.getFolder(configuration.getFolder());
             folder.open(Folder.READ_WRITE);
 
             // search term to retrieve unseen messages from the folder
-            FlagTerm unseenFlagTerm = new FlagTerm(new Flags(Flag.SEEN), false);
+            FlagTerm unseenFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
             Message[] messages = folder.search(unseenFlagTerm);
 
             if (messages != null && messages.length > 0L) {
@@ -44,7 +55,7 @@ public class IMAPPoller implements Poller {
 
                             if (processed) {
                                 // update message seen flag
-                                message.setFlag(Flag.SEEN, true);
+                                message.setFlag(Flags.Flag.SEEN, true);
                             }
                         }
 
@@ -54,13 +65,21 @@ public class IMAPPoller implements Poller {
                 }
             }
 
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         } finally {
-            if (folder != null)
-                folder.close(false);
+            CloseableUtils.close(folder);
+            CloseableUtils.close(store);
+        }
+    }
 
-            if (store != null)
-                store.close();
-        }*/
+
+    private boolean processMessage(Message message) throws Exception {
+        // TODO: Call the listener. ... if process success, (the flow executed correctly)
+        // Then ... otherwise wait...
+
+        return true;
     }
 
     @Override

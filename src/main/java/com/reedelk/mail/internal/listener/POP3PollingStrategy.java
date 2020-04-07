@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.listener;
 
-public class POP3Poller implements Poller {
+public class POP3PollingStrategy implements PollingStrategy {
 
     @Override
     public void poll() {
