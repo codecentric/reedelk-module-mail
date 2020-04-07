@@ -11,12 +11,12 @@ import javax.mail.search.FlagTerm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IMAPPollingStrategy1 implements PollingStrategy {
+public class ImapPollingStrategy implements PollingStrategy {
 
     private final List<Integer> processMessageIds = new ArrayList<>();
     private final IMAPConfiguration configuration;
 
-    public IMAPPollingStrategy1(IMAPConfiguration configuration) {
+    public ImapPollingStrategy(IMAPConfiguration configuration) {
         this.configuration = configuration;
     }
 
