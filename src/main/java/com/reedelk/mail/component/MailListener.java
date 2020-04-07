@@ -91,7 +91,7 @@ public class MailListener extends AbstractInbound {
         if (Protocol.POP3.equals(protocol)) {
             // POP3
             requireNotNull(MailListener.class, pop3Configuration, "POP3 Configuration");
-            return new POP3MailListener(pop3Configuration);
+            return new POP3MailListener(pop3Configuration, this);
         } else {
             // IMAP
             requireNotNull(MailListener.class, imapConfiguration, "IMAP Configuration");

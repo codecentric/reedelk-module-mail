@@ -7,11 +7,11 @@ import java.util.concurrent.Executors;
 
 public class Poller {
 
-    private final PollingStrategy pollingStrategy;
+    private final ProtocolPollingStrategy pollingStrategy;
     private final ExecutorService threadPool;
     private final List<Runnable> pollingThreads = new ArrayList<>();
 
-    public Poller(PollingStrategy pollingStrategy) {
+    public Poller(ProtocolPollingStrategy pollingStrategy) {
         this.pollingStrategy = pollingStrategy;
         this.threadPool = Executors.newFixedThreadPool(1);//TODO: Parameter?
     }
@@ -35,10 +35,10 @@ public class Poller {
 
     private static class PollerThread implements Runnable {
 
-        private final PollingStrategy pollingStrategy;
+        private final ProtocolPollingStrategy pollingStrategy;
         private boolean isAlive = true;
 
-        PollerThread(PollingStrategy pollingStrategy) {
+        PollerThread(ProtocolPollingStrategy pollingStrategy) {
             this.pollingStrategy = pollingStrategy;
         }
 

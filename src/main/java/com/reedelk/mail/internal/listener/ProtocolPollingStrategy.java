@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.listener;
 
-public interface PollingStrategy {
+public interface ProtocolPollingStrategy {
 
     void poll();
 
