@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Poller {
 
@@ -47,7 +48,7 @@ public class Poller {
             while (this.isAlive) {
                 try {
                     pollingStrategy.poll();
-                    Thread.sleep(10000); // TODO: Polling delay
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(10)); // TODO: Polling delay
                 } catch (Exception ex) {
                     // suppress
                     // TODO: Check if we can interrupt immediately

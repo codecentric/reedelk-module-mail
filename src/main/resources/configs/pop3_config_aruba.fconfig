@@ -1,0 +1,9 @@
+{
+  "id": "98996e00-3482-4020-bdfc-ecd93d04f163",
+  "title": "Aruba POP3",
+  "implementor": "com.reedelk.mail.component.POP3Configuration",
+  "host": "pop3s.aruba.it",
+  "port": 995,
+  "username": "info@reedelk.com",
+  "password": "8FEE6C9VGz58xfaS"
+}
