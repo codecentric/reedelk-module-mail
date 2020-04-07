@@ -6,7 +6,8 @@
     {
       "implementor": "com.reedelk.mail.component.MailListener",
       "description": "Mail Listener",
-      "connectionConfiguration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"}
+      "protocol": "IMAP",
+      "imapConfiguration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"}
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",

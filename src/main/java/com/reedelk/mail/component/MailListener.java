@@ -33,6 +33,7 @@ public class MailListener extends AbstractInbound {
     @Property("IMAP Connection")
     @Group("General")
     @When(propertyName = "protocol", propertyValue = "IMAP")
+    @When(propertyName = "protocol", propertyValue = When.NULL)
     private IMAPConfiguration imapConfiguration;
 
     private IMAPListenerThread listenerThread;
