@@ -2,7 +2,8 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.listener.MailListenerInterface;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
-import com.reedelk.mail.internal.listener.imap.ImapMailListener;
+import com.reedelk.mail.internal.listener.imap.ImapPollMailListener;
+import com.reedelk.mail.internal.listener.pop3.POP3MailListener;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -43,20 +44,8 @@ public class MailListener extends AbstractInbound {
     @Override
     public void onStart() {
         requireNotNull(MailListener.class, protocol, "Protocol");
-
-        // POP3
-        if (Protocol.POP3.equals(protocol)) {
-            requireNotNull(MailListener.class, pop3Configuration, "POP3 Configuration");
-
-        } else {
-            // IMAP
-            requireNotNull(MailListener.class, imapConfiguration, "IMAP Configuration");
-            if (ImapListeningStrategy.IDLE.equals(imapStrategy)) {
-                mailListener = new ImapIdleMailListener(imapConfiguration, this);
-            } else {
-                mailListener = new ImapMailListener(imapConfiguration);
-            }
-        }
+        mailListener = createMailListener();
+        mailListener.start();
     }
 
     @Override
@@ -96,5 +85,21 @@ public class MailListener extends AbstractInbound {
 
     public void setImapStrategy(ImapListeningStrategy imapStrategy) {
         this.imapStrategy = imapStrategy;
+    }
+
+    private MailListenerInterface createMailListener() {
+        if (Protocol.POP3.equals(protocol)) {
+            // POP3
+            requireNotNull(MailListener.class, pop3Configuration, "POP3 Configuration");
+            return new POP3MailListener(pop3Configuration);
+        } else {
+            // IMAP
+            requireNotNull(MailListener.class, imapConfiguration, "IMAP Configuration");
+            if (ImapListeningStrategy.IDLE.equals(imapStrategy)) {
+                return new ImapIdleMailListener(imapConfiguration, this);
+            } else {
+                return new ImapPollMailListener(imapConfiguration);
+            }
+        }
     }
 }

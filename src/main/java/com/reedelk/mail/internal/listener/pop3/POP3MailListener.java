@@ -9,7 +9,7 @@ public class POP3MailListener implements MailListenerInterface {
     private Poller poller;
 
     public POP3MailListener(POP3Configuration configuration) {
-        POP3PollingStrategy pop3PollingStrategy = new POP3PollingStrategy();
+        POP3PollingStrategy pop3PollingStrategy = new POP3PollingStrategy(configuration);
         poller = new Poller(pop3PollingStrategy);
     }
 

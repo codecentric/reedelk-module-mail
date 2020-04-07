@@ -2,7 +2,6 @@ package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.internal.commons.CloseableUtils;
-import com.reedelk.mail.internal.listener.OnMessageListener;
 import com.reedelk.mail.internal.listener.PollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 
@@ -81,10 +80,5 @@ public class ImapPollingStrategy implements PollingStrategy {
         // TODO: Call the listener. ... if process success, (the flow executed correctly)
         // Then ... otherwise wait...
         return true;
-    }
-
-    @Override
-    public void setListener(OnMessageListener listener) {
-
     }
 }

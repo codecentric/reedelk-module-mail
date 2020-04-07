@@ -4,5 +4,4 @@ public interface PollingStrategy {
 
     void poll();
 
-    void setListener(OnMessageListener listener);
 }
