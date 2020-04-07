@@ -1,10 +1,10 @@
 package com.reedelk.mail.internal.listener.pop3;
 
 import com.reedelk.mail.component.POP3Configuration;
-import com.reedelk.mail.internal.listener.MailListenerInterface;
 import com.reedelk.mail.internal.listener.Poller;
+import com.reedelk.mail.internal.listener.ProtocolMailListener;
 
-public class POP3MailListener implements MailListenerInterface {
+public class POP3MailListener implements ProtocolMailListener {
 
     private Poller poller;
 

@@ -1,15 +1,16 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
-import com.reedelk.mail.internal.listener.MailListenerInterface;
 import com.reedelk.mail.internal.listener.Poller;
+import com.reedelk.mail.internal.listener.ProtocolMailListener;
+import com.reedelk.runtime.api.component.InboundEventListener;
 
-public class ImapPollMailListener implements MailListenerInterface {
+public class ImapPollMailListener implements ProtocolMailListener {
 
     private final Poller poller;
 
-    public ImapPollMailListener(IMAPConfiguration imapConfiguration) {
-        ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(imapConfiguration);
+    public ImapPollMailListener(IMAPConfiguration imapConfiguration, InboundEventListener eventListener) {
+        ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(imapConfiguration, eventListener);
         this.poller = new Poller(pollingStrategy);
     }
 

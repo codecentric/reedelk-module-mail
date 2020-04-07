@@ -1,9 +1,12 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.component.MailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.mail.internal.listener.PollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
+import com.reedelk.runtime.api.component.InboundEventListener;
 
 import javax.mail.*;
 import javax.mail.search.FlagTerm;
@@ -14,9 +17,11 @@ public class ImapPollingStrategy implements PollingStrategy {
 
     private final List<Integer> processMessageIds = new ArrayList<>();
     private final IMAPConfiguration configuration;
+    private final InboundEventListener listener;
 
-    public ImapPollingStrategy(IMAPConfiguration configuration) {
+    public ImapPollingStrategy(IMAPConfiguration configuration, InboundEventListener listener) {
         this.configuration = configuration;
+        this.listener = listener;
     }
 
     @Override
@@ -42,26 +47,17 @@ public class ImapPollingStrategy implements PollingStrategy {
 
             if (messages != null && messages.length > 0L) {
                 for (Message message : messages) {
+                    // double check the message is unseen
+                    Message[] processMessage = folder.search(unseenFlagTerm, new Message[]{message});
+                    if (processMessage != null && processMessage.length > 0L) {
 
-                    // check the message is processing
-                    if (!this.processMessageIds.contains(message.getMessageNumber())) {
-                        this.processMessageIds.add(message.getMessageNumber());
+                        // process message
+                        boolean processed = processMessage(message);
 
-                        // double check the message is unseen
-                        Message[] processMessage = folder.search(unseenFlagTerm, new Message[] { message });
-                        if (processMessage != null && processMessage.length > 0L) {
-
-                            // process message
-                            boolean processed = processMessage(message);
-
-                            if (processed) {
-                                // update message seen flag
-                                message.setFlag(Flags.Flag.SEEN, true);
-                            }
+                        if (processed) {
+                            // update message seen flag
+                            message.setFlag(Flags.Flag.SEEN, true);
                         }
-
-                        // removing the processed message
-                        this.processMessageIds.remove(message.getMessageNumber());
                     }
                 }
             }
@@ -77,6 +73,9 @@ public class ImapPollingStrategy implements PollingStrategy {
 
 
     private boolean processMessage(Message message) throws Exception {
+        com.reedelk.runtime.api.message.Message inMessage =
+                MailMessageToMessageMapper.map(MailListener.class, message);
+        this.listener.onEvent(inMessage);
         // TODO: Call the listener. ... if process success, (the flow executed correctly)
         // Then ... otherwise wait...
         return true;

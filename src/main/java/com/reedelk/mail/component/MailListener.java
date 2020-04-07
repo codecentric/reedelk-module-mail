@@ -1,6 +1,6 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.listener.MailListenerInterface;
+import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapPollMailListener;
 import com.reedelk.mail.internal.listener.pop3.POP3MailListener;
@@ -39,7 +39,7 @@ public class MailListener extends AbstractInbound {
     @When(propertyName = "protocol", propertyValue = When.NULL)
     private IMAPConfiguration imapConfiguration;
 
-    private MailListenerInterface mailListener;
+    private ProtocolMailListener mailListener;
 
     @Override
     public void onStart() {
@@ -87,7 +87,7 @@ public class MailListener extends AbstractInbound {
         this.imapStrategy = imapStrategy;
     }
 
-    private MailListenerInterface createMailListener() {
+    private ProtocolMailListener createMailListener() {
         if (Protocol.POP3.equals(protocol)) {
             // POP3
             requireNotNull(MailListener.class, pop3Configuration, "POP3 Configuration");
@@ -98,7 +98,7 @@ public class MailListener extends AbstractInbound {
             if (ImapListeningStrategy.IDLE.equals(imapStrategy)) {
                 return new ImapIdleMailListener(imapConfiguration, this);
             } else {
-                return new ImapPollMailListener(imapConfiguration);
+                return new ImapPollMailListener(imapConfiguration, this);
             }
         }
     }

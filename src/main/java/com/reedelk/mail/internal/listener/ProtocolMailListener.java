@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.listener;
 
-public interface MailListenerInterface {
+public interface ProtocolMailListener {
 
     void start();
 

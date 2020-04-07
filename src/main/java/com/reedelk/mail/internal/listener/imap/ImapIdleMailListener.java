@@ -2,7 +2,7 @@ package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.internal.commons.CloseableUtils;
-import com.reedelk.mail.internal.listener.MailListenerInterface;
+import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.reedelk.runtime.api.exception.ESBException;
@@ -11,7 +11,7 @@ import com.sun.mail.imap.IMAPStore;
 import javax.mail.Folder;
 import javax.mail.Session;
 
-public class ImapIdleMailListener implements MailListenerInterface {
+public class ImapIdleMailListener implements ProtocolMailListener {
 
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
