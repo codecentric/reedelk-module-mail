@@ -4,7 +4,7 @@ import com.reedelk.mail.component.BodyDefinition;
 import com.reedelk.mail.component.MailSend;
 import com.reedelk.mail.internal.send.MailAttachmentBuilder;
 import com.reedelk.mail.internal.send.MailMessageBuilder;
-import com.reedelk.mail.internal.send.SMTPEmailFactory;
+import com.reedelk.mail.internal.send.MailSessionBuilder;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import org.apache.commons.mail.Email;
@@ -23,15 +23,8 @@ abstract class AbstractMailType implements MailTypeStrategy {
         this.component = component;
     }
 
-    protected String charsetFrom(BodyDefinition definition) {
-        if (definition == null) return StandardCharsets.UTF_8.toString();
-        if (isBlank(definition.getCharset())) return StandardCharsets.UTF_8.toString();
-        else return definition.getCharset();
-    }
-
-
     protected void configureConnection(Email email) {
-        SMTPEmailFactory.builder(email)
+        MailSessionBuilder.builder(email)
                 .configuration(component.getConnectionConfiguration())
                 .build();
     }
@@ -60,5 +53,11 @@ abstract class AbstractMailType implements MailTypeStrategy {
                 .scriptEngine(component.getScriptService())
                 .attachmentsMap(component.getAttachmentsMap())
                 .build();
+    }
+
+    protected String charsetFrom(BodyDefinition definition) {
+        if (definition == null) return StandardCharsets.UTF_8.toString();
+        if (isBlank(definition.getCharset())) return StandardCharsets.UTF_8.toString();
+        else return definition.getCharset();
     }
 }
