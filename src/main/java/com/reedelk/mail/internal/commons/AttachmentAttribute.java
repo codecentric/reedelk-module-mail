@@ -8,8 +8,7 @@ public enum AttachmentAttribute {
 
     CHARSET("charset"),
     FILENAME("filename"),
-    CONTENT_TYPE("content-type"),
-    CONTENT_TRANSFER_ENCODING("content-transfer-encoding");
+    CONTENT_TYPE("content-type");
 
     private final String attributeName;
 

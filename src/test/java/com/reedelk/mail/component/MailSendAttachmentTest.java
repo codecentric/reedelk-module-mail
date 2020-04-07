@@ -1,6 +1,5 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.runtime.api.commons.StringUtils;
 import com.reedelk.runtime.api.message.content.MimeType;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicByteArray;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
@@ -44,6 +43,10 @@ public class MailSendAttachmentTest extends AbstractMailTest {
         attachment.setExpression(DynamicByteArray.from("<h1>My attachment HTML</h1>"));
         attachment.setFileName(DynamicString.from("my-attachment.txt"));
 
+        BodyDefinition bodyDefinition = new BodyDefinition();
+        bodyDefinition.setContent(DynamicString.from("My email body"));
+
+        component.setBody(bodyDefinition);
         component.setTo(DynamicString.from("to@test.com"));
         component.setFrom(DynamicString.from("from@test.com"));
         component.setAttachments(Collections.singletonList(attachment));
@@ -60,7 +63,7 @@ public class MailSendAttachmentTest extends AbstractMailTest {
         assertThatToIs(received, "to@test.com");
         assertThatFromIs(received, "from@test.com");
         assertThatSubjectIs(received, null);
-        assertThatBodyContentIs(received, StringUtils.EMPTY);
+        assertThatBodyContentIs(received, "My email body");
 
         MimeMultipart content = (MimeMultipart) received.getContent();
         BodyPart attachmentPart = content.getBodyPart(1);

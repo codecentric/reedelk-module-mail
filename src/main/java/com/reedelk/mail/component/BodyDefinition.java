@@ -15,18 +15,11 @@ public class BodyDefinition implements Implementor {
     private DynamicString content;
 
     @Property("Content Type")
-    @MimeTypeCombo
+    @Combo(comboValues = { MimeType.AsString.TEXT_PLAIN, MimeType.AsString.TEXT_HTML }, prototype = "XXXXXXXXXXXX")
     @Example(MimeType.AsString.TEXT_HTML)
     @DefaultValue(MimeType.AsString.TEXT_PLAIN)
     @Description("Sets the content type of the mail body.")
     private String contentType;
-
-    @Property("Transfer Encoding")
-    @Example("Base64")
-    @DefaultValue("7bit")
-    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
-    @Description("Sets the content transfer encoding header of the mail body.")
-    private String contentTransferEncoding;
 
     @Property("Charset")
     @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
@@ -59,11 +52,4 @@ public class BodyDefinition implements Implementor {
         this.charset = charset;
     }
 
-    public String getContentTransferEncoding() {
-        return contentTransferEncoding;
-    }
-
-    public void setContentTransferEncoding(String contentTransferEncoding) {
-        this.contentTransferEncoding = contentTransferEncoding;
-    }
 }

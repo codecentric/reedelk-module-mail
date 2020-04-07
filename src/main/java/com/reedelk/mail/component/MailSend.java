@@ -2,10 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.commons.MailMessageToMessageAttributesMapper;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
-import com.reedelk.mail.internal.send.MailAttachmentBuilder;
-import com.reedelk.mail.internal.send.MailBodyBuilder;
-import com.reedelk.mail.internal.send.MailMessageBuilder;
-import com.reedelk.mail.internal.send.SMTPSessionBuilder;
+import com.reedelk.mail.internal.send.type.MailTypeFactory;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
@@ -16,15 +13,13 @@ import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.MimeMultipart;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,78 +120,33 @@ public class MailSend implements ProcessorSync {
     @Reference
     ConverterService converterService;
 
-    private Session session;
-
     @Override
     public void initialize() {
         requireNotNullOrBlank(MailSend.class, to, "To must not be blank");
         requireNotNullOrBlank(MailSend.class, from, "From must not be blank");
+        requireNotNull(MailSend.class, body, "Email body definition must be defined");
         requireNotNull(MailSend.class, connectionConfiguration, "Connection configuration is mandatory");
-
-        this.session = SMTPSessionBuilder.builder()
-                .configuration(connectionConfiguration)
-                .build();
     }
 
     @Override
     public Message apply(FlowContext flowContext, Message message) {
         try {
-            javax.mail.Message mail = buildBaseMessage(flowContext, message);
 
-            // Build Body and Attachments
-            Multipart multipart = new MimeMultipart();
+            Email email = MailTypeFactory.from(this).create(flowContext, message);
 
-            buildMessageBody(flowContext, message, multipart);
-            buildAttachments(flowContext, message, multipart);
+            email.send();
 
-            // Send the message
-            mail.setContent(multipart);
-            Transport.send(mail);
-
-            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(MailSend.class, mail);
+            MessageAttributes attributes =
+                    MailMessageToMessageAttributesMapper.from(MailSend.class, email);
 
             return MessageBuilder.get()
                     .attributes(attributes)
                     .empty()
                     .build();
 
-        } catch (MessagingException exception) {
+        } catch (EmailException | MessagingException exception) {
             throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
-    }
-
-    private void buildAttachments(FlowContext flowContext, Message message, Multipart multipart) {
-        MailAttachmentBuilder.get()
-                .withMessage(message)
-                .withFlowContext(flowContext)
-                .withAttachments(attachments)
-                .withConverter(converterService)
-                .withScriptEngine(scriptService)
-                .withAttachmentsMap(attachmentsMap)
-                .build(multipart);
-    }
-
-    private void buildMessageBody(FlowContext flowContext, Message message, Multipart multipart) {
-        MailBodyBuilder.get(body)
-                .withMessage(message)
-                .withFlowContext(flowContext)
-                .withScriptEngine(scriptService)
-                .build(multipart);
-    }
-
-    private javax.mail.Message buildBaseMessage(FlowContext flowContext, Message message) throws MessagingException {
-        // Build Base Message
-        return MailMessageBuilder.get(session)
-                .cc(cc)
-                .to(to)
-                .bcc(bcc)
-                .from(from)
-                .message(message)
-                .replyTo(replyTo)
-                .subject(subject)
-                .context(flowContext)
-                .scriptService(scriptService)
-                .build();
     }
 
     public SMTPConfiguration getConnectionConfiguration() {
@@ -277,5 +227,13 @@ public class MailSend implements ProcessorSync {
 
     public void setAttachments(List<AttachmentDefinition> attachments) {
         this.attachments = attachments;
+    }
+
+    public ScriptEngineService getScriptService() {
+        return scriptService;
+    }
+
+    public ConverterService getConverterService() {
+        return converterService;
     }
 }

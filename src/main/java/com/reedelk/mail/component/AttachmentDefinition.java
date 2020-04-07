@@ -14,7 +14,7 @@ public class AttachmentDefinition implements Implementor {
 
     @Property("Name")
     @Hint("PDF Attachment")
-    @Description("A display name of the attachment used only for display purposes in the Flow Designer.")
+    @Description("A display name of the attachment used in the Flow Designer and as email attachment description.")
     private String name;
 
     @Property("Content Type")
@@ -23,13 +23,6 @@ public class AttachmentDefinition implements Implementor {
     @DefaultValue(MimeType.AsString.TEXT_PLAIN)
     @Description("Sets the mime type of the attachment to be sent in the email.")
     private String contentType;
-
-    @Property("Transfer Encoding")
-    @Example("Base64")
-    @DefaultValue("7bit")
-    @Combo(editable = true, comboValues = {"Base64", "Quoted-Printable", "8bit", "7bit", "binary"})
-    @Description("Sets the content transfer encoding header of the attachment.")
-    private String contentTransferEncoding;
 
     @Property("Charset")
     @DefaultValue("UTF-8")
@@ -96,14 +89,6 @@ public class AttachmentDefinition implements Implementor {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
-    }
-
-    public String getContentTransferEncoding() {
-        return contentTransferEncoding;
-    }
-
-    public void setContentTransferEncoding(String contentTransferEncoding) {
-        this.contentTransferEncoding = contentTransferEncoding;
     }
 
     public String getCharset() {

@@ -18,6 +18,7 @@ public class SMTPConfiguration implements Implementor {
     @Property("Port")
     @Hint("587")
     @Example("587")
+    @DefaultValue("587")
     @Description("The SMTP server port to be used for sending emails.")
     private Integer port;
 

@@ -1,6 +1,6 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.runtime.api.commons.StringUtils;
+import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class MailSendTest extends AbstractMailTest {
@@ -35,24 +36,22 @@ class MailSendTest extends AbstractMailTest {
     }
 
     @Test
-    void shouldCorrectlySendEmailWithJustFromAndTo() throws MessagingException, IOException {
+    void shouldThrowExceptionWhenBodyNotPresent() {
         // Given
+        BodyDefinition bodyDefinition = new BodyDefinition();
+
+        component.setBody(bodyDefinition);
         component.setTo(DynamicString.from("to@test.com"));
         component.setFrom(DynamicString.from("from@test.com"));
         component.initialize();
 
         // When
-        component.apply(context, message);
+        MailMessageConfigurationException thrown = assertThrows(MailMessageConfigurationException.class,
+                () -> component.apply(context, message));
 
         // Then
-        assertReceivedMessagesCountIs(1);
-
-        MimeMessage received = firstReceivedMessage();
-
-        assertThatToIs(received, "to@test.com");
-        assertThatFromIs(received, "from@test.com");
-        assertThatSubjectIs(received, null);
-        assertThatBodyContentIs(received, StringUtils.EMPTY);
+        assertThat(thrown).hasMessage("The mail body must not be empty");
+        assertReceivedMessagesCountIs(0);
     }
 
     @Test
@@ -78,12 +77,16 @@ class MailSendTest extends AbstractMailTest {
         assertThatToIs(received, "to@test.com");
         assertThatFromIs(received, "from@test.com");
         assertThatSubjectIs(received, "My email subject");
-        assertThatBodyContentIs(received, "My email body");
+        assertThatBodyContentIs(received, "My email body\r\n");
     }
 
     @Test
     void shouldCorrectlySendEmailWithFromToCcBccAndReplyTo() throws MessagingException {
         // Given
+        BodyDefinition bodyDefinition = new BodyDefinition();
+        bodyDefinition.setContent(DynamicString.from("My email body"));
+
+        component.setBody(bodyDefinition);
         component.setTo(DynamicString.from("to@test.com"));
         component.setCc(DynamicString.from("cc@test.com"));
         component.setBcc(DynamicString.from("bcc@test.com"));
@@ -146,7 +149,7 @@ class MailSendTest extends AbstractMailTest {
         assertThat(attributes).containsEntry("componentName", "MailSend");
         assertThat(attributes).containsEntry("subject", "My email subject");
 
-        assertThat(attributes).containsEntry("from", asSerializableList("from@test.com"));
+        assertThat(attributes).containsEntry("from","from@test.com");
         assertThat(attributes).containsEntry("replyTo", asSerializableList("replyTo@test.com"));
         assertThat(attributes).containsEntry("to", asSerializableList("to@test.com"));
         assertThat(attributes).containsEntry("cc", asSerializableList("cc@test.com"));

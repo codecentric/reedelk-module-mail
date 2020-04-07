@@ -15,6 +15,7 @@ public class Messages {
 
     public enum MailSendComponent implements FormattedMessage {
 
+        MAIL_BODY_EMPTY_ERROR("The mail body must not be empty"),
         MAIL_MESSAGE_ERROR("The Mail message could not be built, error=[%s]"),
         ATTACHMENT_FILE_NAME("The attachment file name must not be empty (expression=[%s])"),
         ATTACHMENT_FILE_EMPTY("The attachment file from expression=[%s] is empty"),

@@ -1,111 +1,84 @@
 package com.reedelk.mail.internal.commons;
 
+import com.reedelk.mail.internal.send.MailSendAttributes;
 import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
-import com.reedelk.runtime.api.message.content.*;
+import com.reedelk.runtime.api.message.content.Attachment;
+import com.reedelk.runtime.api.message.content.ByteArrayContent;
+import com.reedelk.runtime.api.message.content.MimeType;
+import com.reedelk.runtime.api.message.content.StringContent;
+import org.apache.commons.mail.util.MimeMessageParser;
 
-import javax.mail.BodyPart;
-import javax.mail.Multipart;
-import javax.mail.Part;
+import javax.activation.DataSource;
+import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.reedelk.runtime.api.commons.StringUtils.isNotBlank;
+import java.util.Map;
 
 public class MailMessageToMessageMapper {
 
     public static Message map(Class<? extends Component> componentClazz, javax.mail.Message mail) {
         try {
-            MailContent mailContent = extractMail(mail);
+            MimeMessage mimeMessage = (MimeMessage) mail;
+            MimeMessageParser parser = new MimeMessageParser(mimeMessage);
+            MimeMessageParser parsed = parser.parse();
 
-            MessageAttributes messageAttributes =
-                    MailMessageToMessageAttributesMapper.from(componentClazz, mail, mailContent.attachments);
+            MessageBuilder messageBuilder = MessageBuilder.get();
 
-            return MessageBuilder.get()
-                    .attributes(messageAttributes)
-                    .withTypedContent(mailContent.body)
-                    .build();
+            if (parsed.hasHtmlContent()) {
+                StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
+                messageBuilder.withTypedContent(htmlContent);
+            } else if (parsed.hasPlainContent()){
+                StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
+                messageBuilder.withTypedContent(plainContent);
+            } else {
+                messageBuilder.empty();
+            }
+
+            HashMap<String, Attachment> attachmentMap = new HashMap<>();
+
+            List<DataSource> attachmentList = parser.getAttachmentList();
+            attachmentList.forEach(dataSource -> processAttachment(attachmentMap, dataSource));
+
+            Map<String, Serializable> attributesMap = new HashMap<>();
+            MailSendAttributes.ATTACHMENTS.set(attributesMap, attachmentMap);
+            MailSendAttributes.SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
+            MailSendAttributes.MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
+            MailSendAttributes.FROM.set(attributesMap, parsed.getFrom());
+            MailSendAttributes.SUBJECT.set(attributesMap, parsed.getSubject());
+            MailSendAttributes.REPLY_TO.set(attributesMap, parsed.getReplyTo());
+            MailSendAttributes.TO.set(attributesMap, Address.asSerializableList(parsed.getTo()));
+            MailSendAttributes.CC.set(attributesMap, Address.asSerializableList(parsed.getCc()));
+            MailSendAttributes.BCC.set(attributesMap, Address.asSerializableList(parsed.getBcc()));
+            MessageAttributes messageAttributes = new DefaultMessageAttributes(componentClazz, attributesMap);
+            messageBuilder.attributes(messageAttributes);
+
+            return messageBuilder.build();
 
         } catch (Exception exception) {
             throw new ESBException(exception);
         }
     }
 
-    static class MailContent {
-        ArrayList<Attachment> attachments = new ArrayList<>();
-        TypedContent<?,?> body;
+    private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) {
+        try {
+            byte[] attachmentData = toByteArray(dataSource.getInputStream());
+            Attachment attachment = Attachment.builder()
+                    .content(new ByteArrayContent(attachmentData, MimeType.parse(dataSource.getContentType().toLowerCase())))
+                    .build();
+            attachmentMap.put(dataSource.getName(), attachment);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    public static MailContent extractMail(javax.mail.Message message) throws Exception {
-        MailContent mailContent = new MailContent();
-
-        Object content = message.getContent();
-        if (content instanceof String) {
-            // No attachments
-            MimeType realMimeType = MimeType.parse(message.getContentType().toLowerCase());
-            mailContent.body = new StringContent((String) content, realMimeType);
-        }
-
-        if (content instanceof Multipart) {
-            // There are attachments: First Body Part is the Actual Body
-            Multipart multipart = (Multipart) content;
-
-
-            BodyPart bodyPart = multipart.getBodyPart(0);
-            Object bodyContent = bodyPart.getContent();
-            if (bodyContent instanceof String) {
-                MimeType realMimeType = MimeType.parse(bodyPart.getContentType().toLowerCase());
-                mailContent.body = new StringContent((String) bodyContent, realMimeType);
-            }
-
-            ArrayList<Attachment> result = new ArrayList<>();
-            for (int i = 0; i < multipart.getCount(); i++) {
-                result.addAll(extractMail(multipart.getBodyPart(i)));
-            }
-            mailContent.attachments = result;
-
-        }
-        return mailContent;
-    }
-
-    private static List<Attachment> extractMail(BodyPart part) throws Exception {
-        List<Attachment> result = new ArrayList<>();
-        Object content = part.getContent();
-        if (content instanceof InputStream || content instanceof String) {
-            if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition()) ||
-                    isNotBlank(part.getFileName())) {
-                byte[] bytes = toByteArray(part.getInputStream());
-                String contentType = part.getContentType();
-                MimeType realMimeType = MimeType.parse(contentType.toLowerCase());
-                ByteArrayContent byteArrayContent = new ByteArrayContent(bytes, realMimeType);
-                Attachment attachment = Attachment.builder()
-                        .content(byteArrayContent)
-                        .build();
-                result.add(attachment);
-                return result;
-            } else {
-                String contentType = part.getContentType();
-                System.out.println("It is not an attachment");
-                return new ArrayList<>();
-            }
-        }
-
-        if (content instanceof Multipart) {
-            Multipart multipart = (Multipart) content;
-            for (int i = 0; i < multipart.getCount(); i++) {
-                BodyPart bodyPart = multipart.getBodyPart(i);
-                result.addAll(extractMail(bodyPart));
-            }
-        }
-        return result;
-    }
-
 
     public static byte[] toByteArray(final InputStream input) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

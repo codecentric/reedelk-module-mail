@@ -55,15 +55,6 @@ public class MailAttachment {
     }
 
     @AutocompleteItem(cursorOffset = 1,
-            signature = "contentTransferEncoding(transferEncoding: String)",
-            example = "MailAttachmentBuilder.create().contentTransferEncoding('Base64')",
-            description = "Sets the content transfer encoding of the attachment object.")
-    public MailAttachment contentTransferEncoding(String transferEncoding) {
-        AttachmentAttribute.CONTENT_TRANSFER_ENCODING.set(current, transferEncoding);
-        return this;
-    }
-
-    @AutocompleteItem(cursorOffset = 1,
             signature = "binary(data: byte[])",
             example = "MailAttachmentBuilder.create().binary(message.payload())",
             description = "Sets binary data to the current attachment object. Default mime type is 'application/octet-stream'.")

@@ -99,9 +99,13 @@ abstract class AbstractMailTest {
     }
 
     protected void assertThatBodyContentIs(MimeMessage received, String expected) throws IOException, MessagingException {
-        MimeMultipart content = (MimeMultipart) received.getContent();
-        BodyPart bodyPart = content.getBodyPart(0);
-        assertThat(bodyPart.getContent()).isEqualTo(expected);
+        if (received.getContent() instanceof String) {
+            assertThat(received.getContent()).isEqualTo(expected);
+        } else {
+            MimeMultipart content = (MimeMultipart) received.getContent();
+            BodyPart bodyPart = content.getBodyPart(0);
+            assertThat(bodyPart.getContent()).isEqualTo(expected);
+        }
     }
 
     protected void mockScriptEngineEvaluation() {

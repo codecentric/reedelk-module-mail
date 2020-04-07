@@ -1,25 +1,23 @@
 package com.reedelk.mail.internal.send;
 
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
+import com.reedelk.runtime.api.commons.StringUtils;
 import com.reedelk.runtime.api.commons.Unchecked;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Date;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.mail.Message.RecipientType.*;
+import static java.util.Arrays.asList;
 
 public class MailMessageBuilder {
 
-    private final Session session;
+    private final Email email;
     private ScriptEngineService scriptService;
 
     private DynamicString from;
@@ -32,12 +30,12 @@ public class MailMessageBuilder {
     private FlowContext context;
     private com.reedelk.runtime.api.message.Message message;
 
-    private MailMessageBuilder(Session session) {
-        this.session = session;
+    private MailMessageBuilder(Email email) {
+        this.email = email;
     }
 
-    public static MailMessageBuilder get(Session session) {
-        return new MailMessageBuilder(session);
+    public static MailMessageBuilder get(Email email) {
+        return new MailMessageBuilder(email);
     }
 
     public MailMessageBuilder to(DynamicString to) {
@@ -85,42 +83,46 @@ public class MailMessageBuilder {
         return this;
     }
 
+    public void build() throws EmailException {
+        try {
+            // Mandatory
+            String evaluatedFrom = scriptService.evaluate(from, context, message)
+                    .orElseThrow(() -> new MailMessageConfigurationException(FROM_ERROR.format(from.toString())));
 
-    public Message build() throws MessagingException {
+            email.setFrom(evaluatedFrom);
 
-        MimeMessage mailMessage = new MimeMessage(session);
-        mailMessage.setSentDate(new Date());
 
-        // Mandatory
-        String evaluatedFrom = scriptService.evaluate(from, context, message)
-                .orElseThrow(() -> new MailMessageConfigurationException(FROM_ERROR.format(from.toString())));
-        mailMessage.setFrom(new InternetAddress(evaluatedFrom));
+            // Mandatory
+            String evaluatedTo = scriptService.evaluate(to, context, message)
+                    .orElseThrow(() -> new MailMessageConfigurationException(TO_ERROR.format(to.toString())));
+            email.setTo(asList(InternetAddress.parse(evaluatedTo)));
 
-        // Mandatory
-        String evaluatedTo = scriptService.evaluate(to, context, message)
-                .orElseThrow(() -> new MailMessageConfigurationException(TO_ERROR.format(to.toString())));
-        mailMessage.setRecipients(TO, InternetAddress.parse(evaluatedTo));
+            // Optional
+            scriptService.evaluate(cc, context, message)
+                    .filter(StringUtils::isNotBlank)
+                    .ifPresent(Unchecked.consumer(cc -> email.setCc(asList(InternetAddress.parse(cc))),
+                            (cc, exception) -> new MailMessageConfigurationException(CC_ERROR.format(cc, this.cc.toString()), exception)));
 
-        // Optional
-        scriptService.evaluate(cc, context, message).ifPresent(
-                Unchecked.consumer(cc -> mailMessage.setRecipients(CC, InternetAddress.parse(cc)),
-                        (cc, exception) -> new MailMessageConfigurationException(CC_ERROR.format(cc, this.cc.toString()), exception)));
+            // Optional
+            scriptService.evaluate(bcc, context, message)
+                    .filter(StringUtils::isNotBlank)
+                    .ifPresent(Unchecked.consumer(bcc -> email.setBcc(asList(InternetAddress.parse(bcc))),
+                            (bcc, exception) -> new MailMessageConfigurationException(BCC_ERROR.format(bcc, this.bcc.toString()), exception)));
 
-        // Optional
-        scriptService.evaluate(bcc, context, message).ifPresent(
-                Unchecked.consumer(bcc -> mailMessage.setRecipients(BCC, InternetAddress.parse(bcc)),
-                        (bcc, exception) -> new MailMessageConfigurationException(BCC_ERROR.format(bcc, this.bcc.toString()), exception)));
+            // Optional
+            scriptService.evaluate(replyTo, context, message)
+                    .filter(StringUtils::isNotBlank)
+                    .ifPresent(Unchecked.consumer(replyTo -> email.setReplyTo(asList(InternetAddress.parse(replyTo))),
+                            (replyTo, exception) -> new MailMessageConfigurationException(REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()), exception)));
 
-        // Optional
-        scriptService.evaluate(replyTo, context, message).ifPresent(
-                Unchecked.consumer(replyTo -> mailMessage.setReplyTo(InternetAddress.parse(replyTo)),
-                        (replyTo, exception) -> new MailMessageConfigurationException(REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()), exception)));
+            // Optional
+            scriptService.evaluate(subject, context, message)
+                    .filter(StringUtils::isNotBlank)
+                    .ifPresent(Unchecked.consumer(email::setSubject,
+                            (subject, exception) -> new MailMessageConfigurationException(SUBJECT_ERROR.format(subject, this.subject.toString()), exception)));
 
-        // Optional
-        scriptService.evaluate(subject, context, message).ifPresent(
-                Unchecked.consumer(subject -> mailMessage.setSubject(subject, UTF_8.toString()),
-                        (subject, exception) -> new MailMessageConfigurationException(SUBJECT_ERROR.format(subject, this.subject.toString()), exception)));
-
-        return mailMessage;
+        } catch (AddressException exception) {
+            throw new MailMessageConfigurationException(exception.getMessage(), exception);
+        }
     }
 }
