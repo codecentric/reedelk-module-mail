@@ -12,6 +12,7 @@ public enum MailSendAttributes {
     SUBJECT("subject"),
     REPLY_TO("replyTo"),
     SENT_DATE("sentDate"),
+    RECEIVED_DATE("receivedDate"),
     ATTACHMENTS("attachments"),
     MESSAGE_NUMBER("messageNumber");
 

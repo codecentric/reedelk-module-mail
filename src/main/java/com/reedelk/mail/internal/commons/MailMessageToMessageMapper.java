@@ -1,6 +1,5 @@
 package com.reedelk.mail.internal.commons;
 
-import com.reedelk.mail.internal.send.MailSendAttributes;
 import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.message.DefaultMessageAttributes;
@@ -20,6 +19,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.reedelk.mail.internal.send.MailSendAttributes.*;
 
 public class MailMessageToMessageMapper {
 
@@ -47,18 +48,17 @@ public class MailMessageToMessageMapper {
             attachmentList.forEach(dataSource -> processAttachment(attachmentMap, dataSource));
 
             Map<String, Serializable> attributesMap = new HashMap<>();
-            MailSendAttributes.ATTACHMENTS.set(attributesMap, attachmentMap);
-            if (mail != null && mail.getSentDate() != null) {
-                MailSendAttributes.SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
-            }
+            ATTACHMENTS.set(attributesMap, attachmentMap);
+            MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
+            FROM.set(attributesMap, parsed.getFrom());
+            SUBJECT.set(attributesMap, parsed.getSubject());
+            REPLY_TO.set(attributesMap, parsed.getReplyTo());
+            TO.set(attributesMap, Address.asSerializableList(parsed.getTo()));
+            CC.set(attributesMap, Address.asSerializableList(parsed.getCc()));
+            BCC.set(attributesMap, Address.asSerializableList(parsed.getBcc()));
+            if (mail.getSentDate() != null) SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
+            if (mail.getReceivedDate() != null) RECEIVED_DATE.set(attributesMap, mail.getReceivedDate().getTime());
 
-            MailSendAttributes.MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
-            MailSendAttributes.FROM.set(attributesMap, parsed.getFrom());
-            MailSendAttributes.SUBJECT.set(attributesMap, parsed.getSubject());
-            MailSendAttributes.REPLY_TO.set(attributesMap, parsed.getReplyTo());
-            MailSendAttributes.TO.set(attributesMap, Address.asSerializableList(parsed.getTo()));
-            MailSendAttributes.CC.set(attributesMap, Address.asSerializableList(parsed.getCc()));
-            MailSendAttributes.BCC.set(attributesMap, Address.asSerializableList(parsed.getBcc()));
             MessageAttributes messageAttributes = new DefaultMessageAttributes(componentClazz, attributesMap);
             messageBuilder.attributes(messageAttributes);
 

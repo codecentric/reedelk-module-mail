@@ -2,8 +2,8 @@ package com.reedelk.mail.internal.commons;
 
 public class Defaults {
 
-    public static final int CONNECT_TIMEOUT = 60000;
-    public static final int SOCKET_TIMEOUT = 30000;
+    public static final int CONNECT_TIMEOUT = 180000;
+    public static final int SOCKET_TIMEOUT = 60000;
     public static final boolean TLS_ENABLE = false;
 
     public static class SMTP {

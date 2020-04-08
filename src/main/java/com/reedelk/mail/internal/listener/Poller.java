@@ -52,8 +52,10 @@ public class Poller {
         public void run() {
             while (this.isAlive) {
                 try {
-                    pollingStrategy.poll();
-                    Thread.sleep(pollInterval);
+                    if (!Thread.interrupted()) {
+                        pollingStrategy.poll();
+                        Thread.sleep(pollInterval);
+                    }
                 } catch (Exception ex) {
                     // suppress
                     // TODO: Check if we can interrupt immediately
