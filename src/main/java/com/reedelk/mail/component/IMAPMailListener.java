@@ -23,14 +23,14 @@ public class IMAPMailListener extends AbstractInbound {
     @Property("IMAP Strategy")
     @Example("IDLE")
     @DefaultValue("POLLING")
-    private ImapListeningStrategy strategy;
+    private ImapListeningStrategy1 strategy;
 
     private ProtocolMailListener mailListener;
 
     @Override
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
-        if (ImapListeningStrategy.IDLE.equals(strategy)) {
+        if (ImapListeningStrategy1.IDLE.equals(strategy)) {
             mailListener = new ImapIdleMailListener(configuration, this);
         } else {
             mailListener = new ImapPollMailListener(configuration, this);
@@ -53,11 +53,11 @@ public class IMAPMailListener extends AbstractInbound {
         this.configuration = configuration;
     }
 
-    public ImapListeningStrategy getStrategy() {
+    public ImapListeningStrategy1 getStrategy() {
         return strategy;
     }
 
-    public void setStrategy(ImapListeningStrategy strategy) {
+    public void setStrategy(ImapListeningStrategy1 strategy) {
         this.strategy = strategy;
     }
 }

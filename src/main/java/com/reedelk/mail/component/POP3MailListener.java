@@ -22,7 +22,13 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private POP3Configuration configuration;
 
-    @Property("P")
+    @Property("Delete after retrieve")
+    @Group("General")
+    private Boolean deleteAfterRetrieve;
+
+    @Property("Poll Interval")
+    @Group("General")
+    private Integer pollInterval;
 
     private ProtocolMailListener mailListener;
 
