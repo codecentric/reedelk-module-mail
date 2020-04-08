@@ -41,7 +41,7 @@ public class Poller {
 
         private final ProtocolPollingStrategy pollingStrategy;
         private final int pollInterval;
-        private boolean isAlive = true;
+        private volatile boolean isAlive = true;
 
         PollerThread(ProtocolPollingStrategy pollingStrategy, int pollInterval) {
             this.pollingStrategy = pollingStrategy;
