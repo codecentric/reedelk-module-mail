@@ -30,7 +30,7 @@ public class POP3MailListener extends AbstractInbound {
     @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
     private Integer pollInterval;
 
-    @Property("Delete after retrieve")
+    @Property("Delete after retrieve") // TODO: HERE THE POP3 REALLY DELETES the MESSAGES!
     @DefaultValue("false")
     @Example("true")
     @Group("General")

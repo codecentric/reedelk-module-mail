@@ -2,7 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.SchedulerProvider;
 import com.reedelk.mail.internal.listener.imap.IMAPPollingStrategy;
-import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
+import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener1;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +47,7 @@ public class IMAPMailListener extends AbstractInbound {
     @DefaultValue("false")
     @Example("true")
     @Group("General")
-    private Boolean deleteOnSuccess;
+    private Boolean deleteOnSuccess; // TODO: This marks a message as deleted! add a second property which says markAsDeletedOnSuccess
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -60,7 +60,7 @@ public class IMAPMailListener extends AbstractInbound {
     private SchedulerProvider schedulerProvider;
 
     private ScheduledFuture<?> scheduled;
-    private ImapIdleMailListener idle;
+    private ImapIdleMailListener1 idle;
 
     @Override
     public void onStart() {
@@ -71,7 +71,7 @@ public class IMAPMailListener extends AbstractInbound {
             scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
-            idle = new ImapIdleMailListener(this, configuration, deleteOnSuccess, batchEmails);
+            idle = new ImapIdleMailListener1(this, configuration, deleteOnSuccess, batchEmails);
             idle.start();
         }
     }

@@ -8,7 +8,8 @@
       "description": "Aruba IMAP Mail Listener (IMAP)",
       "configuration": {"ref": "fe4636e8-0757-417b-a7e2-f7e40fd9b5d2"},
       "strategy": "POLLING",
-      "pollInterval": 10000
+      "pollInterval": 10000,
+      "matcher": {"seen": true}
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",
