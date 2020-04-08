@@ -1,57 +1,46 @@
 package com.reedelk.mail.internal.properties;
 
 import com.reedelk.mail.component.SMTPConfiguration;
+import com.reedelk.mail.component.SMTPProtocol;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 
 import java.util.Optional;
 import java.util.Properties;
 
-
 public class SMTPProperties extends Properties {
 
-    private static final int DEFAULT_SMTP_PORT = 587;
+    private static final int DEFAULT_SMTP_PORT = 25;
+    private static final int DEFAULT_SMTPS_PORT = 465;
 
-    public SMTPProperties(SMTPConfiguration configuration, boolean authenticate) {
+    public SMTPProperties(SMTPConfiguration configuration) {
+        SMTPProtocol protocol = Optional.ofNullable(configuration.getProtocol()).orElse(SMTPProtocol.SMTP);
+
         String host = Optional.ofNullable(configuration.getHost())
                 .orElseThrow(() -> new MailMessageConfigurationException("Host is mandatory"));
-        Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_SMTP_PORT);
 
-        setProperty("mail.transport.protocol", "smtp");
-        setProperty("mail.smtp.port", String.valueOf(port));
-        setProperty("mail.smtp.host", host);
-        setProperty("mail.smtp.auth", String.valueOf(authenticate));
+        Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(60000);
+        Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(30000);
 
+        if (SMTPProtocol.SMTP.equals(protocol)) {
+            Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_SMTP_PORT);
 
-       // setProperty("mail.smtp.starttls.enable", this.isStartTLSEnabled() ? "true" : "false");
-        //setProperty("mail.smtp.starttls.required", this.isStartTLSRequired() ? "true" : "false");
-        //setProperty("mail.smtp.sendpartial", this.isSendPartial() ? "true" : "false");
-        //setProperty("mail.smtps.sendpartial", this.isSendPartial() ? "true" : "false");
-        //if (this.authenticator != null) {
-          //
-        //}
+            setProperty("mail.transport.protocol", "smtp");
+            setProperty("mail.smtp.host", host);
+            setProperty("mail.smtp.port", String.valueOf(port));
+            setProperty("mail.smtp.auth", Boolean.TRUE.toString());
+            setProperty("mail.smtp.timeout", String.valueOf(socketTimeout));
+            setProperty("mail.smtp.connectiontimeout", String.valueOf(connectionTimeout));
 
-        /**
-        if (this.isSSLOnConnect()) {
-            setProperty("mail.smtp.port", this.sslSmtpPort);
-            setProperty("mail.smtp.socketFactory.port", this.sslSmtpPort);
-            setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            setProperty("mail.smtp.socketFactory.fallback", "false");
+        } else {
+            // SMTPs
+            Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_SMTPS_PORT);
+
+            setProperty("mail.transport.protocol", "smtps");
+            setProperty("mail.smtps.host", host);
+            setProperty("mail.smtps.port", String.valueOf(port));
+            setProperty("mail.smtps.auth", Boolean.TRUE.toString());
+            setProperty("mail.smtps.timeout", String.valueOf(socketTimeout));
+            setProperty("mail.smtps.connectiontimeout", String.valueOf(connectionTimeout));
         }
-
-        if ((this.isSSLOnConnect() || this.isStartTLSEnabled()) && this.isSSLCheckServerIdentity()) {
-            setProperty("mail.smtp.ssl.checkserveridentity", "true");
-        }
-
-        if (this.bounceAddress != null) {
-            setProperty("mail.smtp.from", this.bounceAddress);
-        }
-
-        if (this.socketTimeout > 0) {
-            setProperty("mail.smtp.timeout", Integer.toString(this.socketTimeout));
-        }
-
-        if (this.socketConnectionTimeout > 0) {
-            setProperty("mail.smtp.connectiontimeout", Integer.toString(this.socketConnectionTimeout));
-        }*/
     }
 }

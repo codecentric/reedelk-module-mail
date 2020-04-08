@@ -26,7 +26,7 @@ public class MailSessionBuilder {
     }
 
     public void build() {
-        SMTPProperties smtpProperties = new SMTPProperties(configuration, true);
+        SMTPProperties smtpProperties = new SMTPProperties(configuration);
 
         String username = configuration.getUsername();
         String password = configuration.getPassword();

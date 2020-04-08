@@ -9,6 +9,11 @@ import org.osgi.service.component.annotations.ServiceScope;
 @Component(service = SMTPConfiguration.class, scope = ServiceScope.PROTOTYPE)
 public class SMTPConfiguration implements Implementor {
 
+    @Property("Protocol")
+    @Example("SMTP")
+    @DefaultValue("SMTP")
+    private SMTPProtocol protocol;
+
     @Property("Host")
     @Hint("smtp.domain.com")
     @Example("smtp.domain.com")
@@ -33,6 +38,28 @@ public class SMTPConfiguration implements Implementor {
     @Example("myPassword")
     @Description("The password to be used to connect to the SMTP server.")
     private String password;
+
+    @Property("Socket Timeout (ms)")
+    @Hint("10000")
+    @Example("10000")
+    @DefaultValue("30000")
+    @Description("Socket I/O timeout value in milliseconds")
+    private Integer socketTimeout;
+
+    @Property("Connection Timeout (ms)")
+    @Hint("30000")
+    @Example("30000")
+    @DefaultValue("60000")
+    @Description("Socket connection timeout value in milliseconds.")
+    private Integer connectTimeout;
+
+    public SMTPProtocol getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(SMTPProtocol protocol) {
+        this.protocol = protocol;
+    }
 
     public String getHost() {
         return host;
@@ -64,5 +91,21 @@ public class SMTPConfiguration implements Implementor {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(Integer connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public Integer getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    public void setSocketTimeout(Integer socketTimeout) {
+        this.socketTimeout = socketTimeout;
     }
 }

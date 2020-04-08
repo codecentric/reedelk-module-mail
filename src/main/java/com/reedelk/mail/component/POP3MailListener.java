@@ -2,10 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.listener.pop3.POP3Listener;
-import com.reedelk.runtime.api.annotation.Description;
-import com.reedelk.runtime.api.annotation.Group;
-import com.reedelk.runtime.api.annotation.ModuleComponent;
-import com.reedelk.runtime.api.annotation.Property;
+import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
 
@@ -22,13 +19,19 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private POP3Configuration configuration;
 
-    @Property("Delete after retrieve")
-    @Group("General")
-    private Boolean deleteAfterRetrieve;
-
     @Property("Poll Interval")
     @Group("General")
+    @Hint("120000")
+    @Example("120000")
+    @DefaultValue("60000")
+    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
     private Integer pollInterval;
+
+    @Property("Delete after retrieve")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    private Boolean deleteAfterRetrieve;
 
     private ProtocolMailListener mailListener;
 
