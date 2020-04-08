@@ -1,13 +1,11 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.runtime.api.annotation.DefaultValue;
-import com.reedelk.runtime.api.annotation.Description;
-import com.reedelk.runtime.api.annotation.Example;
-import com.reedelk.runtime.api.annotation.Property;
+import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.Implementor;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
+@Collapsible
 @Component(service = IMAPMatcher.class, scope = ServiceScope.PROTOTYPE)
 public class IMAPMatcher implements Implementor {
 

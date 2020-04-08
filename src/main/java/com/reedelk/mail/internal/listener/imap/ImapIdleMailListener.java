@@ -47,13 +47,15 @@ public class ImapIdleMailListener {
 
         } catch (Exception exception) {
             // TODO: Log this exception
-            CloseableUtils.close(listenerThread);
-            CloseableUtils.close(this.folder);
-            CloseableUtils.close(store);
+            cleanup();
         }
     }
 
     public void stop() {
+        cleanup();
+    }
+
+    private void cleanup() {
         CloseableUtils.close(listenerThread);
         CloseableUtils.close(folder);
         CloseableUtils.close(store);

@@ -5,16 +5,13 @@ import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
 
 import javax.mail.Message;
-import java.util.Optional;
 
 public abstract class AbstractPollingStrategy implements PollingStrategy {
 
     protected final InboundEventListener listener;
-    protected final Boolean deleteAfterRetrieve;
 
-    public AbstractPollingStrategy(InboundEventListener listener, Boolean deleteAfterRetrieve) {
+    public AbstractPollingStrategy(InboundEventListener listener) {
         this.listener = listener;
-        this.deleteAfterRetrieve = Optional.ofNullable(deleteAfterRetrieve).orElse(false);
     }
 
     protected boolean processMessage(Message message) throws Exception {
