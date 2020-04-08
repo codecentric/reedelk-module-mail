@@ -1,27 +1,45 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.Defaults;
+import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.sun.mail.imap.IMAPStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.Session;
+import javax.mail.event.MessageCountAdapter;
+import javax.mail.event.MessageCountEvent;
+import java.util.Optional;
+
+import static javax.mail.Flags.Flag;
 
 public class ImapIdleMailListener {
 
+    private final Boolean batchEmails;
+    private final Boolean deleteOnSuccess;
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
 
-    private IDLEListenerThread listenerThread;
-    private IMAPStore store;
     private Folder folder;
+    private IMAPStore store;
+    private IDLEListenerThread listenerThread;
 
-    public ImapIdleMailListener(IMAPConfiguration configuration, InboundEventListener eventListener) {
+    public ImapIdleMailListener(IMAPMailListener eventListener,
+                                IMAPConfiguration configuration,
+                                Boolean deleteOnSuccess,
+                                Boolean batchEmails) {
         this.configuration = configuration;
         this.eventListener = eventListener;
+        this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
+        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
     }
 
     public void start() {
@@ -40,7 +58,7 @@ public class ImapIdleMailListener {
             }
 
             folder = store.getFolder(folderName);
-            folder.addMessageCountListener(new ImapIdleMessageListener(eventListener));
+            folder.addMessageCountListener(new MessageAdapter());
 
             listenerThread = new IDLEListenerThread(username, password, this.folder);
             listenerThread.start();
@@ -59,5 +77,39 @@ public class ImapIdleMailListener {
         CloseableUtils.close(listenerThread);
         CloseableUtils.close(folder);
         CloseableUtils.close(store);
+    }
+
+    private class MessageAdapter extends MessageCountAdapter {
+
+        public final Logger logger = LoggerFactory.getLogger(MessageAdapter.class);
+
+        @Override
+        public void messagesAdded(MessageCountEvent event) {
+            Message[] messages = event.getMessages();
+
+            for (Message message : messages) {
+                try {
+                    // TODO: The message must be set to deleted.
+                    boolean success = processMessage(message);
+                    if (success) {
+                        if (deleteOnSuccess) {
+                            message.setFlag(Flag.DELETED, true);
+                        }
+                    }
+                } catch (Exception exception) {
+                    String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
+                    logger.error(error, exception);
+                }
+            }
+        }
+
+        private boolean processMessage(Message message) throws Exception {
+            com.reedelk.runtime.api.message.Message inMessage =
+                    MailMessageToMessageMapper.map(IMAPMailListener.class, message);
+            eventListener.onEvent(inMessage);
+            // TODO: Call the listener. ... if process success, (the flow executed correctly)
+            // Then ... otherwise wait...
+            return true;
+        }
     }
 }

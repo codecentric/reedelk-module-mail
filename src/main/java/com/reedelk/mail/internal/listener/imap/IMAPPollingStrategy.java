@@ -3,6 +3,7 @@ package com.reedelk.mail.internal.listener.imap;
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.component.IMAPMatcher;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
@@ -24,14 +25,14 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
+                               IMAPMatcher matcher,
                                Boolean deleteOnSuccess,
-                               Boolean batchEmails,
-                               IMAPMatcher matcher) {
+                               Boolean batchEmails) {
         super(listener);
-        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
-        this.batchEmails = Optional.ofNullable(deleteOnSuccess).orElse(false);
-        this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
         this.configuration = configuration;
+        this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
+        this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
+        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
     }
 
     @Override
@@ -78,10 +79,6 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
     private boolean getOrDefault(Boolean value) {
         return value == null ? false : value;
-    }
-
-    private void setTrue(Message message, Flag flag) throws MessagingException {
-        message.setFlag(flag, true);
     }
 
     private Store getStore() throws MessagingException {

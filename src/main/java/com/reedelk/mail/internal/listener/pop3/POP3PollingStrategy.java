@@ -2,6 +2,7 @@ package com.reedelk.mail.internal.listener.pop3;
 
 import com.reedelk.mail.component.POP3Configuration;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
 import com.reedelk.mail.internal.properties.POP3Properties;
 import com.reedelk.runtime.api.component.InboundEventListener;
@@ -12,12 +13,17 @@ import java.util.Optional;
 public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final POP3Configuration configuration;
-    private final Boolean deleteOnSuccess;
+    private final boolean batchEmails;
+    private final boolean deleteOnSuccess;
 
-    public POP3PollingStrategy(InboundEventListener eventListener, POP3Configuration configuration, Boolean deleteOnSuccess) {
+    public POP3PollingStrategy(InboundEventListener eventListener,
+                               POP3Configuration configuration,
+                               Boolean deleteOnSuccess,
+                               Boolean batchEmails) {
         super(eventListener);
         this.configuration = configuration;
-        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
+        this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
+        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
     }
 
     @Override

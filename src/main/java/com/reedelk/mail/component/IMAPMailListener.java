@@ -67,11 +67,11 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, deleteOnSuccess, batchEmails, matcher);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, batchEmails);
             scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
-            idle = new ImapIdleMailListener(configuration, this);
+            idle = new ImapIdleMailListener(this, configuration, deleteOnSuccess, batchEmails);
             idle.start();
         }
     }
