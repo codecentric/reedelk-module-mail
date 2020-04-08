@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.listener;
 
-import com.reedelk.mail.component.MailListener;
+import com.reedelk.mail.component.ImapMailListener1;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
@@ -61,7 +61,7 @@ public abstract class AbstractPollingStrategy implements ProtocolPollingStrategy
 
     private boolean processMessage(Message message) throws Exception {
         com.reedelk.runtime.api.message.Message inMessage =
-                MailMessageToMessageMapper.map(MailListener.class, message);
+                MailMessageToMessageMapper.map(ImapMailListener1.class, message);
         this.listener.onEvent(inMessage);
         // TODO: Call the listener. ... if process success, (the flow executed correctly)
         // Then ... otherwise wait...
