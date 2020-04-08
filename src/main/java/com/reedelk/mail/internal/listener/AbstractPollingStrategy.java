@@ -1,72 +1,23 @@
 package com.reedelk.mail.internal.listener;
 
 import com.reedelk.mail.component.IMAPMailListener;
-import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
 
-import javax.mail.*;
-import javax.mail.search.FlagTerm;
+import javax.mail.Message;
 import java.util.Optional;
 
 public abstract class AbstractPollingStrategy implements ProtocolPollingStrategy {
 
-    private final InboundEventListener listener;
-    private final Boolean deleteAfterRetrieve;
+    protected final InboundEventListener listener;
+    protected final Boolean deleteAfterRetrieve;
 
     public AbstractPollingStrategy(InboundEventListener listener, Boolean deleteAfterRetrieve) {
         this.listener = listener;
         this.deleteAfterRetrieve = Optional.ofNullable(deleteAfterRetrieve).orElse(false);
     }
 
-    protected abstract Store getStore() throws MessagingException;
-    protected abstract Folder getFolder(Store store) throws MessagingException;
-
-    @Override
-    public void poll() {
-        Store store = null;
-        Folder folder = null;
-        try {
-            store = getStore();
-            folder = getFolder(store);
-            folder.open(Folder.READ_WRITE);
-
-            // search term to retrieve unseen messages from the folder
-            FlagTerm unseenFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
-            Message[] messages = folder.search(unseenFlagTerm);
-
-            if (messages != null && messages.length > 0L) {
-                for (Message message : messages) {
-                    // double check the message is unseen
-                    Message[] processMessage = folder.search(unseenFlagTerm, new Message[]{message});
-                    if (processMessage != null && processMessage.length > 0L) {
-
-                        // process message
-                        boolean processed = processMessage(message);
-
-                        if (processed) {
-                            // update message seen flag
-                            message.setFlag(Flags.Flag.SEEN, true);
-
-                            if (deleteAfterRetrieve) {
-                                message.setFlag(Flags.Flag.DELETED, true);
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        } finally {
-            CloseableUtils.close(folder);
-            CloseableUtils.close(store);
-        }
-    }
-
-
-    private boolean processMessage(Message message) throws Exception {
+    protected boolean processMessage(Message message) throws Exception {
         com.reedelk.runtime.api.message.Message inMessage =
                 MailMessageToMessageMapper.map(IMAPMailListener.class, message);
         this.listener.onEvent(inMessage);
