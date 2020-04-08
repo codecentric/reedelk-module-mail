@@ -30,7 +30,7 @@ public class IMAPIdleListener {
 
     private Folder folder;
     private IMAPStore store;
-    private IDLEListenerThread1 listenerThread;
+    private IMAPIdlListenerThread listenerThread;
 
     public IMAPIdleListener(IMAPMailListener eventListener,
                             IMAPConfiguration configuration,
@@ -60,7 +60,7 @@ public class IMAPIdleListener {
             folder = store.getFolder(folderName);
             folder.addMessageCountListener(new MessageAdapter());
 
-            listenerThread = new IDLEListenerThread1(username, password, this.folder);
+            listenerThread = new IMAPIdlListenerThread(username, password, this.folder);
             listenerThread.start();
 
         } catch (Exception exception) {

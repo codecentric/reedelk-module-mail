@@ -8,7 +8,7 @@ import javax.mail.Store;
 import java.io.Closeable;
 
 // TODO: This one can be improved as well.
-public class IDLEListenerThread1 extends Thread implements Closeable {
+public class IMAPIdlListenerThread extends Thread implements Closeable {
 
     private volatile boolean running = true;
 
@@ -16,7 +16,7 @@ public class IDLEListenerThread1 extends Thread implements Closeable {
     private final String username;
     private final String password;
 
-    public IDLEListenerThread1(String username, String password, Folder folder) {
+    public IMAPIdlListenerThread(String username, String password, Folder folder) {
         this.folder = folder;
         this.username = username;
         this.password = password;
