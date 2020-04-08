@@ -20,7 +20,7 @@ public class ImapPollingStrategy extends AbstractPollingStrategy {
     }
 
     @Override
-    public void poll() {
+    public void run() {
         Store store = null;
         Folder folder = null;
         try {

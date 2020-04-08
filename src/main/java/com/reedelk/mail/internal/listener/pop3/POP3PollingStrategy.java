@@ -18,7 +18,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     }
 
     @Override
-    public void poll() {
+    public void run() {
         Store store = null;
         Folder folder = null;
         try {

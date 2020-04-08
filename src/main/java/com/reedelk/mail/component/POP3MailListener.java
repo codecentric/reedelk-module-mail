@@ -1,6 +1,6 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.listener.PollMailListener;
+import com.reedelk.mail.internal.listener.PollingListener;
 import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.listener.pop3.POP3PollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
@@ -48,7 +48,7 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
 
         POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(configuration, deleteAfterRetrieve, this);
-        mailListener = new PollMailListener(pollingStrategy, pollInterval);
+        mailListener = new PollingListener(pollingStrategy, pollInterval);
         mailListener.start();
     }
 

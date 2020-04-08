@@ -1,6 +1,6 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.listener.PollMailListener;
+import com.reedelk.mail.internal.listener.PollingListener;
 import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapPollingStrategy;
@@ -136,7 +136,7 @@ public class IMAPMailListener extends AbstractInbound {
             mailListener = new ImapIdleMailListener(configuration, this);
         } else {
             ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(configuration, this);
-            mailListener = new PollMailListener(pollingStrategy, pollInterval);
+            mailListener = new PollingListener(pollingStrategy, pollInterval);
         }
     }
 }

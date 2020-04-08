@@ -2,70 +2,34 @@ package com.reedelk.mail.internal.listener;
 
 import com.reedelk.mail.internal.commons.Defaults;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Poller {
 
-    private final ProtocolPollingStrategy pollingStrategy;
-    private final ExecutorService threadPool;
-    private final List<Runnable> pollingThreads = new ArrayList<>();
+    private final PollingStrategy pollingStrategy;
     private final Integer pollInterval;
+    private final ScheduledExecutorService executorService;
 
-    public Poller(ProtocolPollingStrategy pollingStrategy, Integer pollInterval) {
+
+    public Poller(PollingStrategy pollingStrategy, Integer pollInterval) {
         this.pollingStrategy = pollingStrategy;
         this.pollInterval = Optional.ofNullable(pollInterval).orElse(Defaults.Poller.DEFAULT_POLL_INTERVAL);
-        this.threadPool = Executors.newFixedThreadPool(1);//TODO: Parameter?
+        executorService = Executors.newScheduledThreadPool(1);
     }
 
     public void start() {
-        Runnable worker = new PollerThread(pollingStrategy, pollInterval);
-        this.pollingThreads.add(worker);
-        this.threadPool.execute(worker);
+        executorService.scheduleWithFixedDelay(pollingStrategy, 0, pollInterval, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
-        if (!this.pollingThreads.isEmpty()) {
-            for (Runnable pollingThread : this.pollingThreads) {
-                ((PollerThread) pollingThread).stop();
-            }
-        }
-        if (this.threadPool != null && !this.threadPool.isTerminated()) {
-            this.threadPool.shutdown();
-        }
-    }
-
-    private static class PollerThread implements Runnable {
-
-        private final ProtocolPollingStrategy pollingStrategy;
-        private final int pollInterval;
-        private volatile boolean isAlive = true;
-
-        PollerThread(ProtocolPollingStrategy pollingStrategy, int pollInterval) {
-            this.pollingStrategy = pollingStrategy;
-            this.pollInterval = pollInterval;
-        }
-
-        @Override
-        public void run() {
-            while (this.isAlive) {
-                try {
-                    if (!Thread.interrupted()) {
-                        pollingStrategy.poll();
-                        Thread.sleep(pollInterval);
-                    }
-                } catch (Exception ex) {
-                    // suppress
-                    // TODO: Check if we can interrupt immediately
-                }
-            }
-        }
-
-        public void stop() {
-            this.isAlive = false;
+        try {
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // TODO: Log me
+            e.printStackTrace();
         }
     }
 }
