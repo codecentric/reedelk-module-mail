@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Component;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
-@ModuleComponent("POP3 Mail Listener")
+@ModuleComponent("Mail Listener (POP3)")
 @Description("The Email listener can be used to trigger events whenever new emails " +
         "are received on the server.")
 @Component(service = POP3MailListener.class, scope = PROTOTYPE)
@@ -36,5 +36,13 @@ public class POP3MailListener extends AbstractInbound {
         if (mailListener != null) {
             mailListener.stop();
         }
+    }
+
+    public POP3Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(POP3Configuration configuration) {
+        this.configuration = configuration;
     }
 }

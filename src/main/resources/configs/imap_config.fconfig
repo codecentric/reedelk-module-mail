@@ -1,11 +1,11 @@
 {
   "id": "25d7ea82-fb02-4df4-94a6-3816dc7a572f",
-  "title": "IMAP Google",
+  "title": "Google IMAP123",
   "implementor": "com.reedelk.mail.component.IMAPConfiguration",
   "host": "imap.gmail.com",
   "port": 993,
   "username": "gironi.lorenzo@gmail.com",
-  "password": "boh",
+  "password": "L:2:(].QvF*J?gH}",
   "timeout": 10000,
   "folder": "INBOX"
 }

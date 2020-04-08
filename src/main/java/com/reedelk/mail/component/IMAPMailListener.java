@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Component;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
-@ModuleComponent("IMAP Mail Listener")
+@ModuleComponent("Mail Listener (IMAP)")
 @Description("The Email listener can be used to trigger events whenever new emails " +
         "are received on the server.")
 @Component(service = IMAPMailListener.class, scope = PROTOTYPE)
