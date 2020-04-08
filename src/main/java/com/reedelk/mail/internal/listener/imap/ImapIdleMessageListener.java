@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.listener.imap;
 
-import com.reedelk.mail.component.ImapMailListener1;
+import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.internal.commons.MailMessageToMessageMapper;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class ImapIdleMessageListener extends MessageCountAdapter {
             try {
                 // TODO: The message must be set to deleted.
                 com.reedelk.runtime.api.message.Message inMessage =
-                        MailMessageToMessageMapper.map(ImapMailListener1.class, message);
+                        MailMessageToMessageMapper.map(IMAPMailListener.class, message);
                 listener.onEvent(inMessage);
             } catch (Exception exception) {
                 String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());

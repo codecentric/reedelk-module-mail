@@ -26,7 +26,7 @@ public class POP3MailListener extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(ImapMailListener1.class, configuration, "POP3 Configuration");
+        requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
         mailListener = new POP3Listener(configuration, this);
         mailListener.start();
     }

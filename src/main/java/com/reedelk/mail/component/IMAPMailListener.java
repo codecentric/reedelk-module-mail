@@ -13,8 +13,8 @@ import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 @ModuleComponent("IMAP Mail Listener")
 @Description("The Email listener can be used to trigger events whenever new emails " +
         "are received on the server.")
-@Component(service = ImapMailListener1.class, scope = PROTOTYPE)
-public class ImapMailListener1 extends AbstractInbound {
+@Component(service = IMAPMailListener.class, scope = PROTOTYPE)
+public class IMAPMailListener extends AbstractInbound {
 
     @Property("IMAP Connection")
     @Group("General")
@@ -29,7 +29,7 @@ public class ImapMailListener1 extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(ImapMailListener1.class, configuration, "IMAP Configuration");
+        requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
         if (ImapListeningStrategy.IDLE.equals(strategy)) {
             mailListener = new ImapIdleMailListener(configuration, this);
         } else {
