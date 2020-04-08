@@ -38,7 +38,7 @@ public class POP3MailListener extends AbstractInbound {
     @Override
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
-        mailListener = new POP3Listener(configuration, this);
+        mailListener = new POP3Listener(configuration, pollInterval, deleteAfterRetrieve, this);
         mailListener.start();
     }
 
@@ -55,5 +55,21 @@ public class POP3MailListener extends AbstractInbound {
 
     public void setConfiguration(POP3Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public Integer getPollInterval() {
+        return pollInterval;
+    }
+
+    public void setPollInterval(Integer pollInterval) {
+        this.pollInterval = pollInterval;
+    }
+
+    public Boolean getDeleteAfterRetrieve() {
+        return deleteAfterRetrieve;
+    }
+
+    public void setDeleteAfterRetrieve(Boolean deleteAfterRetrieve) {
+        this.deleteAfterRetrieve = deleteAfterRetrieve;
     }
 }

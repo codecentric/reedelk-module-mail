@@ -11,7 +11,7 @@ public class ImapPollMailListener implements ProtocolMailListener {
 
     public ImapPollMailListener(IMAPConfiguration imapConfiguration, InboundEventListener eventListener) {
         ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(imapConfiguration, eventListener);
-        this.poller = new Poller(pollingStrategy);
+        this.poller = new Poller(pollingStrategy, null); // TODO: Fixme
     }
 
     @Override

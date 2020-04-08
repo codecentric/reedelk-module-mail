@@ -15,7 +15,7 @@ public class ImapPollingStrategy extends AbstractPollingStrategy {
     private final IMAPConfiguration configuration;
 
     public ImapPollingStrategy(IMAPConfiguration configuration, InboundEventListener listener) {
-        super(listener);
+        super(listener, false); // TODO: Fixme
         this.configuration = configuration;
     }
 

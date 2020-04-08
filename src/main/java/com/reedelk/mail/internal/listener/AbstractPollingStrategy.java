@@ -7,13 +7,16 @@ import com.reedelk.runtime.api.component.InboundEventListener;
 
 import javax.mail.*;
 import javax.mail.search.FlagTerm;
+import java.util.Optional;
 
 public abstract class AbstractPollingStrategy implements ProtocolPollingStrategy {
 
     private final InboundEventListener listener;
+    private final Boolean deleteAfterRetrieve;
 
-    public AbstractPollingStrategy(InboundEventListener listener) {
+    public AbstractPollingStrategy(InboundEventListener listener, Boolean deleteAfterRetrieve) {
         this.listener = listener;
+        this.deleteAfterRetrieve = Optional.ofNullable(deleteAfterRetrieve).orElse(false);
     }
 
     protected abstract Store getStore() throws MessagingException;
@@ -44,6 +47,10 @@ public abstract class AbstractPollingStrategy implements ProtocolPollingStrategy
                         if (processed) {
                             // update message seen flag
                             message.setFlag(Flags.Flag.SEEN, true);
+
+                            if (deleteAfterRetrieve) {
+                                message.setFlag(Flags.Flag.DELETED, true);
+                            }
                         }
                     }
                 }

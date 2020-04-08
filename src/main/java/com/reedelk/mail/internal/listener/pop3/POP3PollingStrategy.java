@@ -14,8 +14,8 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final POP3Configuration configuration;
 
-    public POP3PollingStrategy(POP3Configuration configuration, InboundEventListener eventListener) {
-        super(eventListener);
+    public POP3PollingStrategy(POP3Configuration configuration, Boolean deleteAfterRetrieve, InboundEventListener eventListener) {
+        super(eventListener, deleteAfterRetrieve);
         this.configuration = configuration;
     }
 

@@ -6,7 +6,8 @@
     {
       "implementor": "com.reedelk.mail.component.POP3MailListener",
       "description": "Mail Listener",
-      "configuration": {"ref": "98996e00-3482-4020-bdfc-ecd93d04f163"}
+      "configuration": {"ref": "98996e00-3482-4020-bdfc-ecd93d04f163"},
+      "pollInterval": 10000
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",

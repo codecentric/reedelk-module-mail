@@ -9,9 +9,9 @@ public class POP3Listener implements ProtocolMailListener {
 
     private Poller poller;
 
-    public POP3Listener(POP3Configuration configuration, InboundEventListener eventListener) {
-        POP3PollingStrategy pop3PollingStrategy = new POP3PollingStrategy(configuration, eventListener);
-        poller = new Poller(pop3PollingStrategy);
+    public POP3Listener(POP3Configuration configuration, Integer pollInterval, Boolean deleteAfterRetrieve, InboundEventListener eventListener) {
+        POP3PollingStrategy pop3PollingStrategy = new POP3PollingStrategy(configuration, deleteAfterRetrieve, eventListener);
+        poller = new Poller(pop3PollingStrategy, pollInterval);
     }
 
     @Override
