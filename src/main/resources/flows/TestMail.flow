@@ -17,7 +17,8 @@
       "errorResponse": {
         "body": "#[error]",
         "status": 500
-      }
+      },
+      "openApi": {"responses": {"200": {}}}
     },
     {
       "implementor": "com.reedelk.core.component.ScriptEvaluator",

@@ -15,6 +15,11 @@
       "description": "Logger",
       "level": "INFO",
       "message": "#['Received email, content: ' + message.attributes().get('subject')]"
+    },
+    {
+      "implementor": "com.reedelk.mail.component.MailSend",
+      "description": "Mail Send",
+      "connectionConfiguration": {"ref": "1caf7199-fd33-4412-b159-daed994da418"}
     }
   ]
 }

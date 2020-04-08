@@ -39,14 +39,14 @@ public class SMTPConfiguration implements Implementor {
     @Description("The password to be used to connect to the SMTP server.")
     private String password;
 
-    @Property("Socket Timeout (ms)")
+    @Property("Socket Timeout")
     @Hint("10000")
     @Example("10000")
     @DefaultValue("30000")
     @Description("Socket I/O timeout value in milliseconds")
     private Integer socketTimeout;
 
-    @Property("Connection Timeout (ms)")
+    @Property("Connection Timeout")
     @Hint("30000")
     @Example("30000")
     @DefaultValue("60000")

@@ -1,6 +1,8 @@
 package com.reedelk.mail.internal.properties;
 
 import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.component.IMAPProtocol;
+import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 
 import java.util.Optional;
@@ -8,23 +10,36 @@ import java.util.Properties;
 
 public class IMAPProperties extends Properties {
 
-    private static final int DEFAULT_IMAP_PORT = 143;
-
     public IMAPProperties(IMAPConfiguration configuration) {
-        /**
-         *  String host = imapConfiguration.getHost(); // or throw
-         *         Integer port = imapConfiguration.getPort(); // or default
-         *         Integer timeout = imapConfiguration.getTimeout(); // or default
-         */
+        IMAPProtocol protocol = Optional.ofNullable(configuration.getProtocol()).orElse(IMAPProtocol.IMAP);
+
         String host = Optional.ofNullable(configuration.getHost())
                 .orElseThrow(() -> new MailMessageConfigurationException("Host is mandatory"));
-        Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_IMAP_PORT);
 
-        // Switch to secure or not
-        setProperty("mail.transport.protocol", "imaps");
-        setProperty("mail.store.protocol", "imaps");
-        setProperty("mail.imaps.port", String.valueOf(port));
-        setProperty("mail.imaps.host", host);
+        boolean startTlsEnable = Optional.ofNullable(configuration.getStartTlsEnabled()).orElse(Defaults.TLS_ENABLE);
+        Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(Defaults.CONNECT_TIMEOUT);
+        Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(Defaults.SOCKET_TIMEOUT);
+
+        setProperty("mail.imap.host", host);
+        setProperty("mail.imap.auth", Boolean.TRUE.toString());
+        setProperty("mail.imap.timeout", String.valueOf(socketTimeout));
+        setProperty("mail.imap.starttls.enable", String.valueOf(startTlsEnable));
+        setProperty("mail.imap.connectiontimeout", String.valueOf(connectionTimeout));
+
+        if (IMAPProtocol.IMAP.equals(protocol)) {
+            // IMAP
+            Integer port = Optional.ofNullable(configuration.getPort()).orElse(Defaults.IMAP.DEFAULT_PORT);
+            setProperty("mail.transport.protocol", Defaults.IMAP.TRANSPORT);
+            setProperty("mail.store.protocol", Defaults.IMAP.TRANSPORT);
+            setProperty("mail.imap.port", String.valueOf(port));
+
+        } else {
+            // IMAPs
+            Integer port = Optional.ofNullable(configuration.getPort()).orElse(Defaults.IMAPs.DEFAULT_PORT);
+            setProperty("mail.transport.protocol", Defaults.IMAPs.TRANSPORT);
+            setProperty("mail.store.protocol", Defaults.IMAPs.TRANSPORT);
+            setProperty("mail.imap.port", String.valueOf(port));
+        }
     }
 
 }
