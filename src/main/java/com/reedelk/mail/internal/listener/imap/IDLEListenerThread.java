@@ -7,7 +7,7 @@ import javax.mail.MessagingException;
 import javax.mail.Store;
 import java.io.Closeable;
 
-public class IDLListenerThread extends Thread implements Closeable {
+public class IDLEListenerThread extends Thread implements Closeable {
 
     private volatile boolean running = true;
 
@@ -16,7 +16,7 @@ public class IDLListenerThread extends Thread implements Closeable {
     private final String password;
 
 
-    public IDLListenerThread(String username, String password, Folder folder) {
+    public IDLEListenerThread(String username, String password, Folder folder) {
         super();
         this.folder = folder;
         this.username = username;

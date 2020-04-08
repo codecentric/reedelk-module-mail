@@ -1,12 +1,14 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.listener.PollingListener;
-import com.reedelk.mail.internal.listener.ProtocolMailListener;
+import com.reedelk.mail.internal.SchedulerProvider;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapPollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.util.concurrent.ScheduledFuture;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
@@ -59,20 +61,30 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true emails are batched in a list")
     private Boolean batchEmails;
 
-    private ProtocolMailListener mailListener;
+    @Reference
+    private SchedulerProvider schedulerProvider;
+
+    private ScheduledFuture<?> scheduled;
+    private ImapIdleMailListener idle;
 
     @Override
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
-        createListener();
-        mailListener.start();
+
+        if (IMAPListeningStrategy.POLLING.equals(strategy)) {
+            ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(configuration, this);
+            this.scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
+        } else {
+            // IDLE
+            idle = new ImapIdleMailListener(configuration, this);
+            idle.start();
+        }
     }
 
     @Override
     public void onShutdown() {
-        if (mailListener != null) {
-            mailListener.stop();
-        }
+        schedulerProvider.cancel(scheduled);
+        if (idle != null) idle.stop();
     }
 
     public IMAPConfiguration getConfiguration() {
@@ -99,6 +111,14 @@ public class IMAPMailListener extends AbstractInbound {
         this.matcher = matcher;
     }
 
+    public Integer getPollInterval() {
+        return pollInterval;
+    }
+
+    public void setPollInterval(Integer pollInterval) {
+        this.pollInterval = pollInterval;
+    }
+
     public Boolean getDeleteOnSuccess() {
         return deleteOnSuccess;
     }
@@ -121,22 +141,5 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setBatchEmails(Boolean batchEmails) {
         this.batchEmails = batchEmails;
-    }
-
-    public Integer getPollInterval() {
-        return pollInterval;
-    }
-
-    public void setPollInterval(Integer pollInterval) {
-        this.pollInterval = pollInterval;
-    }
-
-    private void createListener() {
-        if (IMAPListeningStrategy.IDLE.equals(strategy)) {
-            mailListener = new ImapIdleMailListener(configuration, this);
-        } else {
-            ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(configuration, this);
-            mailListener = new PollingListener(pollingStrategy, pollInterval);
-        }
     }
 }

@@ -2,7 +2,6 @@ package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.internal.commons.CloseableUtils;
-import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.reedelk.runtime.api.exception.ESBException;
@@ -11,12 +10,12 @@ import com.sun.mail.imap.IMAPStore;
 import javax.mail.Folder;
 import javax.mail.Session;
 
-public class ImapIdleMailListener implements ProtocolMailListener {
+public class ImapIdleMailListener {
 
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
 
-    private IDLListenerThread listenerThread;
+    private IDLEListenerThread listenerThread;
     private IMAPStore store;
     private Folder folder;
 
@@ -25,7 +24,6 @@ public class ImapIdleMailListener implements ProtocolMailListener {
         this.eventListener = eventListener;
     }
 
-    @Override
     public void start() {
         String username = configuration.getUsername(); // or throw
         String password = configuration.getPassword(); // or throw
@@ -44,7 +42,7 @@ public class ImapIdleMailListener implements ProtocolMailListener {
             folder = store.getFolder(folderName);
             folder.addMessageCountListener(new ImapIdleMessageListener(eventListener));
 
-            listenerThread = new IDLListenerThread(username, password, this.folder);
+            listenerThread = new IDLEListenerThread(username, password, this.folder);
             listenerThread.start();
 
         } catch (Exception exception) {
@@ -55,7 +53,6 @@ public class ImapIdleMailListener implements ProtocolMailListener {
         }
     }
 
-    @Override
     public void stop() {
         CloseableUtils.close(listenerThread);
         CloseableUtils.close(folder);
