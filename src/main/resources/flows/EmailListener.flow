@@ -6,7 +6,8 @@
     {
       "implementor": "com.reedelk.mail.component.MailListener",
       "description": "Mail Listener",
-      "protocol": "IMAP",
+      "protocol": "POP3",
+      "pop3Configuration": {"ref": "98996e00-3482-4020-bdfc-ecd93d04f163"},
       "imapConfiguration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"}
     },
     {
@@ -14,10 +15,6 @@
       "description": "Logger",
       "level": "INFO",
       "message": "#['Received email, content: ' + message.attributes().get('subject')]"
-    },
-    {
-      "implementor": "com.reedelk.mail.component.MailSend",
-      "description": "Mail Send"
     }
   ]
 }

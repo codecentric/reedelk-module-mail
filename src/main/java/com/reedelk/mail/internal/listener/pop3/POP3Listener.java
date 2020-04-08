@@ -5,11 +5,11 @@ import com.reedelk.mail.internal.listener.Poller;
 import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.runtime.api.component.InboundEventListener;
 
-public class POP3MailListener implements ProtocolMailListener {
+public class POP3Listener implements ProtocolMailListener {
 
     private Poller poller;
 
-    public POP3MailListener(POP3Configuration configuration, InboundEventListener eventListener) {
+    public POP3Listener(POP3Configuration configuration, InboundEventListener eventListener) {
         POP3PollingStrategy pop3PollingStrategy = new POP3PollingStrategy(configuration, eventListener);
         poller = new Poller(pop3PollingStrategy);
     }
