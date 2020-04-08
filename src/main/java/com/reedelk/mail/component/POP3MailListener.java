@@ -22,6 +22,8 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private POP3Configuration configuration;
 
+    @Property("P")
+
     private ProtocolMailListener mailListener;
 
     @Override
