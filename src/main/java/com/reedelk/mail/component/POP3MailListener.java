@@ -52,7 +52,7 @@ public class POP3MailListener extends AbstractInbound {
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess);
+        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batchEmails);
         this.scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
 
