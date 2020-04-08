@@ -1,0 +1,11 @@
+{
+  "id": "878b3f63-d441-4ac4-9ba9-7254f113ec7a",
+  "title": "IMAP Listener",
+  "description": "IMAP Listener Flow",
+  "flow": [{
+    "implementor": "com.reedelk.mail.component.IMAPMailListener",
+    "description": "Mail Listener (IMAP)",
+    "configuration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"},
+    "strategy": "POLLING"
+  }]
+}

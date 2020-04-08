@@ -33,6 +33,13 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private Boolean deleteAfterRetrieve;
 
+    @Property("Batch Emails")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    @Description("If true emails are batched in a list")
+    private Boolean batchEmails;
+
     private ProtocolMailListener mailListener;
 
     @Override
@@ -71,5 +78,13 @@ public class POP3MailListener extends AbstractInbound {
 
     public void setDeleteAfterRetrieve(Boolean deleteAfterRetrieve) {
         this.deleteAfterRetrieve = deleteAfterRetrieve;
+    }
+
+    public Boolean getBatchEmails() {
+        return batchEmails;
+    }
+
+    public void setBatchEmails(Boolean batchEmails) {
+        this.batchEmails = batchEmails;
     }
 }

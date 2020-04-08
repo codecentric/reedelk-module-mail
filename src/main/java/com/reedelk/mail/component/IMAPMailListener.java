@@ -25,6 +25,29 @@ public class IMAPMailListener extends AbstractInbound {
     @DefaultValue("POLLING")
     private IMAPListeningStrategy strategy;
 
+    @Property("Matcher")
+    @Group("Fetch Conditions")
+    private IMAPMatcher matcher;
+
+    @Property("Mark as deleted if success")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    private Boolean deleteOnSuccess;
+
+    @Property("Mark as seen if success")
+    @DefaultValue("true")
+    @Example("true")
+    @Group("General")
+    private Boolean seenOnSuccess;
+
+    @Property("Batch Emails")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    @Description("If true emails are batched in a list")
+    private Boolean batchEmails;
+
     private ProtocolMailListener mailListener;
 
     @Override
@@ -59,5 +82,37 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setStrategy(IMAPListeningStrategy strategy) {
         this.strategy = strategy;
+    }
+
+    public IMAPMatcher getMatcher() {
+        return matcher;
+    }
+
+    public void setMatcher(IMAPMatcher matcher) {
+        this.matcher = matcher;
+    }
+
+    public Boolean getDeleteOnSuccess() {
+        return deleteOnSuccess;
+    }
+
+    public void setDeleteOnSuccess(Boolean deleteOnSuccess) {
+        this.deleteOnSuccess = deleteOnSuccess;
+    }
+
+    public Boolean getSeenOnSuccess() {
+        return seenOnSuccess;
+    }
+
+    public void setSeenOnSuccess(Boolean seenOnSuccess) {
+        this.seenOnSuccess = seenOnSuccess;
+    }
+
+    public Boolean getBatchEmails() {
+        return batchEmails;
+    }
+
+    public void setBatchEmails(Boolean batchEmails) {
+        this.batchEmails = batchEmails;
     }
 }
