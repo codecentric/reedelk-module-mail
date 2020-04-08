@@ -49,12 +49,6 @@ public class IMAPMailListener extends AbstractInbound {
     @Group("General")
     private Boolean deleteOnSuccess;
 
-    @Property("Mark as seen if success")
-    @DefaultValue("true")
-    @Example("true")
-    @Group("General")
-    private Boolean seenOnSuccess;
-
     @Property("Batch Emails")
     @DefaultValue("false")
     @Example("true")
@@ -73,7 +67,7 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, deleteOnSuccess, seenOnSuccess, batchEmails, matcher);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, deleteOnSuccess, batchEmails, matcher);
             scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
@@ -126,14 +120,6 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setDeleteOnSuccess(Boolean deleteOnSuccess) {
         this.deleteOnSuccess = deleteOnSuccess;
-    }
-
-    public Boolean getSeenOnSuccess() {
-        return seenOnSuccess;
-    }
-
-    public void setSeenOnSuccess(Boolean seenOnSuccess) {
-        this.seenOnSuccess = seenOnSuccess;
     }
 
     public Boolean getBatchEmails() {

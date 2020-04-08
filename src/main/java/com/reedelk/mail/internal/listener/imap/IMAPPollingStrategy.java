@@ -17,16 +17,18 @@ import static javax.mail.Flags.Flag;
 
 public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
-    private final IMAPConfiguration configuration;
-    private final boolean deleteOnSuccess;
-    private final boolean seenOnSuccess;
-    private final boolean batchEmails;
     private final IMAPMatcher matcher;
+    private final IMAPConfiguration configuration;
+    private final boolean batchEmails;
+    private final boolean deleteOnSuccess;
 
-    public IMAPPollingStrategy(InboundEventListener listener, IMAPConfiguration configuration, Boolean deleteOnSuccess, Boolean seenOnSuccess, Boolean batchEmails, IMAPMatcher matcher) {
+    public IMAPPollingStrategy(InboundEventListener listener,
+                               IMAPConfiguration configuration,
+                               Boolean deleteOnSuccess,
+                               Boolean batchEmails,
+                               IMAPMatcher matcher) {
         super(listener);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
-        this.seenOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
         this.batchEmails = Optional.ofNullable(deleteOnSuccess).orElse(false);
         this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
         this.configuration = configuration;
@@ -51,8 +53,9 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
                 // we set the flag according to the configured parameters.
                 boolean success = processMessage(message);
                 if (success) {
-                    if (seenOnSuccess) setTrue(message, Flag.SEEN);
-                    if (deleteOnSuccess) setTrue(message, Flag.DELETED);
+                    if (deleteOnSuccess) {
+                        message.setFlag(Flag.DELETED, true);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -88,7 +91,6 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
     }
-
 
     private Folder getFolder(Store store) throws MessagingException {
         return store.getFolder(configuration.getFolder());
