@@ -53,6 +53,17 @@ public class SMTPConfiguration implements Implementor {
     @Description("Socket connection timeout value in milliseconds.")
     private Integer connectTimeout;
 
+    @Property("Start TLS Enabled")
+    @DefaultValue("false")
+    @Example("true")
+    @Description("If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection " +
+            "to a TLS-protected connection before issuing any login commands. " +
+            "If the server does not support STARTTLS, the connection continues without the use of TLS; " +
+            "Note that an appropriate trust store must configured so that the client will trust the server's certificate.")
+    @When(propertyName = "protocol", propertyValue = When.NULL)
+    @When(propertyName = "protocol", propertyValue = "SMTP")
+    private Boolean startTlsEnabled;
+
     public SMTPProtocol getProtocol() {
         return protocol;
     }
@@ -107,5 +118,13 @@ public class SMTPConfiguration implements Implementor {
 
     public void setSocketTimeout(Integer socketTimeout) {
         this.socketTimeout = socketTimeout;
+    }
+
+    public Boolean getStartTlsEnabled() {
+        return startTlsEnabled;
+    }
+
+    public void setStartTlsEnabled(Boolean startTlsEnabled) {
+        this.startTlsEnabled = startTlsEnabled;
     }
 }

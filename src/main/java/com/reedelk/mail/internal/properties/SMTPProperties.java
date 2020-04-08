@@ -21,26 +21,26 @@ public class SMTPProperties extends Properties {
         Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(60000);
         Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(30000);
 
+
+        boolean startTlsEnable = Optional.ofNullable(configuration.getStartTlsEnabled()).orElse(false);
+        setProperty("mail.smtp.starttls.enable", String.valueOf(startTlsEnable));
+        setProperty("mail.smtp.host", host);
+        setProperty("mail.smtp.auth", Boolean.TRUE.toString());
+        setProperty("mail.smtp.timeout", String.valueOf(socketTimeout));
+        setProperty("mail.smtp.connectiontimeout", String.valueOf(connectionTimeout));
+
         if (SMTPProtocol.SMTP.equals(protocol)) {
             Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_SMTP_PORT);
-
             setProperty("mail.transport.protocol", "smtp");
             setProperty("mail.smtp.host", host);
             setProperty("mail.smtp.port", String.valueOf(port));
-            setProperty("mail.smtp.auth", Boolean.TRUE.toString());
-            setProperty("mail.smtp.timeout", String.valueOf(socketTimeout));
-            setProperty("mail.smtp.connectiontimeout", String.valueOf(connectionTimeout));
 
         } else {
             // SMTPs
             Integer port = Optional.ofNullable(configuration.getPort()).orElse(DEFAULT_SMTPS_PORT);
-
             setProperty("mail.transport.protocol", "smtps");
-            setProperty("mail.smtps.host", host);
-            setProperty("mail.smtps.port", String.valueOf(port));
-            setProperty("mail.smtps.auth", Boolean.TRUE.toString());
-            setProperty("mail.smtps.timeout", String.valueOf(socketTimeout));
-            setProperty("mail.smtps.connectiontimeout", String.valueOf(connectionTimeout));
+            setProperty("mail.smtp.ssl.enable", "true");
+            setProperty("mail.smtp.port", String.valueOf(port));
         }
     }
 }
