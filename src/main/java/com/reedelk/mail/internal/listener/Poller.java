@@ -1,5 +1,7 @@
 package com.reedelk.mail.internal.listener;
 
+import com.reedelk.mail.internal.commons.Defaults;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +10,6 @@ import java.util.concurrent.Executors;
 
 public class Poller {
 
-    private static final int DEFAULT_POLL_INTERVAL = 60000;
     private final ProtocolPollingStrategy pollingStrategy;
     private final ExecutorService threadPool;
     private final List<Runnable> pollingThreads = new ArrayList<>();
@@ -16,7 +17,7 @@ public class Poller {
 
     public Poller(ProtocolPollingStrategy pollingStrategy, Integer pollInterval) {
         this.pollingStrategy = pollingStrategy;
-        this.pollInterval = Optional.ofNullable(pollInterval).orElse(DEFAULT_POLL_INTERVAL);
+        this.pollInterval = Optional.ofNullable(pollInterval).orElse(Defaults.Poller.DEFAULT_POLL_INTERVAL);
         this.threadPool = Executors.newFixedThreadPool(1);//TODO: Parameter?
     }
 

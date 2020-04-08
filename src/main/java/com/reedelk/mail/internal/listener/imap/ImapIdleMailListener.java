@@ -16,7 +16,7 @@ public class ImapIdleMailListener implements ProtocolMailListener {
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
 
-    private ImapIdleListenerThread listenerThread;
+    private IDLListenerThread listenerThread;
     private IMAPStore store;
     private Folder folder;
 
@@ -44,7 +44,7 @@ public class ImapIdleMailListener implements ProtocolMailListener {
             folder = store.getFolder(folderName);
             folder.addMessageCountListener(new ImapIdleMessageListener(eventListener));
 
-            listenerThread = new ImapIdleListenerThread(username, password, this.folder);
+            listenerThread = new IDLListenerThread(username, password, this.folder);
             listenerThread.start();
 
         } catch (Exception exception) {

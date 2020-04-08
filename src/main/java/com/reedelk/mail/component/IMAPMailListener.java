@@ -1,8 +1,9 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.listener.PollMailListener;
 import com.reedelk.mail.internal.listener.ProtocolMailListener;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
-import com.reedelk.mail.internal.listener.imap.ImapPollMailListener;
+import com.reedelk.mail.internal.listener.imap.ImapPollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +30,16 @@ public class IMAPMailListener extends AbstractInbound {
     @Group("Fetch Conditions")
     private IMAPMatcher matcher;
 
+    @Property("Poll Interval")
+    @Group("General")
+    @Hint("120000")
+    @Example("120000")
+    @DefaultValue("60000")
+    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
+    private Integer pollInterval;
+
     @Property("Mark as deleted if success")
     @DefaultValue("false")
     @Example("true")
@@ -53,11 +64,7 @@ public class IMAPMailListener extends AbstractInbound {
     @Override
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
-        if (IMAPListeningStrategy.IDLE.equals(strategy)) {
-            mailListener = new ImapIdleMailListener(configuration, this);
-        } else {
-            mailListener = new ImapPollMailListener(configuration, this);
-        }
+        createListener();
         mailListener.start();
     }
 
@@ -114,5 +121,22 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setBatchEmails(Boolean batchEmails) {
         this.batchEmails = batchEmails;
+    }
+
+    public Integer getPollInterval() {
+        return pollInterval;
+    }
+
+    public void setPollInterval(Integer pollInterval) {
+        this.pollInterval = pollInterval;
+    }
+
+    private void createListener() {
+        if (IMAPListeningStrategy.IDLE.equals(strategy)) {
+            mailListener = new ImapIdleMailListener(configuration, this);
+        } else {
+            ImapPollingStrategy pollingStrategy = new ImapPollingStrategy(configuration, this);
+            mailListener = new PollMailListener(pollingStrategy, pollInterval);
+        }
     }
 }

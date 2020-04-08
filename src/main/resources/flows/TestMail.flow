@@ -18,7 +18,18 @@
         "body": "#[error]",
         "status": 500
       },
-      "openApi": {"responses": {"200": {}}}
+      "openApi": {
+        "responses": {"200": {
+          "description": "My successful response",
+          "content": {"application/json": {}}
+        }},
+        "parameters": [{
+          "name": "param1",
+          "in": "query",
+          "style": "form",
+          "predefinedSchema": "STRING"
+        }]
+      }
     },
     {
       "implementor": "com.reedelk.core.component.ScriptEvaluator",

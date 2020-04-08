@@ -35,4 +35,8 @@ public class Defaults {
         public static final String TRANSPORT = "imaps";
         public static final int DEFAULT_PORT = 993;
     }
+
+    public static class Poller {
+        public static final int DEFAULT_POLL_INTERVAL = 60000;
+    }
 }

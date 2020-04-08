@@ -7,14 +7,16 @@ import javax.mail.MessagingException;
 import javax.mail.Store;
 import java.io.Closeable;
 
-public class ImapIdleListenerThread extends Thread implements Closeable {
+public class IDLListenerThread extends Thread implements Closeable {
+
+    private volatile boolean running = true;
 
     private final Folder folder;
     private final String username;
     private final String password;
-    private volatile boolean running = true;
 
-    public ImapIdleListenerThread(String username, String password, Folder folder) {
+
+    public IDLListenerThread(String username, String password, Folder folder) {
         super();
         this.folder = folder;
         this.username = username;
@@ -42,7 +44,6 @@ public class ImapIdleListenerThread extends Thread implements Closeable {
     }
 
     public void ensureOpen(final Folder folder) throws MessagingException {
-
         if (folder != null) {
             Store store = folder.getStore();
             if (store != null && !store.isConnected()) {
@@ -62,7 +63,9 @@ public class ImapIdleListenerThread extends Thread implements Closeable {
 
     @Override
     public synchronized void close() {
-        if (!running) return;
-        this.running = false;
+        if (!running) {
+            return;
+        }
+        running = false;
     }
 }

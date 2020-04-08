@@ -30,6 +30,7 @@ public class ImapPollingStrategy extends AbstractPollingStrategy {
 
             // search term to retrieve unseen messages from the folder
 
+
             FromStringTerm fromStringTerm = new FromStringTerm("info@reedelk.com");
             FlagTerm unseenFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
             Message[] messages = folder.search(unseenFlagTerm);
