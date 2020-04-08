@@ -7,14 +7,17 @@ import com.reedelk.mail.internal.properties.POP3Properties;
 import com.reedelk.runtime.api.component.InboundEventListener;
 
 import javax.mail.*;
+import java.util.Optional;
 
 public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final POP3Configuration configuration;
+    private final Boolean deleteOnSuccess;
 
-    public POP3PollingStrategy(POP3Configuration configuration, Boolean deleteAfterRetrieve, InboundEventListener eventListener) {
-        super(eventListener, deleteAfterRetrieve);
+    public POP3PollingStrategy(InboundEventListener eventListener, POP3Configuration configuration, Boolean deleteOnSuccess) {
+        super(eventListener);
         this.configuration = configuration;
+        this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
     }
 
     @Override
@@ -32,7 +35,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
                 // process message
                 boolean processed = processMessage(message);
                 if (processed) {
-                    if (deleteAfterRetrieve) {
+                    if (deleteOnSuccess) {
                         message.setFlag(Flags.Flag.DELETED, true);
                     }
                 }

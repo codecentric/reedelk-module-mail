@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static javax.mail.Flags.Flag;
 
-public class ImapPollingStrategy1 extends AbstractPollingStrategy {
+public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
     private final IMAPConfiguration configuration;
     private final boolean deleteOnSuccess;
@@ -23,7 +23,7 @@ public class ImapPollingStrategy1 extends AbstractPollingStrategy {
     private final boolean batchEmails;
     private final IMAPMatcher matcher;
 
-    public ImapPollingStrategy1(InboundEventListener listener, IMAPConfiguration configuration, Boolean deleteOnSuccess, Boolean seenOnSuccess, Boolean batchEmails, IMAPMatcher matcher) {
+    public IMAPPollingStrategy(InboundEventListener listener, IMAPConfiguration configuration, Boolean deleteOnSuccess, Boolean seenOnSuccess, Boolean batchEmails, IMAPMatcher matcher) {
         super(listener);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);
         this.seenOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(false);

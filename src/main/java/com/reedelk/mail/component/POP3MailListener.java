@@ -34,7 +34,7 @@ public class POP3MailListener extends AbstractInbound {
     @DefaultValue("false")
     @Example("true")
     @Group("General")
-    private Boolean deleteAfterRetrieve;
+    private Boolean deleteOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -52,7 +52,7 @@ public class POP3MailListener extends AbstractInbound {
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(configuration, deleteAfterRetrieve, this);
+        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess);
         this.scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
 
@@ -77,12 +77,12 @@ public class POP3MailListener extends AbstractInbound {
         this.pollInterval = pollInterval;
     }
 
-    public Boolean getDeleteAfterRetrieve() {
-        return deleteAfterRetrieve;
+    public Boolean getDeleteOnSuccess() {
+        return deleteOnSuccess;
     }
 
-    public void setDeleteAfterRetrieve(Boolean deleteAfterRetrieve) {
-        this.deleteAfterRetrieve = deleteAfterRetrieve;
+    public void setDeleteOnSuccess(Boolean deleteOnSuccess) {
+        this.deleteOnSuccess = deleteOnSuccess;
     }
 
     public Boolean getBatchEmails() {

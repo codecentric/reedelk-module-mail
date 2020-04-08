@@ -1,8 +1,8 @@
 package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.SchedulerProvider;
+import com.reedelk.mail.internal.listener.imap.IMAPPollingStrategy;
 import com.reedelk.mail.internal.listener.imap.ImapIdleMailListener;
-import com.reedelk.mail.internal.listener.imap.ImapPollingStrategy1;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -73,7 +73,7 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            ImapPollingStrategy1 pollingStrategy = new ImapPollingStrategy1(this, configuration, deleteOnSuccess, seenOnSuccess, batchEmails, matcher);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, deleteOnSuccess, seenOnSuccess, batchEmails, matcher);
             scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
