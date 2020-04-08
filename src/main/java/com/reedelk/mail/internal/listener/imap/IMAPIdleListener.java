@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static javax.mail.Flags.Flag;
 
-public class ImapIdleMailListener1 {
+public class IMAPIdleListener {
 
     private final Boolean batchEmails;
     private final Boolean deleteOnSuccess;
@@ -30,12 +30,12 @@ public class ImapIdleMailListener1 {
 
     private Folder folder;
     private IMAPStore store;
-    private IDLEListenerThread listenerThread;
+    private IDLEListenerThread1 listenerThread;
 
-    public ImapIdleMailListener1(IMAPMailListener eventListener,
-                                 IMAPConfiguration configuration,
-                                 Boolean deleteOnSuccess,
-                                 Boolean batchEmails) {
+    public IMAPIdleListener(IMAPMailListener eventListener,
+                            IMAPConfiguration configuration,
+                            Boolean deleteOnSuccess,
+                            Boolean batchEmails) {
         this.configuration = configuration;
         this.eventListener = eventListener;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
@@ -60,7 +60,7 @@ public class ImapIdleMailListener1 {
             folder = store.getFolder(folderName);
             folder.addMessageCountListener(new MessageAdapter());
 
-            listenerThread = new IDLEListenerThread(username, password, this.folder);
+            listenerThread = new IDLEListenerThread1(username, password, this.folder);
             listenerThread.start();
 
         } catch (Exception exception) {
