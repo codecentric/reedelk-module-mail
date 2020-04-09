@@ -6,6 +6,6 @@
   "host": "imaps.aruba.it",
   "port": 993,
   "username": "test@reedelk.com",
-  "password": "AABBCCDDEEFF",
+  "password": "boh",
   "folder": "INBOX"
 }

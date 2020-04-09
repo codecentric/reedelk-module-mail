@@ -5,7 +5,7 @@
   "host": "imap.gmail.com",
   "port": 993,
   "username": "gironi.lorenzo@gmail.com",
-  "password": "L:2:(].QvF*J?gH}",
+  "password": "boh",
   "timeout": 10000,
   "folder": "INBOX"
 }
