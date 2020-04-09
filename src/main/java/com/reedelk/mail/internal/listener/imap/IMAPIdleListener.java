@@ -29,11 +29,11 @@ public class IMAPIdleListener {
     private final Logger logger = LoggerFactory.getLogger(IMAPIdleListener.class);
 
     private final String inboxFolder;
-    private final Boolean batchEmails;
-    private final Boolean deleteOnSuccess;
+    private final boolean batchEmails;
+    private final boolean deleteOnSuccess;
+    private final boolean markSeenOnSuccess;
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
-    private final Boolean seenOnSuccess;
 
     private Folder folder;
     private IMAPStore store;
@@ -43,13 +43,13 @@ public class IMAPIdleListener {
                             IMAPConfiguration configuration,
                             Boolean deleteOnSuccess,
                             Boolean batchEmails,
-                            Boolean seenOnSuccess) {
+                            Boolean markSeenOnSuccess) {
         this.configuration = configuration;
         this.eventListener = eventListener;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
-        this.seenOnSuccess = Optional.ofNullable(seenOnSuccess).orElse(false);
+        this.markSeenOnSuccess = Optional.ofNullable(markSeenOnSuccess).orElse(false);
     }
 
     public void start() {
@@ -133,7 +133,7 @@ public class IMAPIdleListener {
         }
 
         private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-            message.setFlag(Flag.SEEN, seenOnSuccess);
+            message.setFlag(Flag.SEEN, markSeenOnSuccess);
             if (deleteOnSuccess) {
                 message.setFlag(Flag.DELETED, true);
             }

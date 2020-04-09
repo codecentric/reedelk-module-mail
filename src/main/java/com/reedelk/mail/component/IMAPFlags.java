@@ -6,62 +6,62 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
 @Collapsible
-@Component(service = IMAPMatcher.class, scope = ServiceScope.PROTOTYPE)
-public class IMAPMatcher implements Implementor {
+@Component(service = IMAPFlags.class, scope = ServiceScope.PROTOTYPE)
+public class IMAPFlags implements Implementor {
 
     @Property("Seen Messages")
     @Example("BOTH")
     @DefaultValue("NO")
     @Description("If true, seen email messages are fetched from the IMAP server.")
-    private IMAPMatcherFlag seen = IMAPMatcherFlag.NO;
+    private IMAPFlag seen = IMAPFlag.NO;
 
     @Property("Recent Messages")
     @Example("YES")
     @DefaultValue("NO")
     @Description("If true, email messages marked as 'recent' are fetched from the IMAP server.")
-    private IMAPMatcherFlag recent = IMAPMatcherFlag.NO;
+    private IMAPFlag recent = IMAPFlag.NO;
 
     @Property("Deleted Messages")
     @Example("YES")
     @DefaultValue("NO")
     @Description("If true, email messages marked as 'deleted' are fetched from the IMAP server.")
-    private IMAPMatcherFlag deleted = IMAPMatcherFlag.NO;
+    private IMAPFlag deleted = IMAPFlag.NO;
 
     @Property("Answered Messages")
     @Example("BOTH")
     @DefaultValue("NO")
     @Description("If true, answered email messages are fetched from the IMAP server.")
-    private IMAPMatcherFlag answered = IMAPMatcherFlag.NO;
+    private IMAPFlag answered = IMAPFlag.NO;
 
-    public IMAPMatcherFlag getSeen() {
+    public IMAPFlag getSeen() {
         return seen;
     }
 
-    public void setSeen(IMAPMatcherFlag seen) {
+    public void setSeen(IMAPFlag seen) {
         this.seen = seen;
     }
 
-    public IMAPMatcherFlag getRecent() {
+    public IMAPFlag getRecent() {
         return recent;
     }
 
-    public void setRecent(IMAPMatcherFlag recent) {
+    public void setRecent(IMAPFlag recent) {
         this.recent = recent;
     }
 
-    public IMAPMatcherFlag getDeleted() {
+    public IMAPFlag getDeleted() {
         return deleted;
     }
 
-    public void setDeleted(IMAPMatcherFlag deleted) {
+    public void setDeleted(IMAPFlag deleted) {
         this.deleted = deleted;
     }
 
-    public IMAPMatcherFlag getAnswered() {
+    public IMAPFlag getAnswered() {
         return answered;
     }
 
-    public void setAnswered(IMAPMatcherFlag answered) {
+    public void setAnswered(IMAPFlag answered) {
         this.answered = answered;
     }
 }

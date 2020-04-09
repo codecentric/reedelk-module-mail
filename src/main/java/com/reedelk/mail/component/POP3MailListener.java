@@ -33,18 +33,25 @@ public class POP3MailListener extends AbstractInbound {
     @Description("Limits the number of emails to be processed.")
     private Integer limit;
 
-    @Property("Delete after retrieve") // TODO: HERE THE POP3 REALLY DELETES the MESSAGES!
+    @Property("Delete on success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     private Boolean deleteOnSuccess;
+
+    @Property("Mark seen on success")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
+    private Boolean markSeenOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true emails are batched in a list")
-    private Boolean batchEmails;
+    private Boolean batch;
 
     private SchedulerProvider schedulerProvider;
 
@@ -55,7 +62,7 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batchEmails, limit);
+        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit, markSeenOnSuccess);
         this.schedulerProvider = new SchedulerProvider();
         this.schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
@@ -89,12 +96,12 @@ public class POP3MailListener extends AbstractInbound {
         this.deleteOnSuccess = deleteOnSuccess;
     }
 
-    public Boolean getBatchEmails() {
-        return batchEmails;
+    public Boolean getBatch() {
+        return batch;
     }
 
-    public void setBatchEmails(Boolean batchEmails) {
-        this.batchEmails = batchEmails;
+    public void setBatch(Boolean batch) {
+        this.batch = batch;
     }
 
     public Integer getLimit() {
@@ -103,5 +110,13 @@ public class POP3MailListener extends AbstractInbound {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
+    }
+
+    public Boolean getMarkSeenOnSuccess() {
+        return markSeenOnSuccess;
+    }
+
+    public void setMarkSeenOnSuccess(Boolean markSeenOnSuccess) {
+        this.markSeenOnSuccess = markSeenOnSuccess;
     }
 }

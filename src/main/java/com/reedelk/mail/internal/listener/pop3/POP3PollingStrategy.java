@@ -21,18 +21,21 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
+    private final boolean markSeenOnSuccess;
     private final Integer limit;
 
     public POP3PollingStrategy(InboundEventListener eventListener,
                                POP3Configuration configuration,
                                Boolean deleteOnSuccess,
                                Boolean batchEmails,
-                               Integer limit) {
+                               Integer limit,
+                               Boolean markSeenOnSuccess) {
         super(eventListener);
         this.configuration = configuration;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.limit = limit;
+        this.markSeenOnSuccess = Optional.ofNullable(markSeenOnSuccess).orElse(false);
     }
 
     @Override
@@ -82,6 +85,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     }
 
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+        message.setFlag(Flags.Flag.SEEN, markSeenOnSuccess);
         if (deleteOnSuccess) {
             message.setFlag(Flags.Flag.DELETED, true);
         }

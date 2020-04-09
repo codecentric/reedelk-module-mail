@@ -1,8 +1,8 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.component.IMAPFlags;
 import com.reedelk.mail.component.IMAPMailListener;
-import com.reedelk.mail.component.IMAPMatcher;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
@@ -22,30 +22,33 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(IMAPPollingStrategy.class);
 
-    private final IMAPMatcher matcher;
+    private final IMAPFlags matcher;
     private final IMAPConfiguration configuration;
 
     private final String inboxFolder;
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
     private final boolean markDeletedOnSuccess;
+    private final boolean markSeenOnSuccess;
     private final Integer limit;
 
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
-                               IMAPMatcher matcher,
+                               IMAPFlags matcher,
                                Boolean deleteOnSuccess,
                                Boolean markDeletedOnSuccess,
+                               Boolean markSeenOnSuccess,
                                Boolean batchEmails,
                                Integer limit) {
         super(listener);
         this.limit = limit;
         this.configuration = configuration;
-        this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
+        this.matcher = Optional.ofNullable(matcher).orElse(new IMAPFlags());
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.markDeletedOnSuccess = Optional.ofNullable(markDeletedOnSuccess).orElse(Defaults.Poller.MARK_DELETED_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.markSeenOnSuccess = Optional.ofNullable(markSeenOnSuccess).orElse(false);
     }
 
     @Override
@@ -111,6 +114,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+        message.setFlag(Flag.SEEN, markSeenOnSuccess);
         if (deleteOnSuccess || markDeletedOnSuccess) {
             message.setFlag(Flag.DELETED, true);
         }
@@ -121,7 +125,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         message.setFlag(Flag.SEEN, false);
     }
 
-    private SearchTerm createSearchTerm(IMAPMatcher matcher) {
+    private SearchTerm createSearchTerm(IMAPFlags matcher) {
         SearchTerm seenFlag = matcher.getSeen().searchTermOf(Flag.SEEN);
         SearchTerm recentFlag = matcher.getRecent().searchTermOf(Flag.RECENT);
         SearchTerm answeredFlag = matcher.getAnswered().searchTermOf(Flag.ANSWERED);

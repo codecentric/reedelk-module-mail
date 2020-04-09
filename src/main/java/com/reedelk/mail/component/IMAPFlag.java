@@ -7,7 +7,7 @@ import javax.mail.search.FlagTerm;
 import javax.mail.search.OrTerm;
 import javax.mail.search.SearchTerm;
 
-public enum IMAPMatcherFlag {
+public enum IMAPFlag {
 
     @DisplayName("Yes")
     YES {
