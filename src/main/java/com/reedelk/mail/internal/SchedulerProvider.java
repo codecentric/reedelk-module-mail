@@ -21,7 +21,7 @@ public class SchedulerProvider {
 
     public void schedule(Integer pollInterval, PollingStrategy pollingStrategy) {
         int realPollInterval = Optional.ofNullable(pollInterval).orElse(Defaults.Poller.DEFAULT_POLL_INTERVAL);
-        this.scheduled = executorService.scheduleWithFixedDelay(pollingStrategy, realPollInterval, realPollInterval, TimeUnit.MILLISECONDS);
+        this.scheduled = executorService.scheduleWithFixedDelay(pollingStrategy, 0L, realPollInterval, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
