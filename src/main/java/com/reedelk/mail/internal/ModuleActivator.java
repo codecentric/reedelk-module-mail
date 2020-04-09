@@ -15,8 +15,7 @@ public class ModuleActivator {
 
     @Reference
     private ScriptEngineService scriptEngine;
-    @Reference
-    private SchedulerProvider schedulerProvider;
+
 
     @Activate
     public void start(BundleContext context) {
@@ -26,6 +25,6 @@ public class ModuleActivator {
 
     @Deactivate
     public void stop() {
-        schedulerProvider.stop();
+
     }
 }

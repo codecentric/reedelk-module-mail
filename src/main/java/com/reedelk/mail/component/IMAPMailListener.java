@@ -6,9 +6,6 @@ import com.reedelk.mail.internal.listener.imap.IMAPPollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import java.util.concurrent.ScheduledFuture;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
@@ -64,11 +61,8 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true emails are batched in a list")
     private Boolean batchEmails;
 
-    @Reference
-    private SchedulerProvider schedulerProvider;
-
-    private ScheduledFuture<?> scheduled;
     private IMAPIdleListener idle;
+    private SchedulerProvider schedulerProvider;
 
     @Override
     public void onStart() {
@@ -79,7 +73,8 @@ public class IMAPMailListener extends AbstractInbound {
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
             IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markAsDeletedOnSuccess, batchEmails);
-            scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
+            schedulerProvider = new SchedulerProvider();
+            schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
             // TODO: Check if for IDLE the delete is just a flag or it can be effectively deleted.
@@ -90,7 +85,7 @@ public class IMAPMailListener extends AbstractInbound {
 
     @Override
     public void onShutdown() {
-        schedulerProvider.cancel(scheduled);
+        if (schedulerProvider != null) schedulerProvider.stop();
         if (idle != null) idle.stop();
     }
 

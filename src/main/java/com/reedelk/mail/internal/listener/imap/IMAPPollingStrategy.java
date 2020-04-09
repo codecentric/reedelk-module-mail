@@ -55,21 +55,32 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             folder = store.getFolder(inboxFolder);
             folder.open(Folder.READ_WRITE);
 
+            System.err.println("Searching for messages");
             // search term to retrieve unseen messages from the folder
             // Apply matching flags ...
             SearchTerm searchTerm = createSearchTerm(matcher);
             Message[] messages = folder.search(searchTerm);
 
             if (batchEmails) {
-                boolean success = processMessages(IMAPMailListener.class, messages);
-                if (success) applyMessagesOnSuccessFlags(messages);
+                if (!Thread.interrupted()) {
+                    boolean success = processMessages(IMAPMailListener.class, messages);
+                    if (success) applyMessagesOnSuccessFlags(messages);
+
+                } else {
+                    System.err.println("Thread was interrupted. Stop here");
+                }
+
 
             } else {
-                for (Message message : messages) {
-                    // Process each message one at a time. If the processing was successful,
-                    // then we apply the flags to the message (e.g marking it deleted)
-                    boolean success = processMessage(IMAPMailListener.class, message);
-                    if (success) applyMessageOnSuccessFlags(message);
+                if (!Thread.interrupted()) {
+                    for (Message message : messages) {
+                        // Process each message one at a time. If the processing was successful,
+                        // then we apply the flags to the message (e.g marking it deleted)
+                        boolean success = processMessage(IMAPMailListener.class, message);
+                        if (success) applyMessageOnSuccessFlags(message);
+                    }
+                } else {
+                    System.err.println("Thread was interrupted");
                 }
             }
 
