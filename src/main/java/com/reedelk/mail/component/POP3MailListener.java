@@ -27,6 +27,12 @@ public class POP3MailListener extends AbstractInbound {
     @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
     private Integer pollInterval;
 
+    @Property("Limit")
+    @Example("10")
+    @Group("General")
+    @Description("Limits the number of emails to be processed.")
+    private Integer limit;
+
     @Property("Delete after retrieve") // TODO: HERE THE POP3 REALLY DELETES the MESSAGES!
     @DefaultValue("false")
     @Example("true")
@@ -49,7 +55,7 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batchEmails);
+        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batchEmails, limit);
         this.schedulerProvider = new SchedulerProvider();
         this.schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
@@ -89,5 +95,13 @@ public class POP3MailListener extends AbstractInbound {
 
     public void setBatchEmails(Boolean batchEmails) {
         this.batchEmails = batchEmails;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }

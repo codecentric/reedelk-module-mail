@@ -21,15 +21,18 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
+    private final Integer limit;
 
     public POP3PollingStrategy(InboundEventListener eventListener,
                                POP3Configuration configuration,
                                Boolean deleteOnSuccess,
-                               Boolean batchEmails) {
+                               Boolean batchEmails,
+                               Integer limit) {
         super(eventListener);
         this.configuration = configuration;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
+        this.limit = limit;
     }
 
     @Override
@@ -47,12 +50,18 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
             if (Thread.interrupted()) return;
 
+            Message[] toProcess = messages;
+            if (limit != null) {
+                toProcess = new Message[limit];
+                if (limit >= 0) System.arraycopy(messages, 0, toProcess, 0, limit);
+            }
+
             if (batchEmails) {
-                boolean success = processMessages(POP3MailListener.class, messages);
-                if (success) applyMessagesOnSuccessFlags(messages);
+                boolean success = processMessages(POP3MailListener.class, toProcess);
+                if (success) applyMessagesOnSuccessFlags(toProcess);
 
             } else {
-                for (Message message : messages) {
+                for (Message message : toProcess) {
                     if (Thread.interrupted()) return;
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)

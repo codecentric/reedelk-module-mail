@@ -29,14 +29,17 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
     private final boolean markDeletedOnSuccess;
+    private final Integer limit;
 
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
                                IMAPMatcher matcher,
                                Boolean deleteOnSuccess,
                                Boolean markDeletedOnSuccess,
-                               Boolean batchEmails) {
+                               Boolean batchEmails,
+                               Integer limit) {
         super(listener);
+        this.limit = limit;
         this.configuration = configuration;
         this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
@@ -62,12 +65,18 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
             if (Thread.interrupted()) return;
 
+            Message[] toProcess = messages;
+            if (limit != null) {
+                toProcess = new Message[limit];
+                if (limit >= 0) System.arraycopy(messages, 0, toProcess, 0, limit);
+            }
+
             if (batchEmails) {
-                boolean success = processMessages(IMAPMailListener.class, messages);
-                if (success) applyMessagesOnSuccessFlags(messages);
+                boolean success = processMessages(IMAPMailListener.class, toProcess);
+                if (success) applyMessagesOnSuccessFlags(toProcess);
 
             } else {
-                for (Message message : messages) {
+                for (Message message : toProcess) {
                     if (Thread.interrupted()) return;
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)

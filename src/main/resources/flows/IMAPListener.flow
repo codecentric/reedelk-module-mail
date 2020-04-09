@@ -15,7 +15,8 @@
         "deleted": "BOTH",
         "answered": "BOTH"
       },
-      "batchEmails": true
+      "batchEmails": true,
+      "limit": 2
     },
     {
       "implementor": "com.reedelk.runtime.component.ForEach",

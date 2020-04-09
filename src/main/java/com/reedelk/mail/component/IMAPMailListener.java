@@ -35,6 +35,13 @@ public class IMAPMailListener extends AbstractInbound {
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Integer pollInterval;
 
+    @Property("Limit")
+    @Hint("10")
+    @Example("10")
+    @Group("General")
+    @Description("Limits the number of emails to be processed.")
+    private Integer limit;
+
     @Property("Fetch matchers")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
@@ -72,7 +79,7 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markDeletedOnSuccess, batchEmails);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markDeletedOnSuccess, batchEmails, limit);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
@@ -143,5 +150,13 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setMarkDeletedOnSuccess(Boolean markDeletedOnSuccess) {
         this.markDeletedOnSuccess = markDeletedOnSuccess;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }
