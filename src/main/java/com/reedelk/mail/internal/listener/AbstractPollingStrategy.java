@@ -21,7 +21,7 @@ public abstract class AbstractPollingStrategy implements PollingStrategy {
         return fireEventAndWaitResult(inMessage);
     }
 
-    protected boolean processMessages(Class<? extends Component> componentClazz, Message[] messages) throws InterruptedException {
+    protected boolean processMessages(Class<? extends Component> componentClazz, Message[] messages) throws Exception {
         com.reedelk.runtime.api.message.Message inMessage =
                 MailMessageToMessageMapper.map(componentClazz, messages);
         return fireEventAndWaitResult(inMessage);

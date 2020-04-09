@@ -36,8 +36,9 @@ public class IMAPConfiguration implements Implementor {
     @Example("myPassword")
     private String password;
 
-    @Property("IMAP Folder")
+    @Property("Folder")
     @Example("INBOX")
+    @Hint("INBOX")
     @InitValue("INBOX")
     @DefaultValue("INBOX")
     @Description("The IMAP folder from which the listener should be listening from.")

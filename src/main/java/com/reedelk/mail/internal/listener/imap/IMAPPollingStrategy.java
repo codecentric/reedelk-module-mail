@@ -57,6 +57,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             if (Thread.interrupted()) return;
 
             SearchTerm searchTerm = createSearchTerm(matcher);
+
             Message[] messages = folder.search(searchTerm);
 
             if (Thread.interrupted()) return;

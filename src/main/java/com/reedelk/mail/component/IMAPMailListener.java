@@ -20,7 +20,7 @@ public class IMAPMailListener extends AbstractInbound {
     @Group("General")
     private IMAPConfiguration configuration;
 
-    @Property("IMAP Strategy")
+    @Property("Strategy")
     @Example("IDLE")
     @DefaultValue("POLLING")
     private IMAPListeningStrategy strategy;
@@ -40,19 +40,19 @@ public class IMAPMailListener extends AbstractInbound {
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private IMAPMatcher matcher;
 
-    @Property("Deletes a message if success")
+    @Property("Deletes message on success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
     private Boolean deleteOnSuccess;
 
-    @Property("Mark as deleted if success")
+    @Property("Mark deleted on success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    private Boolean markAsDeletedOnSuccess;
+    private Boolean markDeletedOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -72,7 +72,7 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markAsDeletedOnSuccess, batchEmails);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markDeletedOnSuccess, batchEmails);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
@@ -135,5 +135,13 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setBatchEmails(Boolean batchEmails) {
         this.batchEmails = batchEmails;
+    }
+
+    public Boolean getMarkDeletedOnSuccess() {
+        return markDeletedOnSuccess;
+    }
+
+    public void setMarkDeletedOnSuccess(Boolean markDeletedOnSuccess) {
+        this.markDeletedOnSuccess = markDeletedOnSuccess;
     }
 }

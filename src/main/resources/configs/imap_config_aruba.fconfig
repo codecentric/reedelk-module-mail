@@ -1,0 +1,11 @@
+{
+  "id": "fe4636e8-0757-417b-a7e2-f7e40fd9b5d2",
+  "title": "Aruba IMAP",
+  "implementor": "com.reedelk.mail.component.IMAPConfiguration",
+  "protocol": "IMAPS",
+  "host": "imaps.aruba.it",
+  "port": 993,
+  "username": "test@reedelk.com",
+  "password": "AABBCCDDEEFF",
+  "folder": "INBOX"
+}

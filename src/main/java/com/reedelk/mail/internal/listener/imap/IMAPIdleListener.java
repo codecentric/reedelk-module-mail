@@ -131,7 +131,7 @@ public class IMAPIdleListener {
             return fireEventAndWaitResult(inMessage);
         }
 
-        private boolean processMessages(Message[] messages) throws InterruptedException {
+        private boolean processMessages(Message[] messages) throws Exception {
             com.reedelk.runtime.api.message.Message inMessage =
                     MailMessageToMessageMapper.map(IMAPMailListener.class, messages);
             return fireEventAndWaitResult(inMessage);

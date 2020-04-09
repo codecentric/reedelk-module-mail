@@ -16,6 +16,7 @@ import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +70,45 @@ public class MailMessageToMessageMapper {
         }
     }
 
-    public static Message map(Class<? extends Component> componentClazz, javax.mail.Message[] mails) {
-        return MessageBuilder.get().empty().build();
+    public static Message map(Class<? extends Component> componentClazz, javax.mail.Message[] mails) throws Exception {
+        List<Map> messages = new ArrayList<>();
+
+        for (javax.mail.Message m : mails) {
+            MimeMessage mimeMessage = (MimeMessage) m;
+            MimeMessageParser parser = new MimeMessageParser(mimeMessage);
+            MimeMessageParser parsed = parser.parse();
+
+            HashMap<String, Attachment> attachmentMap = new HashMap<>();
+
+            List<DataSource> attachmentList = parser.getAttachmentList();
+            attachmentList.forEach(dataSource -> processAttachment(attachmentMap, dataSource));
+
+            Map<String,Serializable> message = new HashMap<>();
+            ATTACHMENTS.set(message, attachmentMap);
+            MESSAGE_NUMBER.set(message, m.getMessageNumber());
+            FROM.set(message, parsed.getFrom());
+            SUBJECT.set(message, parsed.getSubject());
+            REPLY_TO.set(message, parsed.getReplyTo());
+            TO.set(message, Address.asSerializableList(parsed.getTo()));
+            CC.set(message, Address.asSerializableList(parsed.getCc()));
+            BCC.set(message, Address.asSerializableList(parsed.getBcc()));
+            if (m.getSentDate() != null) SENT_DATE.set(message, m.getSentDate().getTime());
+            if (m.getReceivedDate() != null) RECEIVED_DATE.set(message, m.getReceivedDate().getTime());
+
+            if (parsed.hasHtmlContent()) {
+                StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
+                message.put("body", htmlContent);
+            } else if (parsed.hasPlainContent()){
+                StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
+                message.put("body", plainContent);
+            } else {
+                message.put("body", null);
+            }
+
+            messages.add(message);
+        }
+
+        return MessageBuilder.get().withJavaCollection(messages, Map.class).build();
     }
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) {
