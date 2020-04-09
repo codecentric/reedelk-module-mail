@@ -59,6 +59,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             if (batchEmails) {
                 boolean success = processMessages(POP3MailListener.class, toProcess);
                 if (success) applyMessagesOnSuccessFlags(toProcess);
+                else applyMessagesOnFailureFlags(toProcess);
 
             } else {
                 for (Message message : toProcess) {
@@ -67,6 +68,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(POP3MailListener.class, message);
                     if (success) applyMessageOnSuccessFlags(message);
+                    else applyMessageOnFailureFlags(message);
                 }
             }
 
@@ -82,6 +84,17 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
         if (deleteOnSuccess) {
             message.setFlag(Flags.Flag.DELETED, true);
+        }
+    }
+
+    // If failure, we don't wat to mark the message as 'seen'
+    private void applyMessageOnFailureFlags(Message message) throws MessagingException {
+        message.setFlag(Flags.Flag.SEEN, false);
+    }
+
+    private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
         }
     }
 

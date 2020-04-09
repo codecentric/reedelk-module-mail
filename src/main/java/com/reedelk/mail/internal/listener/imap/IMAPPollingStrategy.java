@@ -74,6 +74,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             if (batchEmails) {
                 boolean success = processMessages(IMAPMailListener.class, toProcess);
                 if (success) applyMessagesOnSuccessFlags(toProcess);
+                else applyMessagesOnFailureFlags(toProcess);
 
             } else {
                 for (Message message : toProcess) {
@@ -82,6 +83,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(IMAPMailListener.class, message);
                     if (success) applyMessageOnSuccessFlags(message);
+                    else applyMessageOnFailureFlags(message);
                 }
             }
 
@@ -89,8 +91,22 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             logger.error(exception.getMessage(), exception);
 
         } finally {
+            // expunge depends on the delete on success flag.
+            // If expunge true, then messages are completely removed, otherwise marked as deleted only.
             CloseableUtils.close(folder, deleteOnSuccess);
             CloseableUtils.close(store);
+        }
+    }
+
+    private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
+        }
+    }
+
+    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
         }
     }
 
@@ -100,10 +116,9 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         }
     }
 
-    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
-        for (Message message : messages) {
-            applyMessageOnSuccessFlags(message);
-        }
+    // If failure, we don't wat to mark the message as 'seen'
+    private void applyMessageOnFailureFlags(Message message) throws MessagingException {
+        message.setFlag(Flag.SEEN, false);
     }
 
     private SearchTerm createSearchTerm(IMAPMatcher matcher) {

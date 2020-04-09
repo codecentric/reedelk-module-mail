@@ -14,8 +14,7 @@
         "recent": "NO",
         "deleted": "NO",
         "answered": "NO"
-      },
-      "batchEmails": true
+      }
     },
     {
       "implementor": "com.reedelk.runtime.component.ForEach",

@@ -102,12 +102,13 @@ public class IMAPIdleListener {
                 if (batchEmails) {
                     boolean success = processMessages(messages);
                     if (success) applyMessagesOnSuccessFlags(messages);
+                    else applyMessagesOnFailureFlags(messages);
                 } else {
                     for (Message message : messages) {
                         try {
                             boolean success = processMessage(message);
                             if (success) applyMessageOnSuccessFlags(message);
-
+                            else applyMessageOnFailureFlags(message);
                         } catch (Exception exception) {
                             String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
                             logger.error(error, exception);
@@ -116,6 +117,12 @@ public class IMAPIdleListener {
                 }
             } catch (Exception e) {
                 System.out.println(e);
+            }
+        }
+
+        private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
+            for (Message message : messages) {
+                applyMessageOnSuccessFlags(message);
             }
         }
 
@@ -130,6 +137,11 @@ public class IMAPIdleListener {
             if (deleteOnSuccess) {
                 message.setFlag(Flag.DELETED, true);
             }
+        }
+
+        // If failure, we don't wat to mark the message as 'seen'
+        private void applyMessageOnFailureFlags(Message message) throws MessagingException {
+            message.setFlag(Flag.SEEN, false);
         }
 
         private boolean processMessage(Message message) throws InterruptedException {
