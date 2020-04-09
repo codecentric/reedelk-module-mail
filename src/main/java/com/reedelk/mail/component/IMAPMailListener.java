@@ -43,11 +43,19 @@ public class IMAPMailListener extends AbstractInbound {
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private IMAPMatcher matcher;
 
+    @Property("Deletes a message if success")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
+    private Boolean deleteOnSuccess;
+
     @Property("Mark as deleted if success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
-    private Boolean deleteOnSuccess; // TODO: This marks a message as deleted! add a second property which says markAsDeletedOnSuccess
+    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
+    private Boolean markAsDeletedOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -65,12 +73,16 @@ public class IMAPMailListener extends AbstractInbound {
     @Override
     public void onStart() {
         requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
+        requireNotNull(IMAPMailListener.class, configuration.getHost(), "IMAP hostname must not be empty.");
+        requireNotNull(IMAPMailListener.class, configuration.getUsername(), "IMAP username must not be empty.");
+        requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, batchEmails);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, matcher, deleteOnSuccess, markAsDeletedOnSuccess, batchEmails);
             scheduled = schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
+            // TODO: Check if for IDLE the delete is just a flag or it can be effectively deleted.
             idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batchEmails);
             idle.start();
         }

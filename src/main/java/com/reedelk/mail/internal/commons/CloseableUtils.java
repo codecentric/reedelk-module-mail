@@ -9,33 +9,30 @@ public class CloseableUtils {
 
     public static void close(final Store store) {
         if (store == null) return;
-        if (store.isConnected()) {
-            try {
-                store.close();
-            } catch (final Exception e) {
-                // ignore
-            }
+        if (!store.isConnected()) return;
+        try {
+            store.close();
+        } catch (Exception e) {
+            // ignore
         }
     }
 
-    public static void close(Folder folder) {
+    public static void close(Folder folder, boolean expunge) {
         if (folder == null) return;
-        if (folder.isOpen()) {
-            try {
-                folder.close();
-            } catch (final Exception e) {
-                // ignore
-            }
+        if (!folder.isOpen()) return;
+        try {
+            folder.close(expunge);
+        } catch (Exception e) {
+            // ignore
         }
     }
 
     public static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-                // ignore
-            }
+        if (closeable == null) return;
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // ignore
         }
     }
 }

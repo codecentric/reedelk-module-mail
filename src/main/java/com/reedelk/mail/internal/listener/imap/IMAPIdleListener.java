@@ -23,6 +23,8 @@ import static javax.mail.Flags.Flag;
 
 public class IMAPIdleListener {
 
+    private final Logger logger = LoggerFactory.getLogger(IMAPIdleListener.class);
+
     private final Boolean batchEmails;
     private final Boolean deleteOnSuccess;
     private final IMAPConfiguration configuration;
@@ -64,7 +66,8 @@ public class IMAPIdleListener {
             listenerThread.start();
 
         } catch (Exception exception) {
-            // TODO: Log this exception
+            logger.error(exception.getMessage(), exception);
+        } finally {
             cleanup();
         }
     }
@@ -75,13 +78,11 @@ public class IMAPIdleListener {
 
     private void cleanup() {
         CloseableUtils.close(listenerThread);
-        CloseableUtils.close(folder); // TODO: If DELETE (spunge == true) if MARK AS DELETE (spunge == false)
+        CloseableUtils.close(folder, false); // TODO: If DELETE (spunge == true) if MARK AS DELETE (spunge == false)
         CloseableUtils.close(store);
     }
 
     private class MessageAdapter extends MessageCountAdapter {
-
-        public final Logger logger = LoggerFactory.getLogger(MessageAdapter.class);
 
         @Override
         public void messagesAdded(MessageCountEvent event) {

@@ -1,18 +1,24 @@
 package com.reedelk.mail.internal.listener.pop3;
 
 import com.reedelk.mail.component.POP3Configuration;
+import com.reedelk.mail.component.POP3MailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
 import com.reedelk.mail.internal.properties.POP3Properties;
 import com.reedelk.runtime.api.component.InboundEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import java.util.Optional;
 
 public class POP3PollingStrategy extends AbstractPollingStrategy {
 
+    private final Logger logger = LoggerFactory.getLogger(POP3PollingStrategy.class);
+
     private final POP3Configuration configuration;
+
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
 
@@ -32,41 +38,51 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
         Folder folder = null;
         try {
             store = getStore();
-            folder = getFolder(store);
+            folder = store.getFolder(Defaults.POP_FOLDER_NAME);
             folder.open(Folder.READ_WRITE);
 
             Message[] messages = folder.getMessages();
 
-            for (Message message : messages) {
-                // process message
-                boolean processed = processMessage(message);
-                if (processed) {
-                    if (deleteOnSuccess) {
-                        message.setFlag(Flags.Flag.DELETED, true);
-                    }
+            if (batchEmails) {
+                boolean success = processMessages(POP3MailListener.class, messages);
+                if (success) applyMessagesOnSuccessFlags(messages);
+
+            } else {
+                for (Message message : messages) {
+                    // Process each message one at a time. If the processing was successful,
+                    // then we apply the flags to the message (e.g marking it deleted)
+                    boolean success = processMessage(POP3MailListener.class, message);
+                    if (success) applyMessageOnSuccessFlags(message);
                 }
             }
 
         } catch (Exception exception) {
-            // TODO: Maybe log this?
-            System.err.println(exception.getMessage());
-            exception.printStackTrace();
+            logger.error(exception.getMessage(), exception);
+
         } finally {
-            CloseableUtils.close(folder);
+            CloseableUtils.close(folder, deleteOnSuccess);
             CloseableUtils.close(store);
+        }
+    }
+
+    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
+        }
+    }
+
+    private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+        if (deleteOnSuccess) {
+            message.setFlag(Flags.Flag.DELETED, true);
         }
     }
 
     private Store getStore() throws MessagingException {
         Session session = Session.getDefaultInstance(new POP3Properties(configuration));
         Store store = session.getStore();
+
         // TODO: If authenticate then connect with authentication.
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
-    }
-
-    private Folder getFolder(Store store) throws MessagingException {
-        // For POP3 the folder is always INBOX.
-        return store.getFolder("INBOX");
     }
 }

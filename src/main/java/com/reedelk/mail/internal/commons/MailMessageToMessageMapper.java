@@ -69,6 +69,10 @@ public class MailMessageToMessageMapper {
         }
     }
 
+    public static Message map(Class<? extends Component> componentClazz, javax.mail.Message[] mails) {
+        return MessageBuilder.get().empty().build();
+    }
+
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) {
         try {
             byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());

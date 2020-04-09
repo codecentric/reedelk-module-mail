@@ -1,12 +1,15 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
+import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.component.IMAPMatcher;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.search.AndTerm;
@@ -18,21 +21,29 @@ import static javax.mail.Flags.Flag;
 
 public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
+    private final Logger logger = LoggerFactory.getLogger(IMAPPollingStrategy.class);
+
     private final IMAPMatcher matcher;
     private final IMAPConfiguration configuration;
+
+    private final String inboxFolder;
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
+    private final boolean markDeletedOnSuccess;
 
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
                                IMAPMatcher matcher,
                                Boolean deleteOnSuccess,
+                               Boolean markDeletedOnSuccess,
                                Boolean batchEmails) {
         super(listener);
         this.configuration = configuration;
         this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
+        this.markDeletedOnSuccess = Optional.of(markDeletedOnSuccess).orElse(Defaults.Poller.MARK_DELETED_ON_SUCCESS);
+        this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
     }
 
     @Override
@@ -41,7 +52,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         Folder folder = null;
         try {
             store = getStore();
-            folder = getFolder(store);
+            folder = store.getFolder(inboxFolder);
             folder.open(Folder.READ_WRITE);
 
             // search term to retrieve unseen messages from the folder
@@ -49,23 +60,37 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             SearchTerm searchTerm = createSearchTerm(matcher);
             Message[] messages = folder.search(searchTerm);
 
-            for (Message message : messages) {
-                // Process message if the processing was successful,
-                // we set the flag according to the configured parameters.
-                boolean success = processMessage(message);
-                if (success) {
-                    if (deleteOnSuccess) {
-                        message.setFlag(Flag.DELETED, true);
-                    }
+            if (batchEmails) {
+                boolean success = processMessages(IMAPMailListener.class, messages);
+                if (success) applyMessagesOnSuccessFlags(messages);
+
+            } else {
+                for (Message message : messages) {
+                    // Process each message one at a time. If the processing was successful,
+                    // then we apply the flags to the message (e.g marking it deleted)
+                    boolean success = processMessage(IMAPMailListener.class, message);
+                    if (success) applyMessageOnSuccessFlags(message);
                 }
             }
-        } catch (Exception e) {
-            // TODO: Log me
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+
+        } catch (Exception exception) {
+            logger.error(exception.getMessage(), exception);
+
         } finally {
-            CloseableUtils.close(folder);
+            CloseableUtils.close(folder, deleteOnSuccess);
             CloseableUtils.close(store);
+        }
+    }
+
+    private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+        if (deleteOnSuccess || markDeletedOnSuccess) {
+            message.setFlag(Flag.DELETED, true);
+        }
+    }
+
+    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
         }
     }
 
@@ -77,19 +102,14 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         return new AndTerm(new FlagTerm[] { seenFlag, recentFlag, answeredFlag, deletedFlag });
     }
 
-    private boolean getOrDefault(Boolean value) {
-        return value == null ? false : value;
-    }
-
     private Store getStore() throws MessagingException {
         Session session = Session.getDefaultInstance(new IMAPProperties(configuration));
         Store store = session.getStore();
-        // TODO: If authenticate then connect with authentication.
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
     }
 
-    private Folder getFolder(Store store) throws MessagingException {
-        return store.getFolder(configuration.getFolder());
+    private boolean getOrDefault(Boolean value) {
+        return value == null ? false : value;
     }
 }
