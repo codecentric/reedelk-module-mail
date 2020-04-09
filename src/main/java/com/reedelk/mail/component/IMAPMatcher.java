@@ -9,59 +9,59 @@ import org.osgi.service.component.annotations.ServiceScope;
 @Component(service = IMAPMatcher.class, scope = ServiceScope.PROTOTYPE)
 public class IMAPMatcher implements Implementor {
 
-    @Property("Fetch Seen Messages")
-    @Example("true")
-    @DefaultValue("false")
+    @Property("Seen Messages")
+    @Example("BOTH")
+    @DefaultValue("NO")
     @Description("If true, seen email messages are fetched from the IMAP server.")
-    private Boolean seen;
+    private IMAPMatcherFlag seen = IMAPMatcherFlag.NO;
 
-    @Property("Fetch Recent Messages")
-    @Example("true")
-    @DefaultValue("false")
+    @Property("Recent Messages")
+    @Example("YES")
+    @DefaultValue("NO")
     @Description("If true, email messages marked as 'recent' are fetched from the IMAP server.")
-    private Boolean recent;
+    private IMAPMatcherFlag recent = IMAPMatcherFlag.NO;
 
-    @Property("Fetch Deleted Messages")
-    @Example("true")
-    @DefaultValue("false")
+    @Property("Deleted Messages")
+    @Example("YES")
+    @DefaultValue("NO")
     @Description("If true, email messages marked as 'deleted' are fetched from the IMAP server.")
-    private Boolean deleted;
+    private IMAPMatcherFlag deleted = IMAPMatcherFlag.NO;
 
-    @Property("Fetch Answered Messages")
-    @Example("true")
-    @DefaultValue("false")
+    @Property("Answered Messages")
+    @Example("BOTH")
+    @DefaultValue("NO")
     @Description("If true, answered email messages are fetched from the IMAP server.")
-    private Boolean answered;
+    private IMAPMatcherFlag answered = IMAPMatcherFlag.NO;
 
-    public Boolean getSeen() {
+    public IMAPMatcherFlag getSeen() {
         return seen;
     }
 
-    public void setSeen(Boolean seen) {
+    public void setSeen(IMAPMatcherFlag seen) {
         this.seen = seen;
     }
 
-    public Boolean getAnswered() {
-        return answered;
-    }
-
-    public void setAnswered(Boolean answered) {
-        this.answered = answered;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public Boolean getRecent() {
+    public IMAPMatcherFlag getRecent() {
         return recent;
     }
 
-    public void setRecent(Boolean recent) {
+    public void setRecent(IMAPMatcherFlag recent) {
         this.recent = recent;
+    }
+
+    public IMAPMatcherFlag getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(IMAPMatcherFlag deleted) {
+        this.deleted = deleted;
+    }
+
+    public IMAPMatcherFlag getAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(IMAPMatcherFlag answered) {
+        this.answered = answered;
     }
 }

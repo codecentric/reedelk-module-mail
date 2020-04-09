@@ -41,7 +41,11 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             folder = store.getFolder(Defaults.POP_FOLDER_NAME);
             folder.open(Folder.READ_WRITE);
 
+            if (Thread.interrupted()) return;
+
             Message[] messages = folder.getMessages();
+
+            if (Thread.interrupted()) return;
 
             if (batchEmails) {
                 boolean success = processMessages(POP3MailListener.class, messages);
@@ -49,6 +53,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
             } else {
                 for (Message message : messages) {
+                    if (Thread.interrupted()) return;
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(POP3MailListener.class, message);
@@ -65,23 +70,21 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
         }
     }
 
-    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
-        for (Message message : messages) {
-            applyMessageOnSuccessFlags(message);
-        }
-    }
-
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
         if (deleteOnSuccess) {
             message.setFlag(Flags.Flag.DELETED, true);
         }
     }
 
+    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+        for (Message message : messages) {
+            applyMessageOnSuccessFlags(message);
+        }
+    }
+
     private Store getStore() throws MessagingException {
         Session session = Session.getDefaultInstance(new POP3Properties(configuration));
         Store store = session.getStore();
-
-        // TODO: If authenticate then connect with authentication.
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
     }

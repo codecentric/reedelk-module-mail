@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.search.AndTerm;
-import javax.mail.search.FlagTerm;
 import javax.mail.search.SearchTerm;
 import java.util.Optional;
 
@@ -55,32 +54,24 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             folder = store.getFolder(inboxFolder);
             folder.open(Folder.READ_WRITE);
 
-            System.err.println("Searching for messages");
-            // search term to retrieve unseen messages from the folder
-            // Apply matching flags ...
+            if (Thread.interrupted()) return;
+
             SearchTerm searchTerm = createSearchTerm(matcher);
             Message[] messages = folder.search(searchTerm);
 
+            if (Thread.interrupted()) return;
+
             if (batchEmails) {
-                if (!Thread.interrupted()) {
-                    boolean success = processMessages(IMAPMailListener.class, messages);
-                    if (success) applyMessagesOnSuccessFlags(messages);
-
-                } else {
-                    System.err.println("Thread was interrupted. Stop here");
-                }
-
+                boolean success = processMessages(IMAPMailListener.class, messages);
+                if (success) applyMessagesOnSuccessFlags(messages);
 
             } else {
-                if (!Thread.interrupted()) {
-                    for (Message message : messages) {
-                        // Process each message one at a time. If the processing was successful,
-                        // then we apply the flags to the message (e.g marking it deleted)
-                        boolean success = processMessage(IMAPMailListener.class, message);
-                        if (success) applyMessageOnSuccessFlags(message);
-                    }
-                } else {
-                    System.err.println("Thread was interrupted");
+                for (Message message : messages) {
+                    if (Thread.interrupted()) return;
+                    // Process each message one at a time. If the processing was successful,
+                    // then we apply the flags to the message (e.g marking it deleted)
+                    boolean success = processMessage(IMAPMailListener.class, message);
+                    if (success) applyMessageOnSuccessFlags(message);
                 }
             }
 
@@ -106,11 +97,11 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     private SearchTerm createSearchTerm(IMAPMatcher matcher) {
-        FlagTerm seenFlag = new FlagTerm(new Flags(Flag.SEEN), getOrDefault(matcher.getSeen()));
-        FlagTerm recentFlag = new FlagTerm(new Flags(Flag.RECENT), getOrDefault(matcher.getRecent()));
-        FlagTerm answeredFlag = new FlagTerm(new Flags(Flag.ANSWERED), getOrDefault(matcher.getAnswered()));
-        FlagTerm deletedFlag = new FlagTerm(new Flags(Flag.DELETED), getOrDefault(matcher.getDeleted()));
-        return new AndTerm(new FlagTerm[] { seenFlag, recentFlag, answeredFlag, deletedFlag });
+        SearchTerm seenFlag = matcher.getSeen().searchTermOf(Flag.SEEN);
+        SearchTerm recentFlag = matcher.getRecent().searchTermOf(Flag.RECENT);
+        SearchTerm answeredFlag = matcher.getAnswered().searchTermOf(Flag.ANSWERED);
+        SearchTerm deletedFlag = matcher.getDeleted().searchTermOf(Flag.DELETED);
+        return new AndTerm(new SearchTerm[]{seenFlag, recentFlag, answeredFlag, deletedFlag});
     }
 
     private Store getStore() throws MessagingException {
@@ -118,9 +109,5 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
-    }
-
-    private boolean getOrDefault(Boolean value) {
-        return value == null ? false : value;
     }
 }

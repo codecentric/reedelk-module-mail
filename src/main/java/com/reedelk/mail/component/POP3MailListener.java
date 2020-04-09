@@ -44,11 +44,14 @@ public class POP3MailListener extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(IMAPMailListener.class, configuration, "POP3 Configuration");
+        requireNotNull(POP3MailListener.class, configuration, "POP3 Configuration");
+        requireNotNull(POP3MailListener.class, configuration.getHost(), "POP3 hostname must not be empty.");
+        requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
+        requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
         POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batchEmails);
         this.schedulerProvider = new SchedulerProvider();
-        schedulerProvider.schedule(pollInterval, pollingStrategy);
+        this.schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
 
     @Override
