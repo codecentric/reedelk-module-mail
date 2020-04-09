@@ -17,6 +17,16 @@ public class CloseableUtils {
         }
     }
 
+    public static void close(Folder folder) {
+        if (folder == null) return;
+        if (!folder.isOpen()) return;
+        try {
+            folder.close();
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
     public static void close(Folder folder, boolean expunge) {
         if (folder == null) return;
         if (!folder.isOpen()) return;

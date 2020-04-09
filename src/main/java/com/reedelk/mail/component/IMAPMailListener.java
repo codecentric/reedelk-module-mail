@@ -59,7 +59,16 @@ public class IMAPMailListener extends AbstractInbound {
     @Example("true")
     @Group("General")
     @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
     private Boolean markDeletedOnSuccess;
+
+    @Property("Mark as seen on success")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("General")
+    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
+    private Boolean markAsSeenOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -85,7 +94,7 @@ public class IMAPMailListener extends AbstractInbound {
         } else {
             // IDLE
             // TODO: Check if for IDLE the delete is just a flag or it can be effectively deleted.
-            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batchEmails);
+            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batchEmails, markAsSeenOnSuccess);
             idle.start();
         }
     }
@@ -160,5 +169,13 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setLimit(Integer limit) {
         this.limit = limit;
+    }
+
+    public Boolean getMarkAsSeenOnSuccess() {
+        return markAsSeenOnSuccess;
+    }
+
+    public void setMarkAsSeenOnSuccess(Boolean markAsSeenOnSuccess) {
+        this.markAsSeenOnSuccess = markAsSeenOnSuccess;
     }
 }

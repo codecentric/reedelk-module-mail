@@ -5,7 +5,7 @@
   "flow": [
     {
       "implementor": "com.reedelk.mail.component.IMAPMailListener",
-      "description": "Mail Listener (IMAP)",
+      "description": "Google Mail Listener (IMAP)",
       "configuration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"},
       "strategy": "IDLE"
     },

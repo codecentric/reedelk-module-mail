@@ -20,7 +20,6 @@ public class IMAPProperties extends Properties {
         Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(Defaults.CONNECT_TIMEOUT);
         Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(Defaults.SOCKET_TIMEOUT);
 
-
         if (IMAPProtocol.IMAP.equals(protocol)) {
             // IMAP
             Integer port = Optional.ofNullable(configuration.getPort()).orElse(Defaults.IMAP.DEFAULT_PORT);

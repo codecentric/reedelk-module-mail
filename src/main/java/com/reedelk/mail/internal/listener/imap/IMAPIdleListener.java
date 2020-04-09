@@ -33,6 +33,7 @@ public class IMAPIdleListener {
     private final Boolean deleteOnSuccess;
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
+    private final Boolean seenOnSuccess;
 
     private Folder folder;
     private IMAPStore store;
@@ -41,19 +42,22 @@ public class IMAPIdleListener {
     public IMAPIdleListener(IMAPMailListener eventListener,
                             IMAPConfiguration configuration,
                             Boolean deleteOnSuccess,
-                            Boolean batchEmails) {
+                            Boolean batchEmails,
+                            Boolean seenOnSuccess) {
         this.configuration = configuration;
         this.eventListener = eventListener;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.seenOnSuccess = Optional.ofNullable(seenOnSuccess).orElse(false);
     }
 
     public void start() {
         String username = configuration.getUsername();
         String password = configuration.getPassword();
-        String host = configuration.getHost();
         Session session = Session.getInstance(new IMAPProperties(configuration));
+
+        int folderOpenMode = Folder.READ_WRITE;
 
         try {
             store = (IMAPStore) session.getStore();
@@ -66,7 +70,8 @@ public class IMAPIdleListener {
             folder = store.getFolder(inboxFolder);
             folder.addMessageCountListener(new MessageAdapter());
 
-            listenerThread = new IMAPIdlListenerThread(host, username, password, this.folder);
+
+            listenerThread = new IMAPIdlListenerThread(username, password, folder, folderOpenMode);
             listenerThread.start();
 
         } catch (Exception exception) {
@@ -82,11 +87,12 @@ public class IMAPIdleListener {
 
     private void cleanup() {
         CloseableUtils.close(listenerThread);
-        CloseableUtils.close(folder, false); // TODO: If DELETE (spunge == true) if MARK AS DELETE (spunge == false)
+        CloseableUtils.close(folder);
         CloseableUtils.close(store);
     }
 
     private class MessageAdapter extends MessageCountAdapter {
+
 
         @Override
         public void messagesAdded(MessageCountEvent event) {
@@ -120,6 +126,7 @@ public class IMAPIdleListener {
         }
 
         private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+            message.setFlag(Flag.SEEN, seenOnSuccess);
             if (deleteOnSuccess) {
                 message.setFlag(Flag.DELETED, true);
             }
