@@ -71,9 +71,8 @@ public class IMAPIdleListener {
 
         } catch (Exception exception) {
             logger.error(exception.getMessage(), exception);
-            throw new ESBException(exception.getMessage(), exception);
-        } finally {
             cleanup();
+            throw new ESBException(exception.getMessage(), exception);
         }
     }
 
@@ -110,7 +109,7 @@ public class IMAPIdleListener {
                     }
                 }
             } catch (Exception e) {
-
+                System.out.println(e);
             }
         }
 

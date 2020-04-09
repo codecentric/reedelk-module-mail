@@ -93,7 +93,9 @@ public class IMAPMailListener extends AbstractInbound {
     @Override
     public void onShutdown() {
         if (schedulerProvider != null) schedulerProvider.stop();
-        if (idle != null) idle.stop();
+        if (idle != null) {
+            idle.stop();
+        }
     }
 
     public IMAPConfiguration getConfiguration() {

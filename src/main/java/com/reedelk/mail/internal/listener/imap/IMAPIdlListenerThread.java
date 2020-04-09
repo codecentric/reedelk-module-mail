@@ -40,7 +40,13 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
                     // ignore
                 }
             }
+        }
+    }
 
+    @Override
+    public synchronized void close() {
+        if (running) {
+            running = false;
         }
     }
 
@@ -59,14 +65,5 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
             if (!folder.isOpen())
                 throw new MessagingException("Unable to open folder " + folder.getFullName());
         }
-
-    }
-
-    @Override
-    public synchronized void close() {
-        if (!running) {
-            return;
-        }
-        running = false;
     }
 }
