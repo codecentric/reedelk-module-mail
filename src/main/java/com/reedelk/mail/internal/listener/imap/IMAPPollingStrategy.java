@@ -42,7 +42,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         this.matcher = Optional.ofNullable(matcher).orElse(new IMAPMatcher());
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
-        this.markDeletedOnSuccess = Optional.of(markDeletedOnSuccess).orElse(Defaults.Poller.MARK_DELETED_ON_SUCCESS);
+        this.markDeletedOnSuccess = Optional.ofNullable(markDeletedOnSuccess).orElse(Defaults.Poller.MARK_DELETED_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
     }
 

@@ -29,7 +29,7 @@ public class SchedulerProvider {
 
         int realPollInterval = Optional.ofNullable(pollInterval).orElse(Defaults.Poller.DEFAULT_POLL_INTERVAL);
         ScheduledFuture<?> scheduledFuture =
-                executorService.scheduleWithFixedDelay(pollingStrategy, 0, realPollInterval, TimeUnit.MILLISECONDS);
+                executorService.scheduleWithFixedDelay(pollingStrategy, realPollInterval, realPollInterval, TimeUnit.MILLISECONDS);
         futures.add(scheduledFuture);
         return scheduledFuture;
     }

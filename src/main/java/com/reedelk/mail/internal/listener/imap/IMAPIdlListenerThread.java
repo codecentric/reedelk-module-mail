@@ -13,11 +13,13 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
     private volatile boolean running = true;
 
     private final Folder folder;
+    private final String host;
     private final String username;
     private final String password;
 
-    public IMAPIdlListenerThread(String username, String password, Folder folder) {
+    public IMAPIdlListenerThread(String host, String username, String password, Folder folder) {
         this.folder = folder;
+        this.host = host;
         this.username = username;
         this.password = password;
     }
@@ -46,7 +48,7 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
         if (folder != null) {
             Store store = folder.getStore();
             if (store != null && !store.isConnected()) {
-                store.connect(username, password);
+                store.connect(host, username, password);
             }
         } else {
             throw new MessagingException("Unable to open a null folder");

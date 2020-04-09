@@ -52,11 +52,12 @@ public class IMAPIdleListener {
     public void start() {
         String username = configuration.getUsername();
         String password = configuration.getPassword();
+        String host = configuration.getHost();
         Session session = Session.getInstance(new IMAPProperties(configuration));
 
         try {
             store = (IMAPStore) session.getStore();
-            store.connect(username, password);
+            store.connect(host, username, password);
 
             if (!store.hasCapability("IDLE")) {
                 throw new ESBException("IDLE not supported");
@@ -65,7 +66,7 @@ public class IMAPIdleListener {
             folder = store.getFolder(inboxFolder);
             folder.addMessageCountListener(new MessageAdapter());
 
-            listenerThread = new IMAPIdlListenerThread(username, password, this.folder);
+            listenerThread = new IMAPIdlListenerThread(host, username, password, this.folder);
             listenerThread.start();
 
         } catch (Exception exception) {
