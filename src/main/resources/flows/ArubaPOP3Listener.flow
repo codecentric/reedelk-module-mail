@@ -1,0 +1,20 @@
+{
+  "id": "f9dcdd43-40f5-4833-975a-74be1284e3bb",
+  "title": "Aruba PO P3 Listener",
+  "description": "Aruba PO P3 Listener Flow",
+  "flow": [
+    {
+      "implementor": "com.reedelk.mail.component.POP3MailListener",
+      "description": "Mail Listener (POP3)",
+      "configuration": {"ref": "98996e00-3482-4020-bdfc-ecd93d04f163"},
+      "pollInterval": 5000,
+      "deleteOnSuccess": true
+    },
+    {
+      "implementor": "com.reedelk.core.component.LoggerComponent",
+      "description": "Logger",
+      "level": "INFO",
+      "message": "#[message]"
+    }
+  ]
+}

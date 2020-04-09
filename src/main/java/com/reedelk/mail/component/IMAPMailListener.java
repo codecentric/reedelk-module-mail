@@ -54,14 +54,7 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
     private Boolean deleteOnSuccess;
 
-    @Property("Seen on success")
-    @DefaultValue("false")
-    @Example("true")
-    @Group("General")
-    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    private Boolean seenOnSuccess;
-
-    @Property("Batch")
+    @Property("Batch messages")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
@@ -70,6 +63,7 @@ public class IMAPMailListener extends AbstractInbound {
 
     private IMAPIdleListener idle;
     private SchedulerProvider schedulerProvider;
+    private IMAPPollingStrategy pollingStrategy;
 
     @Override
     public void onStart() {
@@ -79,19 +73,24 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, deleteOnSuccess, seenOnSuccess, batch, limit);
+            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, deleteOnSuccess, batch, limit);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
-            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batch, seenOnSuccess);
+            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batch);
             idle.start();
         }
     }
 
     @Override
     public void onShutdown() {
-        if (schedulerProvider != null) schedulerProvider.stop();
+        if (pollingStrategy != null) {
+            pollingStrategy.stop();
+        }
+        if (schedulerProvider != null) {
+            schedulerProvider.stop();
+        }
         if (idle != null) {
             idle.stop();
         }
@@ -153,11 +152,4 @@ public class IMAPMailListener extends AbstractInbound {
         this.limit = limit;
     }
 
-    public Boolean getSeenOnSuccess() {
-        return seenOnSuccess;
-    }
-
-    public void setSeenOnSuccess(Boolean seenOnSuccess) {
-        this.seenOnSuccess = seenOnSuccess;
-    }
 }

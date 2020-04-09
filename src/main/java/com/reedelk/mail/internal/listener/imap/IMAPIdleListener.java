@@ -31,7 +31,6 @@ public class IMAPIdleListener {
     private final String inboxFolder;
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
-    private final boolean markSeenOnSuccess;
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
 
@@ -42,14 +41,12 @@ public class IMAPIdleListener {
     public IMAPIdleListener(IMAPMailListener eventListener,
                             IMAPConfiguration configuration,
                             Boolean deleteOnSuccess,
-                            Boolean batchEmails,
-                            Boolean markSeenOnSuccess) {
+                            Boolean batchEmails) {
         this.configuration = configuration;
         this.eventListener = eventListener;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
-        this.markSeenOnSuccess = Optional.ofNullable(markSeenOnSuccess).orElse(false);
     }
 
     public void start() {
@@ -104,7 +101,7 @@ public class IMAPIdleListener {
                     if (success) applyMessagesOnSuccessFlags(messages);
                     else applyMessagesOnFailureFlags(messages);
                 } else {
-                    for (Message message : messages) {
+                    for (Message message : messages) { // TODO: very much wrong when there is a huge list of emails
                         try {
                             boolean success = processMessage(message);
                             if (success) applyMessageOnSuccessFlags(message);
@@ -115,8 +112,9 @@ public class IMAPIdleListener {
                         }
                     }
                 }
-            } catch (Exception e) {
-                System.out.println(e);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                System.out.println(exception);
             }
         }
 
@@ -133,7 +131,6 @@ public class IMAPIdleListener {
         }
 
         private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-            message.setFlag(Flag.SEEN, markSeenOnSuccess);
             if (deleteOnSuccess) {
                 message.setFlag(Flag.DELETED, true);
             }

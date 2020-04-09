@@ -21,21 +21,19 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
-    private final boolean markSeenOnSuccess;
     private final Integer limit;
+    private boolean stopped;
 
     public POP3PollingStrategy(InboundEventListener eventListener,
                                POP3Configuration configuration,
                                Boolean deleteOnSuccess,
                                Boolean batchEmails,
-                               Integer limit,
-                               Boolean markSeenOnSuccess) {
+                               Integer limit) {
         super(eventListener);
         this.configuration = configuration;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.limit = limit;
-        this.markSeenOnSuccess = Optional.ofNullable(markSeenOnSuccess).orElse(false);
     }
 
     @Override
@@ -62,16 +60,15 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             if (batchEmails) {
                 boolean success = processMessages(POP3MailListener.class, toProcess);
                 if (success) applyMessagesOnSuccessFlags(toProcess);
-                else applyMessagesOnFailureFlags(toProcess);
 
             } else {
                 for (Message message : toProcess) {
                     if (Thread.interrupted()) return;
+                    if (stopped) return;
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(POP3MailListener.class, message);
                     if (success) applyMessageOnSuccessFlags(message);
-                    else applyMessageOnFailureFlags(message);
                 }
             }
 
@@ -85,20 +82,8 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     }
 
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-        message.setFlag(Flags.Flag.SEEN, markSeenOnSuccess);
         if (deleteOnSuccess) {
             message.setFlag(Flags.Flag.DELETED, true);
-        }
-    }
-
-    // If failure, we don't wat to mark the message as 'seen'
-    private void applyMessageOnFailureFlags(Message message) throws MessagingException {
-        message.setFlag(Flags.Flag.SEEN, false);
-    }
-
-    private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
-        for (Message message : messages) {
-            applyMessageOnSuccessFlags(message);
         }
     }
 
@@ -113,5 +98,10 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
+    }
+
+    @Override
+    public void stop() {
+        this.stopped = true;
     }
 }

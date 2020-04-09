@@ -28,14 +28,13 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     private final String inboxFolder;
     private final boolean batchEmails;
     private final boolean deleteOnSuccess;
-    private final boolean seenOnSuccess;
     private final Integer limit;
+    private boolean stopped;
 
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
                                IMAPFlags matcher,
                                Boolean deleteOnSuccess,
-                               Boolean seenOnSuccess,
                                Boolean batchEmails,
                                Integer limit) {
         super(listener);
@@ -45,7 +44,6 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
-        this.seenOnSuccess = Optional.ofNullable(seenOnSuccess).orElse(false);
     }
 
     @Override
@@ -79,6 +77,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             } else {
                 for (Message message : toProcess) {
                     if (Thread.interrupted()) return;
+                    if (stopped) return;
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(IMAPMailListener.class, message);
@@ -111,7 +110,6 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-        message.setFlag(Flag.SEEN, seenOnSuccess);
         if (deleteOnSuccess) {
             message.setFlag(Flag.DELETED, true);
         }
@@ -135,5 +133,10 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
+    }
+
+    @Override
+    public void stop() {
+        this.stopped = true;
     }
 }

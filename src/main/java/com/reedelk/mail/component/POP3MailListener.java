@@ -39,14 +39,7 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private Boolean deleteOnSuccess;
 
-    @Property("Seen on success")
-    @DefaultValue("false")
-    @Example("true")
-    @Group("General")
-    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    private Boolean seenOnSuccess;
-
-    @Property("Batch Emails")
+    @Property("Batch messages")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
@@ -54,6 +47,7 @@ public class POP3MailListener extends AbstractInbound {
     private Boolean batch;
 
     private SchedulerProvider schedulerProvider;
+    private POP3PollingStrategy pollingStrategy;
 
     @Override
     public void onStart() {
@@ -62,14 +56,19 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit, seenOnSuccess);
-        this.schedulerProvider = new SchedulerProvider();
-        this.schedulerProvider.schedule(pollInterval, pollingStrategy);
+        pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit);
+        schedulerProvider = new SchedulerProvider();
+        schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
 
     @Override
     public void onShutdown() {
-        if (schedulerProvider != null) schedulerProvider.stop();
+        if (pollingStrategy != null) {
+            pollingStrategy.stop();
+        }
+        if (schedulerProvider != null) {
+            schedulerProvider.stop();
+        }
     }
 
     public POP3Configuration getConfiguration() {
@@ -112,11 +111,4 @@ public class POP3MailListener extends AbstractInbound {
         this.limit = limit;
     }
 
-    public Boolean getSeenOnSuccess() {
-        return seenOnSuccess;
-    }
-
-    public void setSeenOnSuccess(Boolean seenOnSuccess) {
-        this.seenOnSuccess = seenOnSuccess;
-    }
 }

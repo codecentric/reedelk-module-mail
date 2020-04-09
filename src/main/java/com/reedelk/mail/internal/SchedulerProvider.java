@@ -25,7 +25,9 @@ public class SchedulerProvider {
     }
 
     public void stop() {
-        if (this.scheduled != null) scheduled.cancel(false);
+        if (this.scheduled != null) {
+            scheduled.cancel(true);
+        }
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(10000, TimeUnit.MILLISECONDS)) {

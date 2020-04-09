@@ -7,8 +7,9 @@
       "implementor": "com.reedelk.mail.component.IMAPMailListener",
       "description": "Google Mail Listener (IMAP)",
       "configuration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"},
-      "strategy": "IDLE",
-      "deleteOnSuccess": true
+      "strategy": "POLLING",
+      "pollInterval": 10000,
+      "flags": {"seen": "NO"}
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",
