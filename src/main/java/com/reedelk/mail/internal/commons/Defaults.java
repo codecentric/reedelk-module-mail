@@ -42,6 +42,5 @@ public class Defaults {
         public static final int DEFAULT_POLL_INTERVAL = 120000;
         public static final boolean DELETE_ON_SUCCESS = false;
         public static final boolean BATCH_EMAILS = false;
-        public static final boolean MARK_DELETED_ON_SUCCESS = false;
     }
 }

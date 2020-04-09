@@ -36,7 +36,7 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
             } catch (Exception exception) {
                 // something went wrong
                 // wait and try again
-                exception.printStackTrace();
+                exception.printStackTrace(); // TODO: remove this... (should log with debug)
                 try {
                     Thread.sleep(ON_ERROR_SLEEP_TIME);
                 } catch (InterruptedException e1) {

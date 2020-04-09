@@ -54,23 +54,14 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
     private Boolean deleteOnSuccess;
 
-    @Property("Mark deleted on success")
+    @Property("Seen on success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    @When(propertyName = "strategy", propertyValue = "POLLING")
-    @When(propertyName = "strategy", propertyValue = When.NULL)
-    private Boolean markDeletedOnSuccess;
+    private Boolean seenOnSuccess;
 
-    @Property("Mark seen on success")
-    @DefaultValue("false")
-    @Example("true")
-    @Group("General")
-    @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    private Boolean markSeenOnSuccess;
-
-    @Property("Batch Emails")
+    @Property("Batch")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
@@ -88,12 +79,12 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, deleteOnSuccess, markDeletedOnSuccess, markSeenOnSuccess, batch, limit);
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, deleteOnSuccess, seenOnSuccess, batch, limit);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
-            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batch, markSeenOnSuccess);
+            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batch, seenOnSuccess);
             idle.start();
         }
     }
@@ -154,14 +145,6 @@ public class IMAPMailListener extends AbstractInbound {
         this.batch = batch;
     }
 
-    public Boolean getMarkDeletedOnSuccess() {
-        return markDeletedOnSuccess;
-    }
-
-    public void setMarkDeletedOnSuccess(Boolean markDeletedOnSuccess) {
-        this.markDeletedOnSuccess = markDeletedOnSuccess;
-    }
-
     public Integer getLimit() {
         return limit;
     }
@@ -170,11 +153,11 @@ public class IMAPMailListener extends AbstractInbound {
         this.limit = limit;
     }
 
-    public Boolean getMarkSeenOnSuccess() {
-        return markSeenOnSuccess;
+    public Boolean getSeenOnSuccess() {
+        return seenOnSuccess;
     }
 
-    public void setMarkSeenOnSuccess(Boolean markSeenOnSuccess) {
-        this.markSeenOnSuccess = markSeenOnSuccess;
+    public void setSeenOnSuccess(Boolean seenOnSuccess) {
+        this.seenOnSuccess = seenOnSuccess;
     }
 }

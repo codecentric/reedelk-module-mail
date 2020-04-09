@@ -39,12 +39,12 @@ public class POP3MailListener extends AbstractInbound {
     @Group("General")
     private Boolean deleteOnSuccess;
 
-    @Property("Mark seen on success")
+    @Property("Seen on success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true marks a message deleted in the mailbox. This flag does not delete the message.")
-    private Boolean markSeenOnSuccess;
+    private Boolean seenOnSuccess;
 
     @Property("Batch Emails")
     @DefaultValue("false")
@@ -62,7 +62,7 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit, markSeenOnSuccess);
+        POP3PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit, seenOnSuccess);
         this.schedulerProvider = new SchedulerProvider();
         this.schedulerProvider.schedule(pollInterval, pollingStrategy);
     }
@@ -112,11 +112,11 @@ public class POP3MailListener extends AbstractInbound {
         this.limit = limit;
     }
 
-    public Boolean getMarkSeenOnSuccess() {
-        return markSeenOnSuccess;
+    public Boolean getSeenOnSuccess() {
+        return seenOnSuccess;
     }
 
-    public void setMarkSeenOnSuccess(Boolean markSeenOnSuccess) {
-        this.markSeenOnSuccess = markSeenOnSuccess;
+    public void setSeenOnSuccess(Boolean seenOnSuccess) {
+        this.seenOnSuccess = seenOnSuccess;
     }
 }

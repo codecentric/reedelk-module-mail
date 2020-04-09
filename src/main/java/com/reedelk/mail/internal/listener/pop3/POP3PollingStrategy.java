@@ -79,7 +79,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             logger.error(exception.getMessage(), exception);
 
         } finally {
-            CloseableUtils.close(folder, deleteOnSuccess);
+            CloseableUtils.close(folder);
             CloseableUtils.close(store);
         }
     }
