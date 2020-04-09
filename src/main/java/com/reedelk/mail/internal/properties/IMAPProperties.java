@@ -20,25 +20,30 @@ public class IMAPProperties extends Properties {
         Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(Defaults.CONNECT_TIMEOUT);
         Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(Defaults.SOCKET_TIMEOUT);
 
-        setProperty("mail.imap.host", host);
-        setProperty("mail.imap.auth", Boolean.TRUE.toString());
-        setProperty("mail.imap.timeout", String.valueOf(socketTimeout));
-        setProperty("mail.imap.starttls.enable", String.valueOf(startTlsEnable));
-        setProperty("mail.imap.connectiontimeout", String.valueOf(connectionTimeout));
 
         if (IMAPProtocol.IMAP.equals(protocol)) {
             // IMAP
             Integer port = Optional.ofNullable(configuration.getPort()).orElse(Defaults.IMAP.DEFAULT_PORT);
             setProperty("mail.transport.protocol", Defaults.IMAP.TRANSPORT);
             setProperty("mail.store.protocol", Defaults.IMAP.TRANSPORT);
+            setProperty("mail.imap.host", host);
             setProperty("mail.imap.port", String.valueOf(port));
+            setProperty("mail.imap.auth", Boolean.TRUE.toString());
+            setProperty("mail.imap.timeout", String.valueOf(socketTimeout));
+            setProperty("mail.imap.starttls.enable", String.valueOf(startTlsEnable));
+            setProperty("mail.imap.connectiontimeout", String.valueOf(connectionTimeout));
 
         } else {
             // IMAPs
             Integer port = Optional.ofNullable(configuration.getPort()).orElse(Defaults.IMAPs.DEFAULT_PORT);
             setProperty("mail.transport.protocol", Defaults.IMAPs.TRANSPORT);
             setProperty("mail.store.protocol", Defaults.IMAPs.TRANSPORT);
-            setProperty("mail.imap.port", String.valueOf(port));
+            setProperty("mail.imaps.host", host);
+            setProperty("mail.imaps.port", String.valueOf(port));
+            setProperty("mail.imaps.auth", Boolean.TRUE.toString());
+            setProperty("mail.imaps.timeout", String.valueOf(socketTimeout));
+            setProperty("mail.imaps.starttls.enable", String.valueOf(startTlsEnable));
+            setProperty("mail.imaps.connectiontimeout", String.valueOf(connectionTimeout));
         }
     }
 

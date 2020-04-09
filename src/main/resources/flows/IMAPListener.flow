@@ -10,13 +10,12 @@
       "strategy": "POLLING",
       "pollInterval": 5000,
       "matcher": {
-        "seen": "BOTH",
-        "recent": "BOTH",
-        "deleted": "BOTH",
-        "answered": "BOTH"
+        "seen": "NO",
+        "recent": "NO",
+        "deleted": "NO",
+        "answered": "NO"
       },
-      "batchEmails": true,
-      "limit": 2
+      "batchEmails": true
     },
     {
       "implementor": "com.reedelk.runtime.component.ForEach",

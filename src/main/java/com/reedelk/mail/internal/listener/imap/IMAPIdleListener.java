@@ -57,7 +57,7 @@ public class IMAPIdleListener {
 
         try {
             store = (IMAPStore) session.getStore();
-            store.connect(host, username, password);
+            store.connect(username, password);
 
             if (!store.hasCapability("IDLE")) {
                 throw new ESBException("IDLE not supported");
@@ -71,6 +71,7 @@ public class IMAPIdleListener {
 
         } catch (Exception exception) {
             logger.error(exception.getMessage(), exception);
+            throw new ESBException(exception.getMessage(), exception);
         } finally {
             cleanup();
         }
