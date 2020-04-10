@@ -16,10 +16,7 @@ import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.reedelk.mail.internal.send.MailSendAttributes.*;
 
@@ -113,15 +110,29 @@ public class MailMessageToMessageMapper {
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) {
         try {
+            MimeType attachmentMimeType = MimeType.parse(dataSource.getContentType().toLowerCase());
             byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());
+
             Attachment attachment = Attachment.builder()
-                    .content(new ByteArrayContent(attachmentData, MimeType.parse(dataSource.getContentType().toLowerCase())))
+                    .content(new ByteArrayContent(attachmentData, attachmentMimeType))
                     .build();
-            attachmentMap.put(dataSource.getName(), attachment);
+            String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
+            attachmentMap.put(attachmentName, attachment);
         } catch (IOException e) {
             // TODO: Fixme
             // Fail silently? With a warning? Or throw an exception ?
             e.printStackTrace();
         }
+    }
+
+    private static String attachmentNameFrom(MimeType mimeType, String name) {
+        // The name could be null when we have an attachment with forwarded.
+        return Optional.ofNullable(name).orElseGet(() -> mimeType
+                .getFileExtensions()
+                .stream()
+                .findFirst()
+                .map(ext -> UUID.randomUUID().toString() + "." + ext)
+                .orElse(UUID.randomUUID().toString() + ".dat"));
+
     }
 }

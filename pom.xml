@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>com.reedelk</groupId>
-            <artifactId>module-scheduler</artifactId>
+            <artifactId>module-file</artifactId>
             <version>0.9.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>

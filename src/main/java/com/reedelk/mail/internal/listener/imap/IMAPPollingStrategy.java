@@ -106,7 +106,8 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             }
 
         } catch (Exception exception) {
-            logger.error(exception.getMessage(), exception);
+            // TODO: Error message
+            logger.warn(exception.getMessage(), exception);
 
         } finally {
             // expunge depends on the delete on success flag.

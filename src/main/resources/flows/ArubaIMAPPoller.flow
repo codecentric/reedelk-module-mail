@@ -13,9 +13,60 @@
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",
-      "description": "Logger 123",
+      "description": "Logger",
       "level": "INFO",
-      "message": "#[message.payload() + ' Subject: ' + message.attributes().subject]"
+      "message": "#['Message with body: ' + message.payload() + ', Subject: ' + message.attributes().get('subject')]"
+    },
+    {
+      "implementor": "com.reedelk.runtime.component.ForEach",
+      "collection": "#[message.attributes().get('attachments')]",
+      "next": [
+        {
+          "implementor": "com.reedelk.runtime.component.Router",
+          "when": [
+            {
+              "condition": "#[message.payload().key == null]",
+              "next": [{
+                "implementor": "com.reedelk.core.component.VariableSet",
+                "description": "Null Attachment",
+                "name": "attachmentFileName",
+                "mimeType": "text/plain",
+                "value": "#[Util.uuid()]"
+              }]
+            },
+            {
+              "condition": "otherwise",
+              "next": [{
+                "implementor": "com.reedelk.core.component.VariableSet",
+                "description": "Attachment name",
+                "name": "attachmentFileName",
+                "mimeType": "text/plain",
+                "value": "#[message.payload().key]"
+              }]
+            }
+          ]
+        },
+        {
+          "implementor": "com.reedelk.core.component.LoggerComponent",
+          "description": "Logger",
+          "level": "INFO",
+          "message": "#['Processing attachment: ' + context.attachmentFileName]"
+        },
+        {
+          "implementor": "com.reedelk.core.component.PayloadSet",
+          "description": "Payload Set",
+          "mimeType": "application/octet-stream",
+          "payload": "#[message.payload().value.content.data]"
+        },
+        {
+          "implementor": "com.reedelk.file.component.FileWrite",
+          "description": "File Write",
+          "filePath": "#[context.attachmentFileName]",
+          "basePath": "/Users/lorenzo/Desktop/attachments",
+          "mode": "OVERWRITE",
+          "configuration": {"createParentDirectory": true}
+        }
+      ]
     }
   ]
 }
