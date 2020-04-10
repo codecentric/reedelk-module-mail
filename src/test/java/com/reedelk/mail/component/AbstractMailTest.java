@@ -82,6 +82,13 @@ abstract class AbstractMailTest {
         mailUser.deliver(message);
     }
 
+    protected void deliverRandomMessage() throws MessagingException {
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+        deliverMessage(from, subject, body);
+    }
+
     protected MimeMessage firstReceivedMessage() {
         return mailServer.getReceivedMessages()[0];
     }

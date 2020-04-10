@@ -2,9 +2,9 @@ package com.reedelk.mail.internal.pop3;
 
 import com.reedelk.mail.component.POP3Configuration;
 import com.reedelk.mail.component.POP3MailListener;
+import com.reedelk.mail.internal.AbstractPollingStrategy;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
-import com.reedelk.mail.internal.AbstractPollingStrategy;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             logger.error(exception.getMessage(), exception);
 
         } finally {
-            CloseableUtils.close(folder);
+            CloseableUtils.close(folder, deleteOnSuccess);
             CloseableUtils.close(store);
         }
     }
