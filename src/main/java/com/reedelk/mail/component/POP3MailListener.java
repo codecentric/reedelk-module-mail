@@ -1,7 +1,7 @@
 package com.reedelk.mail.component;
 
 import com.reedelk.mail.internal.SchedulerProvider;
-import com.reedelk.mail.internal.listener.pop3.POP3PollingStrategy;
+import com.reedelk.mail.internal.pop3.POP3PollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;

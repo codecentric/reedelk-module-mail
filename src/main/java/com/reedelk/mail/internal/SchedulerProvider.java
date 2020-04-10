@@ -1,7 +1,6 @@
 package com.reedelk.mail.internal;
 
 import com.reedelk.mail.internal.commons.Defaults;
-import com.reedelk.mail.internal.listener.PollingStrategy;
 
 import java.util.Optional;
 import java.util.concurrent.Executors;

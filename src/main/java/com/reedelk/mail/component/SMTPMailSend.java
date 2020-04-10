@@ -4,7 +4,7 @@ import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.commons.MailMessageToMessageAttributesMapper;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
-import com.reedelk.mail.internal.send.type.MailTypeFactory;
+import com.reedelk.mail.internal.smtp.type.MailTypeFactory;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
