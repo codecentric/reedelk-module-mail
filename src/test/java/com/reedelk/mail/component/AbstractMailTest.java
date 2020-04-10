@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.runtime.api.flow.FlowContext;
@@ -15,11 +16,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.Optional;
 
+import static javax.mail.Message.RecipientType.TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,12 +32,13 @@ import static org.mockito.Mockito.lenient;
 @ExtendWith(MockitoExtension.class)
 abstract class AbstractMailTest {
 
-    static final int smtpPort = 2525;
-    static final String smtpAddress = "localhost";
-    static final String smtpUsername = "testUser";
-    static final String smtpPassword = "testPassword";
+    static final String emailUserAddress = "hascode@localhost";
+    static final String address = "localhost";
+    static final String username = "testUser";
+    static final String password = "testPassword";
 
     private GreenMail mailServer;
+    private GreenMailUser mailUser;
 
     @Mock
     protected Message message;
@@ -44,9 +49,9 @@ abstract class AbstractMailTest {
 
     @BeforeEach
     void setUp() {
-        ServerSetup serverSetup = new ServerSetup(smtpPort, smtpAddress, "smtp");
+        ServerSetup serverSetup = new ServerSetup(port(), address, protocol());
         mailServer = new GreenMail(serverSetup);
-        mailServer.setUser(smtpUsername, smtpPassword);
+        mailUser = mailServer.setUser(emailUserAddress, username, password);
         mailServer.start();
     }
 
@@ -55,6 +60,19 @@ abstract class AbstractMailTest {
         if (mailServer != null) {
             mailServer.stop();
         }
+    }
+
+    protected abstract String protocol();
+
+    protected abstract int port();
+
+    protected void deliverMessage(String from, String subject, String body) throws MessagingException {
+        MimeMessage message = new MimeMessage((Session) null);
+        message.setFrom(new InternetAddress(from));
+        message.setSubject(subject);
+        message.setText(body);
+        message.addRecipient(TO, new InternetAddress(emailUserAddress));
+        mailUser.deliver(message);
     }
 
     protected MimeMessage firstReceivedMessage() {

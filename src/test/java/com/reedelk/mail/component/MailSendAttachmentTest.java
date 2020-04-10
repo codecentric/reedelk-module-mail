@@ -17,16 +17,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MailSendAttachmentTest extends AbstractMailTest {
 
+    private static final int SMTP_PORT = 2525;
+    private static final String PROTOCOL = "smtp";
+
     private MailSend component = new MailSend();
 
     @BeforeEach
     void setUp() {
         super.setUp();
         SMTPConfiguration configuration = new SMTPConfiguration();
-        configuration.setPort(smtpPort);
-        configuration.setHost(smtpAddress);
-        configuration.setUsername(smtpUsername);
-        configuration.setPassword(smtpPassword);
+        configuration.setPort(SMTP_PORT);
+        configuration.setHost(address);
+        configuration.setUsername(username);
+        configuration.setPassword(password);
 
         mockScriptEngineEvaluation();
         component.setConnectionConfiguration(configuration);
@@ -75,5 +78,15 @@ public class MailSendAttachmentTest extends AbstractMailTest {
 
         String[] transferEncoding = attachmentPart.getHeader("Content-Transfer-Encoding");
         assertThat(transferEncoding).containsExactly("7bit");
+    }
+
+    @Override
+    protected String protocol() {
+        return PROTOCOL;
+    }
+
+    @Override
+    protected int port() {
+        return SMTP_PORT;
     }
 }

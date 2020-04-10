@@ -7,9 +7,14 @@
       "implementor": "com.reedelk.mail.component.IMAPMailListener",
       "description": "Aruba IMAP Mail Listener (IMAP)",
       "configuration": {"ref": "fe4636e8-0757-417b-a7e2-f7e40fd9b5d2"},
+      "peek": true,
       "strategy": "POLLING",
-      "pollInterval": 5000,
-      "flags": {"seen": "NO"}
+      "pollInterval": 120000,
+      "markDeleteOnSuccess": true,
+      "flags": {
+        "seen": "NO",
+        "deleted": "YES"
+      }
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",

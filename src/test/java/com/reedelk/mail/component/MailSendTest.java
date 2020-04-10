@@ -19,16 +19,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MailSendTest extends AbstractMailTest {
 
+    private static final int SMTP_PORT = 2525;
+    private static final String PROTOCOL = "smtp";
+
     private MailSend component = new MailSend();
 
     @BeforeEach
     void setUp() {
         super.setUp();
         SMTPConfiguration configuration = new SMTPConfiguration();
-        configuration.setPort(smtpPort);
-        configuration.setHost(smtpAddress);
-        configuration.setUsername(smtpUsername);
-        configuration.setPassword(smtpPassword);
+        configuration.setPort(SMTP_PORT);
+        configuration.setHost(address);
+        configuration.setUsername(username);
+        configuration.setPassword(password);
 
         mockScriptEngineEvaluation();
         component.setConnectionConfiguration(configuration);
@@ -154,6 +157,17 @@ class MailSendTest extends AbstractMailTest {
         assertThat(attributes).containsEntry("to", asSerializableList("to@test.com"));
         assertThat(attributes).containsEntry("cc", asSerializableList("cc@test.com"));
         assertThat(attributes).containsEntry("bcc", asSerializableList("bcc@test.com"));
+    }
+
+
+    @Override
+    protected String protocol() {
+        return PROTOCOL;
+    }
+
+    @Override
+    protected int port() {
+        return SMTP_PORT;
     }
 
     private ArrayList<String> asSerializableList(String ...elements) {
