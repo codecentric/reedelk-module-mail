@@ -13,10 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.mail.Address;
-import javax.mail.BodyPart;
-import javax.mail.MessagingException;
-import javax.mail.Session;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -72,6 +69,16 @@ abstract class AbstractMailTest {
         message.setSubject(subject);
         message.setText(body);
         message.addRecipient(TO, new InternetAddress(emailUserAddress));
+        mailUser.deliver(message);
+    }
+
+    protected void deliverMessage(String from, String subject, String body, Flags.Flag flag, boolean flagValue) throws MessagingException {
+        MimeMessage message = new MimeMessage((Session) null);
+        message.setFrom(new InternetAddress(from));
+        message.setSubject(subject);
+        message.setText(body);
+        message.addRecipient(TO, new InternetAddress(emailUserAddress));
+        message.setFlag(flag, flagValue);
         mailUser.deliver(message);
     }
 
