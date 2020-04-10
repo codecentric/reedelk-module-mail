@@ -36,14 +36,6 @@ public class IMAPConfiguration implements Implementor {
     @Example("myPassword")
     private String password;
 
-    @Property("Folder")
-    @Example("INBOX")
-    @Hint("INBOX")
-    @InitValue("INBOX")
-    @DefaultValue("INBOX")
-    @Description("The IMAP folder from which the listener should be listening from.")
-    private String folder;
-
     @Property("Socket Timeout")
     @Hint("10000")
     @Example("10000")
@@ -107,14 +99,6 @@ public class IMAPConfiguration implements Implementor {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getFolder() {
-        return folder;
-    }
-
-    public void setFolder(String folder) {
-        this.folder = folder;
     }
 
     public Integer getSocketTimeout() {

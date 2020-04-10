@@ -17,35 +17,29 @@ import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 public class IMAPMailListener extends AbstractInbound {
 
     @Property("IMAP Connection")
-    @Group("General")
     private IMAPConfiguration configuration;
 
-    @Property("Strategy")
-    @Example("IDLE")
-    @DefaultValue("POLLING")
-    private IMAPListeningStrategy strategy;
+    @Property("IMAP Folder")
+    @Example("INBOX")
+    @Hint("INBOX")
+    @InitValue("INBOX")
+    @DefaultValue("INBOX")
+    @Description("The IMAP folder from which the listener should be listening from.")
+    private String folder;
 
-    @Property("Poll Interval")
+    @Property("Peek")
+    @DefaultValue("false")
+    @Example("true")
     @Group("General")
-    @Hint("120000")
-    @Example("120000")
-    @DefaultValue("60000")
-    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
-    @When(propertyName = "strategy", propertyValue = "POLLING")
-    @When(propertyName = "strategy", propertyValue = When.NULL)
-    private Integer pollInterval;
+    @Description("If true sets the message as 'seen' in the IMAP folder when the processing was successful.")
+    private Boolean peek;
 
-    @Property("Limit")
-    @Hint("10")
-    @Example("10")
+    @Property("Batch messages")
+    @DefaultValue("false")
+    @Example("true")
     @Group("General")
-    @Description("Limits the number of emails to be processed.")
-    private Integer limit;
-
-    @Property("Search flags")
-    @When(propertyName = "strategy", propertyValue = "POLLING")
-    @When(propertyName = "strategy", propertyValue = When.NULL)
-    private IMAPFlags flags;
+    @Description("If true emails are batched in a list")
+    private Boolean batch;
 
     @Property("Delete on success")
     @DefaultValue("false")
@@ -54,12 +48,37 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
     private Boolean deleteOnSuccess;
 
-    @Property("Batch messages")
-    @DefaultValue("false")
-    @Example("true")
-    @Group("General")
-    @Description("If true emails are batched in a list")
-    private Boolean batch;
+    @Property("Strategy")
+    @Example("IDLE")
+    @DefaultValue("POLLING")
+    @Group("Listening Strategy")
+    private IMAPListeningStrategy strategy;
+
+    @Property("Poll Interval")
+    @Hint("120000")
+    @Example("120000")
+    @DefaultValue("60000")
+    @Group("Listening Strategy")
+    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time. Can be applied only when strategy is 'POLLING'.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
+    private Integer pollInterval;
+
+    @Property("Limit")
+    @Hint("10")
+    @Example("10")
+    @Group("Listening Strategy")
+    @Description("Limits the number of emails to be processed.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
+    private Integer limit;
+
+    @Property("Poll Flags")
+    @Group("Listening Strategy")
+    @Description("Flags to be used to fetch messages when strategy is 'POLLING'.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
+    private IMAPFlags flags;
 
     private IMAPIdleListener idle;
     private SchedulerProvider schedulerProvider;
@@ -73,12 +92,12 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, deleteOnSuccess, batch, limit);
+            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, folder, deleteOnSuccess, batch, peek, limit);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
             // IDLE
-            idle = new IMAPIdleListener(this, configuration, deleteOnSuccess, batch);
+            idle = new IMAPIdleListener(this, configuration, folder, peek, deleteOnSuccess, batch);
             idle.start();
         }
     }
@@ -96,60 +115,39 @@ public class IMAPMailListener extends AbstractInbound {
         }
     }
 
-    public IMAPConfiguration getConfiguration() {
-        return configuration;
-    }
-
     public void setConfiguration(IMAPConfiguration configuration) {
         this.configuration = configuration;
     }
 
-    public IMAPListeningStrategy getStrategy() {
-        return strategy;
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 
-    public void setStrategy(IMAPListeningStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public IMAPFlags getFlags() {
-        return flags;
-    }
-
-    public void setFlags(IMAPFlags flags) {
-        this.flags = flags;
-    }
-
-    public Integer getPollInterval() {
-        return pollInterval;
-    }
-
-    public void setPollInterval(Integer pollInterval) {
-        this.pollInterval = pollInterval;
-    }
-
-    public Boolean getDeleteOnSuccess() {
-        return deleteOnSuccess;
-    }
-
-    public void setDeleteOnSuccess(Boolean deleteOnSuccess) {
-        this.deleteOnSuccess = deleteOnSuccess;
-    }
-
-    public Boolean getBatch() {
-        return batch;
+    public void setPeek(Boolean peek) {
+        this.peek = peek;
     }
 
     public void setBatch(Boolean batch) {
         this.batch = batch;
     }
 
-    public Integer getLimit() {
-        return limit;
+    public void setDeleteOnSuccess(Boolean deleteOnSuccess) {
+        this.deleteOnSuccess = deleteOnSuccess;
+    }
+
+    public void setStrategy(IMAPListeningStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void setPollInterval(Integer pollInterval) {
+        this.pollInterval = pollInterval;
     }
 
     public void setLimit(Integer limit) {
         this.limit = limit;
     }
 
+    public void setFlags(IMAPFlags flags) {
+        this.flags = flags;
+    }
 }

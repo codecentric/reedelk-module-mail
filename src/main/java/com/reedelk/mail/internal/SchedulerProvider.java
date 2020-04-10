@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SchedulerProvider {
 
+    private static final int TERMINATION_AWAIT_TIME = 60000;
+
     private ScheduledExecutorService executorService;
     private ScheduledFuture<?> scheduled;
 
@@ -30,7 +32,7 @@ public class SchedulerProvider {
         }
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(60000, TimeUnit.MILLISECONDS)) {
+            if (!executorService.awaitTermination(TERMINATION_AWAIT_TIME, TimeUnit.MILLISECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {

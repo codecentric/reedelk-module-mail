@@ -9,6 +9,7 @@ import com.reedelk.mail.internal.listener.FireEventOnResult;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.reedelk.runtime.api.exception.ESBException;
+import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.imap.IMAPStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
@@ -29,7 +31,8 @@ public class IMAPIdleListener {
     private final Logger logger = LoggerFactory.getLogger(IMAPIdleListener.class);
 
     private final String inboxFolder;
-    private final boolean batchEmails;
+    private final boolean peek;
+    private final boolean batch;
     private final boolean deleteOnSuccess;
     private final IMAPConfiguration configuration;
     private final InboundEventListener eventListener;
@@ -40,13 +43,16 @@ public class IMAPIdleListener {
 
     public IMAPIdleListener(IMAPMailListener eventListener,
                             IMAPConfiguration configuration,
+                            String folder,
+                            Boolean peek,
                             Boolean deleteOnSuccess,
-                            Boolean batchEmails) {
+                            Boolean batch) {
         this.configuration = configuration;
         this.eventListener = eventListener;
-        this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
+        this.batch = Optional.ofNullable(batch).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
-        this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.inboxFolder = Optional.ofNullable(folder).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.peek = Optional.ofNullable(peek).orElse(false);
     }
 
     public void start() {
@@ -96,12 +102,22 @@ public class IMAPIdleListener {
             Message[] messages = event.getMessages();
 
             try {
-                if (batchEmails) {
+                if (batch) {
+                    if (peek) {
+                        Arrays.stream(messages).forEach(message -> ((IMAPMessage) message).setPeek(peek));
+                    }
+
                     boolean success = processMessages(messages);
                     if (success) applyMessagesOnSuccessFlags(messages);
                     else applyMessagesOnFailureFlags(messages);
                 } else {
-                    for (Message message : messages) { // TODO: very much wrong when there is a huge list of emails
+                    for (Message message : messages) {
+
+                        if (peek) {
+                            IMAPMessage imapMessage = (IMAPMessage) message;
+                            imapMessage.setPeek(peek); // Does / or does not set seen flag for processed.
+                        }
+
                         try {
                             boolean success = processMessage(message);
                             if (success) applyMessageOnSuccessFlags(message);

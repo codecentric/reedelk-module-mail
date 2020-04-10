@@ -8,12 +8,14 @@ import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;
 import com.reedelk.mail.internal.properties.IMAPProperties;
 import com.reedelk.runtime.api.component.InboundEventListener;
+import com.sun.mail.imap.IMAPMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.search.AndTerm;
 import javax.mail.search.SearchTerm;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static javax.mail.Flags.Flag;
@@ -26,7 +28,8 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     private final IMAPConfiguration configuration;
 
     private final String inboxFolder;
-    private final boolean batchEmails;
+    private final boolean peek;
+    private final boolean batch;
     private final boolean deleteOnSuccess;
     private final Integer limit;
     private boolean stopped;
@@ -34,16 +37,19 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     public IMAPPollingStrategy(InboundEventListener listener,
                                IMAPConfiguration configuration,
                                IMAPFlags matcher,
+                               String folder,
                                Boolean deleteOnSuccess,
-                               Boolean batchEmails,
+                               Boolean batch,
+                               Boolean peek,
                                Integer limit) {
         super(listener);
         this.limit = limit;
         this.configuration = configuration;
+        this.peek = Optional.ofNullable(peek).orElse(false);
         this.matcher = Optional.ofNullable(matcher).orElse(new IMAPFlags());
-        this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
+        this.batch = Optional.ofNullable(batch).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
-        this.inboxFolder = Optional.ofNullable(configuration.getFolder()).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.inboxFolder = Optional.ofNullable(folder).orElse(Defaults.IMAP_FOLDER_NAME);
     }
 
     @Override
@@ -69,15 +75,25 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
                 if (limit >= 0) System.arraycopy(messages, 0, toProcess, 0, limit);
             }
 
-            if (batchEmails) {
+            if (batch) {
+                if (peek) {
+                    Arrays.stream(toProcess).forEach(message -> ((IMAPMessage) message).setPeek(peek));
+                }
                 boolean success = processMessages(IMAPMailListener.class, toProcess);
                 if (success) applyMessagesOnSuccessFlags(toProcess);
                 else applyMessagesOnFailureFlags(toProcess);
 
             } else {
+
                 for (Message message : toProcess) {
                     if (Thread.interrupted()) return;
                     if (stopped) return;
+
+                    if (peek) {
+                        IMAPMessage imapMessage = (IMAPMessage) message;
+                        imapMessage.setPeek(peek); // Does / or does not set seen flag for processed.
+                    }
+
                     // Process each message one at a time. If the processing was successful,
                     // then we apply the flags to the message (e.g marking it deleted)
                     boolean success = processMessage(IMAPMailListener.class, message);
@@ -95,6 +111,11 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
             CloseableUtils.close(folder);
             CloseableUtils.close(store);
         }
+    }
+
+    @Override
+    public void stop() {
+        this.stopped = true;
     }
 
     private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
@@ -133,10 +154,5 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
-    }
-
-    @Override
-    public void stop() {
-        this.stopped = true;
     }
 }
