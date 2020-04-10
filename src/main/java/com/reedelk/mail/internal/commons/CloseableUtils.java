@@ -21,7 +21,7 @@ public class CloseableUtils {
         if (folder == null) return;
         if (!folder.isOpen()) return;
         try {
-            folder.close();
+            folder.close(false);
         } catch (Exception e) {
             // ignore
         }

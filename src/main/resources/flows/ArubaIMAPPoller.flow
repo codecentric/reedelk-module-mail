@@ -1,0 +1,21 @@
+{
+  "id": "878b3f63-d441-4ac4-9ba9-7254f113ec7a",
+  "title": "IMAP Listener",
+  "description": "IMAP Listener Flow",
+  "flow": [
+    {
+      "implementor": "com.reedelk.mail.component.IMAPMailListener",
+      "description": "Aruba IMAP Mail Listener (IMAP)",
+      "configuration": {"ref": "fe4636e8-0757-417b-a7e2-f7e40fd9b5d2"},
+      "strategy": "POLLING",
+      "pollInterval": 5000,
+      "flags": {"seen": "NO"}
+    },
+    {
+      "implementor": "com.reedelk.core.component.LoggerComponent",
+      "description": "Logger 123",
+      "level": "INFO",
+      "message": "#[message.payload() + ' Subject: ' + message.attributes().subject]"
+    }
+  ]
+}

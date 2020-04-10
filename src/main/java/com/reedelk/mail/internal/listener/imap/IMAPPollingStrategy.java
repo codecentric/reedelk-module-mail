@@ -122,10 +122,10 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
 
     private SearchTerm createSearchTerm(IMAPFlags matcher) {
         SearchTerm seenFlag = matcher.getSeen().searchTermOf(Flag.SEEN);
-        SearchTerm recentFlag = matcher.getRecent().searchTermOf(Flag.RECENT);
         SearchTerm answeredFlag = matcher.getAnswered().searchTermOf(Flag.ANSWERED);
         SearchTerm deletedFlag = matcher.getDeleted().searchTermOf(Flag.DELETED);
-        return new AndTerm(new SearchTerm[]{seenFlag, recentFlag, answeredFlag, deletedFlag});
+        // They all must match therefore they are in 'AND'.
+        return new AndTerm(new SearchTerm[]{ seenFlag, answeredFlag, deletedFlag});
     }
 
     private Store getStore() throws MessagingException {

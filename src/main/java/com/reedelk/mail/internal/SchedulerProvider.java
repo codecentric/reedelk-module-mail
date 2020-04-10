@@ -26,11 +26,11 @@ public class SchedulerProvider {
 
     public void stop() {
         if (this.scheduled != null) {
-            scheduled.cancel(true);
+            scheduled.cancel(false);
         }
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(10000, TimeUnit.MILLISECONDS)) {
+            if (!executorService.awaitTermination(60000, TimeUnit.MILLISECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {

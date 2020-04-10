@@ -15,12 +15,6 @@ public class IMAPFlags implements Implementor {
     @Description("If true, seen email messages are fetched from the IMAP server.")
     private IMAPFlag seen = IMAPFlag.NO;
 
-    @Property("Recent Messages")
-    @Example("YES")
-    @DefaultValue("NO")
-    @Description("If true, email messages marked as 'recent' are fetched from the IMAP server.")
-    private IMAPFlag recent = IMAPFlag.NO;
-
     @Property("Deleted Messages")
     @Example("YES")
     @DefaultValue("NO")
@@ -39,14 +33,6 @@ public class IMAPFlags implements Implementor {
 
     public void setSeen(IMAPFlag seen) {
         this.seen = seen;
-    }
-
-    public IMAPFlag getRecent() {
-        return recent;
-    }
-
-    public void setRecent(IMAPFlag recent) {
-        this.recent = recent;
     }
 
     public IMAPFlag getDeleted() {

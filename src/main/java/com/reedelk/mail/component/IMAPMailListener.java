@@ -42,7 +42,7 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("Limits the number of emails to be processed.")
     private Integer limit;
 
-    @Property("Fetch flags")
+    @Property("Search flags")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private IMAPFlags flags;

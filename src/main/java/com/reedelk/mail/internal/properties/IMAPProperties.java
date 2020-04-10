@@ -31,6 +31,7 @@ public class IMAPProperties extends Properties {
             setProperty("mail.imap.timeout", String.valueOf(socketTimeout));
             setProperty("mail.imap.starttls.enable", String.valueOf(startTlsEnable));
             setProperty("mail.imap.connectiontimeout", String.valueOf(connectionTimeout));
+            setProperty("mail.imap.partialfetch", Boolean.FALSE.toString());
 
         } else {
             // IMAPs
@@ -43,6 +44,7 @@ public class IMAPProperties extends Properties {
             setProperty("mail.imaps.timeout", String.valueOf(socketTimeout));
             setProperty("mail.imaps.starttls.enable", String.valueOf(startTlsEnable));
             setProperty("mail.imaps.connectiontimeout", String.valueOf(connectionTimeout));
+            setProperty("mail.imaps.partialfetch", Boolean.FALSE.toString());
         }
     }
 
