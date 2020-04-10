@@ -11,8 +11,6 @@ import javax.mail.internet.MimeMessage;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static javax.mail.Flags.Flag.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +50,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverMessage(from, subject, body);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message inputMessage = maybeInputMessage.get();
@@ -77,7 +75,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         assumeFalse(existMessageWithFlag(SEEN));
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         assertThat(existMessageWithFlag(SEEN)).isTrue();
@@ -97,7 +95,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         assumeFalse(existMessageWithFlag(SEEN));
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         assertThat(existMessageWithFlag(SEEN)).isFalse();
@@ -117,7 +115,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         assumeFalse(existMessageWithFlag(DELETED));
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         assertThat(existMessageWithFlag(DELETED)).isTrue();
@@ -136,7 +134,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverMessage(from, subject, body);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         assertReceivedMessagesIsEmpty();
@@ -155,7 +153,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(SEEN, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -176,7 +174,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(SEEN, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -197,7 +195,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(DELETED, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -218,7 +216,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(DELETED, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -239,7 +237,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(ANSWERED, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -260,7 +258,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage(ANSWERED, true);
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -282,7 +280,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         deliverRandomMessage();
 
         // Then
-        Optional<Message> maybeInputMessage = pollMessage();
+        Optional<Message> maybeInputMessage = TestUtils.poll(listener, context);
         assertThat(maybeInputMessage).isPresent();
 
         Message message = maybeInputMessage.get();
@@ -298,24 +296,6 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
     @Override
     protected int port() {
         return PORT;
-    }
-
-    // The result is the input message starting the flow
-    private Optional<Message> pollMessage() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        Result result = new Result();
-
-        listener.addEventListener((message, onResult) -> {
-            result.message = message;
-            onResult.onResult(context, message);
-            latch.countDown();
-        });
-
-        listener.onStart();
-        latch.await(3, TimeUnit.SECONDS);
-        listener.onShutdown();
-
-        return Optional.ofNullable(result.message);
     }
 
     private boolean existMessageWithFlag(Flags.Flag flag) throws MessagingException {

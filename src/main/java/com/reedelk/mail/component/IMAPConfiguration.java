@@ -61,6 +61,13 @@ public class IMAPConfiguration implements Implementor {
     @When(propertyName = "protocol", propertyValue = "SMTP")
     private Boolean startTlsEnabled;
 
+    @Property("Trusted Hosts")
+    @Hint("*")
+    @Example("*")
+    @When(propertyName = "protocol", propertyValue = "IMAPS")
+    @Description("If set to \"*\", all hosts are trusted. If set to a whitespace separated list of hosts, those hosts are trusted. Otherwise, trust depends on the certificate the server presents.")
+    private String trustedHosts;
+
     public IMAPProtocol getProtocol() {
         return protocol;
     }
@@ -123,5 +130,13 @@ public class IMAPConfiguration implements Implementor {
 
     public void setStartTlsEnabled(Boolean startTlsEnabled) {
         this.startTlsEnabled = startTlsEnabled;
+    }
+
+    public String getTrustedHosts() {
+        return trustedHosts;
+    }
+
+    public void setTrustedHosts(String trustedHosts) {
+        this.trustedHosts = trustedHosts;
     }
 }

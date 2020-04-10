@@ -8,6 +8,8 @@ import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import java.util.Optional;
 import java.util.Properties;
 
+import static com.reedelk.runtime.api.commons.StringUtils.isNotBlank;
+
 public class IMAPProperties extends Properties {
 
     public IMAPProperties(IMAPConfiguration configuration) {
@@ -45,7 +47,10 @@ public class IMAPProperties extends Properties {
             setProperty("mail.imaps.starttls.enable", String.valueOf(startTlsEnable));
             setProperty("mail.imaps.connectiontimeout", String.valueOf(connectionTimeout));
             setProperty("mail.imaps.partialfetch", Boolean.FALSE.toString());
+
+            if (isNotBlank(configuration.getTrustedHosts())) {
+                setProperty("mail.imaps.ssl.trust", configuration.getTrustedHosts());
+            }
         }
     }
-
 }
