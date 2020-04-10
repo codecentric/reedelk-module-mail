@@ -320,8 +320,4 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         String body = "My sample body";
         deliverMessage(from, subject, body);
     }
-
-    static class Result {
-        Message message;
-    }
 }
