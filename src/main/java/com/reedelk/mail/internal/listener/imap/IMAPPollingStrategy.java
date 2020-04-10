@@ -164,7 +164,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     private Store getStore() throws MessagingException {
-        Session session = Session.getDefaultInstance(new IMAPProperties(configuration));
+        Session session = Session.getInstance(new IMAPProperties(configuration));
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;

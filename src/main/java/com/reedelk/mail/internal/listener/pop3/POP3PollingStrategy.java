@@ -94,7 +94,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     }
 
     private Store getStore() throws MessagingException {
-        Session session = Session.getDefaultInstance(new POP3Properties(configuration));
+        Session session = Session.getInstance(new POP3Properties(configuration));
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;

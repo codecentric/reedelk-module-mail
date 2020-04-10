@@ -12,19 +12,20 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static javax.mail.Flags.Flag.SEEN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 class IMAPMailListenerPollingTest extends AbstractMailTest {
 
     private static final String PROTOCOL = "imap";
     private static final int PORT = 1143;
 
-    private IMAPMailListener listener = new IMAPMailListener();
+    private IMAPMailListener listener;
 
     @BeforeEach
     void setUp() {
         super.setUp();
-
         IMAPConfiguration configuration = new IMAPConfiguration();
         configuration.setProtocol(IMAPProtocol.IMAP);
         configuration.setUsername(username);
@@ -32,6 +33,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         configuration.setHost(address);
         configuration.setPort(PORT);
 
+        listener = new IMAPMailListener();
         listener.setStrategy(IMAPListeningStrategy.POLLING);
         listener.setConfiguration(configuration);
         listener.setPollInterval(1000);
@@ -49,7 +51,6 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
 
         // Then
         Optional<Message> maybeInputMessage = pollMessage();
-
         assertThat(maybeInputMessage).isPresent();
 
         Message inputMessage = maybeInputMessage.get();
@@ -60,9 +61,24 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         MessageAttributes attributes = inputMessage.getAttributes();
         assertThat(attributes).containsEntry("subject", subject);
         assertThat(attributes).containsEntry("from", from);
+    }
 
-        MimeMessage mimeMessage = receivedMessage(0);
-        assertThat(mimeMessage.getFlags().contains(Flags.Flag.SEEN)).isTrue();
+    @Test
+    void shouldCorrectlyPollMarkMessageAsSeenAfterPoll() throws MessagingException, InterruptedException {
+        // Given
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+
+        // When
+        deliverMessage(from, subject, body);
+        assumeFalse(existMessageWithFlag(SEEN));
+
+        // Then
+        Optional<Message> maybeInputMessage = pollMessage();
+        assertThat(maybeInputMessage).isPresent();
+
+        assertThat(existMessageWithFlag(SEEN)).isTrue();
     }
 
     @Override
@@ -91,6 +107,11 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         listener.onShutdown();
 
         return Optional.ofNullable(result.message);
+    }
+
+    private boolean existMessageWithFlag(Flags.Flag flag) throws MessagingException {
+        MimeMessage mimeMessage = receivedMessage(0);
+        return mimeMessage.getFlags().contains(flag);
     }
 
     static class Result {
