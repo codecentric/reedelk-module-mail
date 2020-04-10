@@ -5,7 +5,9 @@ import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.mail.Flags;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +60,9 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         MessageAttributes attributes = inputMessage.getAttributes();
         assertThat(attributes).containsEntry("subject", subject);
         assertThat(attributes).containsEntry("from", from);
+
+        MimeMessage mimeMessage = receivedMessage(0);
+        assertThat(mimeMessage.getFlags().contains(Flags.Flag.SEEN)).isTrue();
     }
 
     @Override
