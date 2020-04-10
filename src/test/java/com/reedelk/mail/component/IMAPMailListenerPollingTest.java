@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeFalse;
@@ -99,6 +100,45 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         assertThat(maybeInputMessage).isPresent();
 
         assertThat(existMessageWithFlag(SEEN)).isFalse();
+    }
+
+    @Test
+    void shouldCorrectlyPollAndMarkDeleteMessageAfterPoll() throws MessagingException, InterruptedException {
+        // Given
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+
+        listener.setMarkDeleteOnSuccess(true);
+
+        // When
+        deliverMessage(from, subject, body);
+        assumeFalse(existMessageWithFlag(DELETED));
+
+        // Then
+        Optional<Message> maybeInputMessage = pollMessage();
+        assertThat(maybeInputMessage).isPresent();
+
+        assertThat(existMessageWithFlag(DELETED)).isTrue();
+    }
+
+    @Test
+    void shouldCorrectlyPollAndDeleteMessageAfterPoll() throws MessagingException, InterruptedException {
+        // Given
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+
+        listener.setDeleteOnSuccess(true);
+
+        // When
+        deliverMessage(from, subject, body);
+
+        // Then
+        Optional<Message> maybeInputMessage = pollMessage();
+        assertThat(maybeInputMessage).isPresent();
+
+        assertReceivedMessagesIsEmpty();
     }
 
     @Override

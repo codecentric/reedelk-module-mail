@@ -87,6 +87,10 @@ abstract class AbstractMailTest {
         assertThat(mailServer.getReceivedMessages()).hasSize(expected);
     }
 
+    protected void assertReceivedMessagesIsEmpty() {
+        assertThat(mailServer.getReceivedMessages()).isEmpty();
+    }
+
     protected void assertThatToIs(MimeMessage received, String ...expected) throws MessagingException {
         String[] tos = received.getHeader("to");
         assertThat(tos).containsExactly(expected);
@@ -95,11 +99,6 @@ abstract class AbstractMailTest {
     protected void assertThatCcIs(MimeMessage received, String ...expected) throws MessagingException {
         String[] ccs = received.getHeader("cc");
         assertThat(ccs).containsExactly(expected);
-    }
-
-    protected void assertThatBccIs(MimeMessage received, String ...expected) throws MessagingException {
-        String[] bccs = received.getHeader("bcc");
-        assertThat(bccs).containsExactly(expected);
     }
 
     protected void assertThatReplyToIs(MimeMessage received, String ...expected) throws MessagingException {
