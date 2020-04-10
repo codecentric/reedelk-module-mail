@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.commons;
 
-import com.reedelk.mail.internal.send.MailSendAttributes;
+import com.reedelk.mail.internal.smtp.MailSendAttributes;
 import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import org.apache.commons.mail.Email;

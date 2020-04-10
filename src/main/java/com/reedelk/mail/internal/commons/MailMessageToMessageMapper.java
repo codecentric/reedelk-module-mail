@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.reedelk.mail.internal.send.MailSendAttributes.*;
+import static com.reedelk.mail.internal.smtp.MailSendAttributes.*;
 
 public class MailMessageToMessageMapper {
 
