@@ -83,6 +83,26 @@ public class POP3MailListenerPollingTest extends AbstractMailTest {
     }
 
     @Test
+    void shouldCorrectlyPollAndNotDeleteMessageWhenError() throws MessagingException, InterruptedException {
+        // Given
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+
+        listener.setDeleteOnSuccess(true);
+
+        // When
+        deliverMessage(from, subject, body);
+
+        // Then
+        Optional<Message> maybeInputMessage = TestUtils.pollAndOnResultError(listener, context);
+        assertThat(maybeInputMessage).isPresent();
+
+        MimeMessage mimeMessage = firstReceivedMessage();
+        assertThat(mimeMessage).isNotNull();
+    }
+
+    @Test
     void shouldLimitNumberOfMessagesCorrectly() throws MessagingException, InterruptedException {
         // Given
         listener.setLimit(3);

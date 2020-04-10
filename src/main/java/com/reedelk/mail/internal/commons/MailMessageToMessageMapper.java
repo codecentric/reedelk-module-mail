@@ -113,6 +113,7 @@ public class MailMessageToMessageMapper {
             MimeType attachmentMimeType = MimeType.parse(dataSource.getContentType().toLowerCase());
             byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());
 
+            // TODO: The typed content here should be created according to the type.
             Attachment attachment = Attachment.builder()
                     .content(new ByteArrayContent(attachmentData, attachmentMimeType))
                     .build();

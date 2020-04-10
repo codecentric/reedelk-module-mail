@@ -86,7 +86,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
     }
 
     @Test
-    void shouldCorrectlyPollAndNotMarkMessageAsSeenAfterPollWhenFlowError() throws MessagingException, InterruptedException {
+    void shouldCorrectlyPollAndNotMarkMessageAsSeenAfterPollWhenError() throws MessagingException, InterruptedException {
         // Given
         String from = "my-test@mydomain.com";
         String subject = "My sample subject";

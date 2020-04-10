@@ -63,13 +63,17 @@ abstract class AbstractMailTest {
 
     protected abstract int port();
 
+    protected void deliverMessage(MimeMessage message) {
+        mailUser.deliver(message);
+    }
+
     protected void deliverMessage(String from, String subject, String body) throws MessagingException {
         MimeMessage message = new MimeMessage((Session) null);
         message.setFrom(new InternetAddress(from));
         message.setSubject(subject);
         message.setText(body);
         message.addRecipient(TO, new InternetAddress(emailUserAddress));
-        mailUser.deliver(message);
+        deliverMessage(message);
     }
 
     protected void deliverMessage(String from, String subject, String body, Flags.Flag flag, boolean flagValue) throws MessagingException {
@@ -79,7 +83,17 @@ abstract class AbstractMailTest {
         message.setText(body);
         message.addRecipient(TO, new InternetAddress(emailUserAddress));
         message.setFlag(flag, flagValue);
-        mailUser.deliver(message);
+        deliverMessage(message);
+    }
+
+    protected void deliverRandomMessageWithContent(Object content, String contentType) throws MessagingException {
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        MimeMessage mimeMessage = new MimeMessage((Session) null);
+        mimeMessage.setFrom(new InternetAddress(from));
+        mimeMessage.setSubject(subject);
+        mimeMessage.setContent(content, contentType);
+        deliverMessage(mimeMessage);
     }
 
     protected void deliverRandomMessage() throws MessagingException {
@@ -105,17 +119,17 @@ abstract class AbstractMailTest {
         assertThat(mailServer.getReceivedMessages()).isEmpty();
     }
 
-    protected void assertThatToIs(MimeMessage received, String ...expected) throws MessagingException {
+    protected void assertThatToIs(MimeMessage received, String... expected) throws MessagingException {
         String[] tos = received.getHeader("to");
         assertThat(tos).containsExactly(expected);
     }
 
-    protected void assertThatCcIs(MimeMessage received, String ...expected) throws MessagingException {
+    protected void assertThatCcIs(MimeMessage received, String... expected) throws MessagingException {
         String[] ccs = received.getHeader("cc");
         assertThat(ccs).containsExactly(expected);
     }
 
-    protected void assertThatReplyToIs(MimeMessage received, String ...expected) throws MessagingException {
+    protected void assertThatReplyToIs(MimeMessage received, String... expected) throws MessagingException {
         String[] replyTos = received.getHeader("Reply-To");
         assertThat(replyTos).containsExactly(expected);
     }
