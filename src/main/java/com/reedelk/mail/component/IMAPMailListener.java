@@ -34,14 +34,14 @@ public class IMAPMailListener extends AbstractInbound {
     @Description("If true sets the message as 'seen' in the IMAP folder when the processing was successful.")
     private Boolean peek;
 
-    @Property("Batch messages")
+    @Property("Batch Messages")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
     @Description("If true emails are batched in a list")
     private Boolean batch;
 
-    @Property("Delete on success")
+    @Property("Delete On success")
     @DefaultValue("false")
     @Example("true")
     @Group("General")
@@ -73,6 +73,13 @@ public class IMAPMailListener extends AbstractInbound {
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Integer limit;
 
+    @Property("Mark message/s deleted on success")
+    @DefaultValue("false")
+    @Example("true")
+    @Group("Listening Strategy")
+    @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
+    private Boolean markDeleteOnSuccess;
+
     @Property("Poll Flags")
     @Group("Listening Strategy")
     @Description("Flags to be used to fetch messages when strategy is 'POLLING'.")
@@ -92,7 +99,7 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, folder, deleteOnSuccess, batch, peek, limit);
+            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, folder, deleteOnSuccess, markDeleteOnSuccess, batch, peek, limit);
             schedulerProvider = new SchedulerProvider();
             schedulerProvider.schedule(pollInterval, pollingStrategy);
         } else {
@@ -149,5 +156,9 @@ public class IMAPMailListener extends AbstractInbound {
 
     public void setFlags(IMAPFlags flags) {
         this.flags = flags;
+    }
+
+    public void setMarkDeleteOnSuccess(Boolean markDeleteOnSuccess) {
+        this.markDeleteOnSuccess = markDeleteOnSuccess;
     }
 }

@@ -32,6 +32,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     private final boolean batch;
     private final boolean deleteOnSuccess;
     private final Integer limit;
+    private final Boolean markDeleteOnSuccess;
     private boolean stopped;
 
     public IMAPPollingStrategy(InboundEventListener listener,
@@ -39,6 +40,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
                                IMAPFlags matcher,
                                String folder,
                                Boolean deleteOnSuccess,
+                               Boolean markDeleteOnSuccess,
                                Boolean batch,
                                Boolean peek,
                                Integer limit) {
@@ -50,6 +52,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         this.batch = Optional.ofNullable(batch).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
         this.inboxFolder = Optional.ofNullable(folder).orElse(Defaults.IMAP_FOLDER_NAME);
+        this.markDeleteOnSuccess = Optional.ofNullable(markDeleteOnSuccess).orElse(Defaults.Poller.MARK_DELETE_ON_SUCCESS);
     }
 
     @Override
@@ -108,7 +111,17 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         } finally {
             // expunge depends on the delete on success flag.
             // If expunge true, then messages are completely removed, otherwise marked as deleted only.
-            CloseableUtils.close(folder);
+            // TODO: Test this logic very well
+            if (markDeleteOnSuccess) {
+                CloseableUtils.close(folder, false);
+            }
+            if (deleteOnSuccess) {
+                CloseableUtils.close(folder, true);
+            }
+            if (!markDeleteOnSuccess && !deleteOnSuccess) {
+                // Default
+                CloseableUtils.close(folder, false);
+            }
             CloseableUtils.close(store);
         }
     }
@@ -131,7 +144,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-        if (deleteOnSuccess) {
+        if (deleteOnSuccess || markDeleteOnSuccess) {
             message.setFlag(Flag.DELETED, true);
         }
     }
