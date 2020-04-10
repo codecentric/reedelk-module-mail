@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.send.type;
 
-import com.reedelk.mail.component.MailSend;
+import com.reedelk.mail.component.SMTPMailSend;
 import com.reedelk.runtime.api.message.content.MimeType;
 
 import java.util.Optional;
@@ -9,7 +9,7 @@ import static com.reedelk.runtime.api.commons.DynamicValueUtils.isNotNullOrBlank
 
 public class MailTypeFactory {
 
-    public static MailTypeStrategy from(MailSend component) {
+    public static MailTypeStrategy from(SMTPMailSend component) {
 
         MimeType mimeType = Optional.ofNullable(component.getBody())
                 .flatMap(definition -> Optional.ofNullable(definition.getContentType()))

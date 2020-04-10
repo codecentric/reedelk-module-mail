@@ -1,5 +1,8 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.smtp.AttachmentDefinition;
+import com.reedelk.mail.component.smtp.AttachmentSourceType;
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.runtime.api.message.content.MimeType;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicByteArray;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
@@ -15,12 +18,12 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MailSendAttachmentTest extends AbstractMailTest {
+public class SMTPMailSendAttachmentTest extends AbstractMailTest {
 
     private static final int SMTP_PORT = 2525;
     private static final String PROTOCOL = "smtp";
 
-    private MailSend component = new MailSend();
+    private SMTPMailSend component = new SMTPMailSend();
 
     @BeforeEach
     void setUp() {

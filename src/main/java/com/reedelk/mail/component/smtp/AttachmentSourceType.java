@@ -1,4 +1,4 @@
-package com.reedelk.mail.component;
+package com.reedelk.mail.component.smtp;
 
 import com.reedelk.runtime.api.annotation.DisplayName;
 

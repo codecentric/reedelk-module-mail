@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.imap.IMAPProtocol;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.Implementor;
 import org.osgi.service.component.annotations.Component;

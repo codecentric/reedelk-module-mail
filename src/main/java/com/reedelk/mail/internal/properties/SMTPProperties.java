@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.properties;
 
 import com.reedelk.mail.component.SMTPConfiguration;
-import com.reedelk.mail.component.SMTPProtocol;
+import com.reedelk.mail.component.smtp.SMTPProtocol;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 

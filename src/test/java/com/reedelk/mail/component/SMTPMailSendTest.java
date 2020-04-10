@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
@@ -17,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class MailSendTest extends AbstractMailTest {
+class SMTPMailSendTest extends AbstractMailTest {
 
     private static final int SMTP_PORT = 2525;
     private static final String PROTOCOL = "smtp";
 
-    private MailSend component = new MailSend();
+    private SMTPMailSend component = new SMTPMailSend();
 
     @BeforeEach
     void setUp() {
@@ -149,7 +150,7 @@ class MailSendTest extends AbstractMailTest {
 
         MessageAttributes attributes = actual.getAttributes();
         assertThat(attributes).containsKeys("sentDate");
-        assertThat(attributes).containsEntry("componentName", "MailSend");
+        assertThat(attributes).containsEntry("componentName", "SMTPMailSend");
         assertThat(attributes).containsEntry("subject", "My email subject");
 
         assertThat(attributes).containsEntry("from","from@test.com");

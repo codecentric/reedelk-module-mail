@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.send;
 
-import com.reedelk.mail.component.AttachmentDefinition;
+import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.internal.send.attachment.AttachmentSourceStrategyFactory;
 import com.reedelk.runtime.api.commons.Unchecked;
 import com.reedelk.runtime.api.converter.ConverterService;

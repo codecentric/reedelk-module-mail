@@ -1,5 +1,7 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.imap.IMAPFlags;
+import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.internal.SchedulerProvider;
 import com.reedelk.mail.internal.listener.imap.IMAPIdleListener;
 import com.reedelk.mail.internal.listener.imap.IMAPPollingStrategy;

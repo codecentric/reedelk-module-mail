@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.send.attachment;
 
-import com.reedelk.mail.component.AttachmentDefinition;
-import com.reedelk.mail.component.AttachmentSourceType;
+import com.reedelk.mail.component.smtp.AttachmentDefinition;
+import com.reedelk.mail.component.smtp.AttachmentSourceType;
 
 import java.util.Map;
 

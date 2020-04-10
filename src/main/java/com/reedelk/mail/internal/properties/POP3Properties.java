@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.properties;
 
 import com.reedelk.mail.component.POP3Configuration;
-import com.reedelk.mail.component.POP3Protocol;
+import com.reedelk.mail.component.pop3.POP3Protocol;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 

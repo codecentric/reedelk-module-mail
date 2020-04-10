@@ -38,7 +38,7 @@
       "script": "CreateMailAttachments.js"
     },
     {
-      "implementor": "com.reedelk.mail.component.MailSend",
+      "implementor": "com.reedelk.mail.component.SMTPMailSend",
       "description": "Send Email",
       "connectionConfiguration": {"ref": "3d8459aa-339f-4532-bb2d-e1a5ab70d5f2"},
       "from": "info@reedelk.com",

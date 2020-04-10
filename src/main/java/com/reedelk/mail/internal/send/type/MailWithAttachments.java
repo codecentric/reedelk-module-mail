@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.send.type;
 
-import com.reedelk.mail.component.BodyDefinition;
-import com.reedelk.mail.component.MailSend;
+import com.reedelk.mail.component.SMTPMailSend;
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -15,7 +15,7 @@ import static java.util.Optional.ofNullable;
 
 public class MailWithAttachments extends AbstractMailType {
 
-    public MailWithAttachments(MailSend component) {
+    public MailWithAttachments(SMTPMailSend component) {
         super(component);
     }
 

@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.send.type;
 
-import com.reedelk.mail.component.BodyDefinition;
-import com.reedelk.mail.component.MailSend;
+import com.reedelk.mail.component.SMTPMailSend;
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.send.MailAttachmentBuilder;
 import com.reedelk.mail.internal.send.MailMessageBuilder;
 import com.reedelk.mail.internal.send.MailSessionBuilder;
@@ -17,9 +17,9 @@ import static com.reedelk.runtime.api.commons.StringUtils.isBlank;
 
 abstract class AbstractMailType implements MailTypeStrategy {
 
-    protected final MailSend component;
+    protected final SMTPMailSend component;
 
-    public AbstractMailType(MailSend component) {
+    public AbstractMailType(SMTPMailSend component) {
         this.component = component;
     }
 

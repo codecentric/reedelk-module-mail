@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal.send.attachment;
 
-import com.reedelk.mail.component.AttachmentDefinition;
+import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.internal.commons.ContentType;
 import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
 import com.reedelk.runtime.api.flow.FlowContext;

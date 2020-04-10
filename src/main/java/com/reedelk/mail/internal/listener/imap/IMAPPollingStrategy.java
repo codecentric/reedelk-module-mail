@@ -1,8 +1,8 @@
 package com.reedelk.mail.internal.listener.imap;
 
 import com.reedelk.mail.component.IMAPConfiguration;
-import com.reedelk.mail.component.IMAPFlags;
 import com.reedelk.mail.component.IMAPMailListener;
+import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
 import com.reedelk.mail.internal.listener.AbstractPollingStrategy;

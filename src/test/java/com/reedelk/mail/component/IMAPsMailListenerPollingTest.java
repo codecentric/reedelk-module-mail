@@ -1,5 +1,7 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.imap.IMAPListeningStrategy;
+import com.reedelk.mail.component.imap.IMAPProtocol;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;

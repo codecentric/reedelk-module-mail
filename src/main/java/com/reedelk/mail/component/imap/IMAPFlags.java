@@ -1,4 +1,4 @@
-package com.reedelk.mail.component;
+package com.reedelk.mail.component.imap;
 
 import com.reedelk.runtime.api.annotation.DefaultValue;
 import com.reedelk.runtime.api.annotation.Description;

@@ -1,7 +1,7 @@
 package com.reedelk.mail.internal.send.type;
 
-import com.reedelk.mail.component.BodyDefinition;
-import com.reedelk.mail.component.MailSend;
+import com.reedelk.mail.component.SMTPMailSend;
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
@@ -16,7 +16,7 @@ import static java.util.Optional.ofNullable;
 
 public class MailSimple extends AbstractMailType {
 
-    public MailSimple(MailSend component) {
+    public MailSimple(SMTPMailSend component) {
         super(component);
     }
 

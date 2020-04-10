@@ -1,5 +1,7 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.component.smtp.AttachmentDefinition;
+import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.commons.MailMessageToMessageAttributesMapper;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.send.type.MailTypeFactory;
@@ -27,11 +29,10 @@ import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
 
-
-@ModuleComponent("Mail Send")
-@Description("Send email using POP3 or IMAP.")
-@Component(service = MailSend.class, scope = ServiceScope.PROTOTYPE)
-public class MailSend implements ProcessorSync {
+@ModuleComponent("Mail Send (SMTP)")
+@Description("Send email using SMTP.")
+@Component(service = SMTPMailSend.class, scope = ServiceScope.PROTOTYPE)
+public class SMTPMailSend implements ProcessorSync {
 
     @Property("SMTP Connection")
     @Group("General")
@@ -122,10 +123,10 @@ public class MailSend implements ProcessorSync {
 
     @Override
     public void initialize() {
-        requireNotNullOrBlank(MailSend.class, to, "To must not be blank");
-        requireNotNullOrBlank(MailSend.class, from, "From must not be blank");
-        requireNotNull(MailSend.class, body, "Email body definition must be defined");
-        requireNotNull(MailSend.class, connectionConfiguration, "Connection configuration is mandatory");
+        requireNotNullOrBlank(SMTPMailSend.class, to, "To must not be blank");
+        requireNotNullOrBlank(SMTPMailSend.class, from, "From must not be blank");
+        requireNotNull(SMTPMailSend.class, body, "Email body definition must be defined");
+        requireNotNull(SMTPMailSend.class, connectionConfiguration, "Connection configuration is mandatory");
     }
 
     @Override
@@ -136,7 +137,7 @@ public class MailSend implements ProcessorSync {
 
             email.send();
 
-            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(MailSend.class, email);
+            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(SMTPMailSend.class, email);
 
             return MessageBuilder.get()
                     .attributes(attributes)
