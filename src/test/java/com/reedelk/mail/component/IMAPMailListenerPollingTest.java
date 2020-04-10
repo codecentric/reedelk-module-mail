@@ -40,7 +40,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
     }
 
     @Test
-    void shouldCorrectlyPollMessageWithFromSubjectAndBody() throws MessagingException, InterruptedException {
+    void shouldCorrectlyPollAndMessageContainsFromSubjectAndBody() throws MessagingException, InterruptedException {
         // Given
         String from = "my-test@mydomain.com";
         String subject = "My sample subject";
@@ -64,7 +64,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
     }
 
     @Test
-    void shouldCorrectlyPollMarkMessageAsSeenAfterPoll() throws MessagingException, InterruptedException {
+    void shouldCorrectlyPollAndMarkMessageAsSeenAfterPoll() throws MessagingException, InterruptedException {
         // Given
         String from = "my-test@mydomain.com";
         String subject = "My sample subject";
@@ -79,6 +79,26 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         assertThat(maybeInputMessage).isPresent();
 
         assertThat(existMessageWithFlag(SEEN)).isTrue();
+    }
+
+    @Test
+    void shouldCorrectlyPollAndNotMarkMessageAsSeenAfterPollWhenPeek() throws MessagingException, InterruptedException {
+        // Given
+        String from = "my-test@mydomain.com";
+        String subject = "My sample subject";
+        String body = "My sample body";
+
+        listener.setPeek(true);
+
+        // When
+        deliverMessage(from, subject, body);
+        assumeFalse(existMessageWithFlag(SEEN));
+
+        // Then
+        Optional<Message> maybeInputMessage = pollMessage();
+        assertThat(maybeInputMessage).isPresent();
+
+        assertThat(existMessageWithFlag(SEEN)).isFalse();
     }
 
     @Override
