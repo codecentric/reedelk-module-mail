@@ -75,14 +75,18 @@ public class IMAPIdleListener {
     private void cleanup() {
         if (listenerThread != null) {
             listenerThread.terminate();
+        }
+
+        CloseableUtils.close(folder);
+        CloseableUtils.close(store);
+
+        if (listenerThread != null) {
             try {
                 listenerThread.join();
             } catch (InterruptedException e) {
                 // nothing we can do about it.
             }
         }
-        CloseableUtils.close(folder);
-        CloseableUtils.close(store);
     }
 
     private void checkIdleCapabilityOrThrow() throws MessagingException {

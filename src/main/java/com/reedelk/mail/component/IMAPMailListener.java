@@ -83,6 +83,8 @@ public class IMAPMailListener extends AbstractInbound {
     @Example("true")
     @Group("Listening Strategy")
     @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
+    @When(propertyName = "strategy", propertyValue = "POLLING")
+    @When(propertyName = "strategy", propertyValue = When.NULL)
     private Boolean markDeleteOnSuccess;
 
     @Property("Poll Flags")
