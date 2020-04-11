@@ -30,16 +30,17 @@ import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.require
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
 
 @ModuleComponent("Mail Send (SMTP)")
-@Description("Send email using SMTP.")
+@Description("Sends an email using SMTP or SMPTs. " +
+        "Several attachments can be configured to be sent together in the email. " +
+        "Attachments might come from different sources such as " +
+        "filesystem files, project resources or evaluated script expressions.")
 @Component(service = SMTPMailSend.class, scope = ServiceScope.PROTOTYPE)
 public class SMTPMailSend implements ProcessorSync {
 
     @Property("SMTP Connection")
-    @Group("General")
-    private SMTPConfiguration connectionConfiguration;
+    private SMTPConfiguration configuration;
 
     @Property("From address")
-    @Group("General")
     @Hint("from@domain.com")
     @Description("Sets the source address to be used in the email. " +
             "It can be a static or a dynamic expression.")
@@ -50,7 +51,6 @@ public class SMTPMailSend implements ProcessorSync {
     private DynamicString from;
 
     @Property("To addresses")
-    @Group("General")
     @Hint("toAddress1@domain.com,toAddress2@domain.com,toAddress3@domain.com")
     @Description("Sets the destination addresses of the email. " +
             "It can contain a comma separated list of recipients.")
@@ -61,9 +61,8 @@ public class SMTPMailSend implements ProcessorSync {
     private DynamicString to;
 
     @Property("Subject")
-    @Group("General")
-    @Example("An important subject")
     @Hint("My email subject")
+    @Example("An important subject")
     @Description("Sets the subject to be used in the email.")
     private DynamicString subject;
 
@@ -126,7 +125,7 @@ public class SMTPMailSend implements ProcessorSync {
         requireNotNullOrBlank(SMTPMailSend.class, to, "To must not be blank");
         requireNotNullOrBlank(SMTPMailSend.class, from, "From must not be blank");
         requireNotNull(SMTPMailSend.class, body, "Email body definition must be defined");
-        requireNotNull(SMTPMailSend.class, connectionConfiguration, "Connection configuration is mandatory");
+        requireNotNull(SMTPMailSend.class, configuration, "Connection configuration is mandatory");
     }
 
     @Override
@@ -149,12 +148,12 @@ public class SMTPMailSend implements ProcessorSync {
         }
     }
 
-    public SMTPConfiguration getConnectionConfiguration() {
-        return connectionConfiguration;
+    public SMTPConfiguration getConfiguration() {
+        return configuration;
     }
 
-    public void setConnectionConfiguration(SMTPConfiguration connectionConfiguration) {
-        this.connectionConfiguration = connectionConfiguration;
+    public void setConfiguration(SMTPConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     public DynamicString getFrom() {

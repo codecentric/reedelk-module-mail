@@ -35,7 +35,7 @@ public class SMTPMailSendAttachmentTest extends AbstractMailTest {
         configuration.setPassword(password);
 
         mockScriptEngineEvaluation();
-        component.setConnectionConfiguration(configuration);
+        component.setConfiguration(configuration);
         component.scriptService = scriptEngine;
     }
 

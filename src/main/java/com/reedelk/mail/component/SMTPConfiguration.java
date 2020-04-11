@@ -11,33 +11,35 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class SMTPConfiguration implements Implementor {
 
     @Property("Protocol")
-    @Example("SMTP")
+    @Example("SMTPS")
     @DefaultValue("SMTP")
+    @Description("Sets the SMTP protocol to be used in the connection. " +
+            "Use SMTP for a normal connection or SMTPs to use it over SSL")
     private SMTPProtocol protocol;
 
     @Property("Host")
     @Hint("smtp.domain.com")
     @Example("smtp.domain.com")
-    @Description("The SMTP server host to be used for sending emails.")
+    @Description("The SMTP server host to be used for the connection.")
     private String host;
 
     @Property("Port")
     @Hint("587")
     @Example("587")
     @DefaultValue("587")
-    @Description("The SMTP server port to be used for sending emails.")
+    @Description("The SMTP server port to be used for the connection.")
     private Integer port;
 
     @Property("Username")
     @Hint("myUsername")
     @Example("username@domain.com")
-    @Description("The username to be used to connect to the SMTP server.")
+    @Description("Username used to connect with the email server.")
     private String username;
 
     @Property("Password")
     @Password
     @Example("myPassword")
-    @Description("The password to be used to connect to the SMTP server.")
+    @Description("Password used to connect with the email server.")
     private String password;
 
     @Property("Socket Timeout")
@@ -55,12 +57,11 @@ public class SMTPConfiguration implements Implementor {
     private Integer connectTimeout;
 
     @Property("Start TLS Enabled")
-    @DefaultValue("false")
     @Example("true")
+    @DefaultValue("false")
     @Description("If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection " +
             "to a TLS-protected connection before issuing any login commands. " +
-            "If the server does not support STARTTLS, the connection continues without the use of TLS; " +
-            "Note that an appropriate trust store must configured so that the client will trust the server's certificate.")
+            "If the server does not support STARTTLS, the connection continues without the use of TLS.")
     @When(propertyName = "protocol", propertyValue = When.NULL)
     @When(propertyName = "protocol", propertyValue = "SMTP")
     private Boolean startTlsEnabled;

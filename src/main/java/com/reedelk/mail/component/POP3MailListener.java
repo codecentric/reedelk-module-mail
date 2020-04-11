@@ -14,40 +14,42 @@ import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.require
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (POP3)")
-@Description("The Email listener can be used to trigger events whenever new emails " +
-        "are received on the server.")
+@Description("The Mail Listener connector provides a listener that polls for changes from a remote POP3 mailbox. " +
+        "Every time a new email is received, a new event is triggered and the flow following this component is executed.")
 @Component(service = POP3MailListener.class, scope = PROTOTYPE)
 public class POP3MailListener extends AbstractInbound {
 
     @Property("POP3 Connection")
-    @Group("General")
     private POP3Configuration configuration;
 
     @Property("Poll Interval")
-    @Group("General")
     @Hint("120000")
     @Example("120000")
     @DefaultValue("60000")
-    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time.")
+    @Description("Sets the poll interval delay. " +
+            "New messages will be checked every X + 'poll interval' delay time.")
     private Integer pollInterval;
 
     @Property("Limit")
-    @Example("10")
-    @Group("General")
-    @Description("Limits the number of emails to be processed.")
+    @Hint("10")
+    @Example("25")
+    @DefaultValue("10")
+    @Description("Limits the number of emails to be processed for each poll. " +
+            "If the number of emails fetched during a poll is greater than the limit, " +
+            "the remaining emails will be processed in the next poll iteration.")
     private Integer limit;
 
     @Property("Delete on success")
-    @DefaultValue("false")
     @Example("true")
-    @Group("General")
+    @DefaultValue("false")
+    @Description("If true deletes permanently a message from the POP3 mailbox whenever the flow completes successfully.")
     private Boolean deleteOnSuccess;
 
     @Property("Batch messages")
-    @DefaultValue("false")
     @Example("true")
-    @Group("General")
-    @Description("If true emails are batched in a list")
+    @DefaultValue("false")
+    @Description("If true and there are multiple emails in the IMAP folder, emails are grouped in a list. " +
+            "The message following the listener is a list containing email data inside a map object.")
     private Boolean batch;
 
     @Reference

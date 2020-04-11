@@ -10,9 +10,12 @@ import org.osgi.service.component.annotations.ServiceScope;
 @Component(service = BodyDefinition.class, scope = ServiceScope.PROTOTYPE)
 public class BodyDefinition implements Implementor {
 
-    @Property("Content")
-    @Description("The result of the evaluation of this expression is set as mail body content.")
-    private DynamicString content;
+    @Property("Charset")
+    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
+    @DefaultValue("UTF-8")
+    @Example("ISO-8859-1")
+    @Description("Sets the charset of the mail body.")
+    private String charset;
 
     @Property("Content Type")
     @Combo(comboValues = { MimeType.AsString.TEXT_PLAIN, MimeType.AsString.TEXT_HTML }, prototype = "XXXXXXXXXXXX")
@@ -21,12 +24,9 @@ public class BodyDefinition implements Implementor {
     @Description("Sets the content type of the mail body.")
     private String contentType;
 
-    @Property("Charset")
-    @Combo(comboValues = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"})
-    @DefaultValue("UTF-8")
-    @Example("ISO-8859-1")
-    @Description("Sets the charset of the mail body.")
-    private String charset;
+    @Property("Content")
+    @Description("The result of the evaluation of this expression is set as mail body content.")
+    private DynamicString content;
 
     public DynamicString getContent() {
         return content;
@@ -51,5 +51,4 @@ public class BodyDefinition implements Implementor {
     public void setCharset(String charset) {
         this.charset = charset;
     }
-
 }

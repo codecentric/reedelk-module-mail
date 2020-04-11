@@ -13,31 +13,33 @@ public class POP3Configuration implements Implementor {
     @Property("Protocol")
     @Example("POP3S")
     @DefaultValue("POP3")
+    @Description("Sets the POP3 protocol to be used in the connection. " +
+            "Use POP3 for a normal connection or POP3s to use it over SSL")
     private POP3Protocol protocol;
 
     @Property("Host")
     @Hint("pop3.domain.com")
     @Example("pop3.domain.com")
-    @Description("The POP3 server host to be used for retrieving emails.")
+    @Description("The POP3 server host to be used for the connection.")
     private String host;
 
     @Property("Port")
     @Hint("110")
     @Example("110")
     @DefaultValue("110")
-    @Description("The POP3 server port to be used for retrieving emails.")
+    @Description("The POP3 server port to be used for the connection.")
     private Integer port;
 
     @Property("Username")
     @Hint("myUsername")
     @Example("username@domain.com")
-    @Description("The username to be used to connect to the POP3 server.")
+    @Description("Username used to connect with the email server.")
     private String username;
 
     @Property("Password")
     @Password
     @Example("myPassword")
-    @Description("The password to be used to connect to the POP3 server.")
+    @Description("Password used to connect with the email server.")
     private String password;
 
     @Property("Socket Timeout")
@@ -55,14 +57,13 @@ public class POP3Configuration implements Implementor {
     private Integer connectTimeout;
 
     @Property("Start TLS Enabled")
-    @DefaultValue("false")
     @Example("true")
+    @DefaultValue("false")
     @Description("If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection " +
             "to a TLS-protected connection before issuing any login commands. " +
-            "If the server does not support STARTTLS, the connection continues without the use of TLS; " +
-            "Note that an appropriate trust store must configured so that the client will trust the server's certificate.")
+            "If the server does not support STARTTLS, the connection continues without the use of TLS.")
     @When(propertyName = "protocol", propertyValue = When.NULL)
-    @When(propertyName = "protocol", propertyValue = "SMTP")
+    @When(propertyName = "protocol", propertyValue = "POP3")
     private Boolean startTlsEnabled;
 
     public POP3Protocol getProtocol() {

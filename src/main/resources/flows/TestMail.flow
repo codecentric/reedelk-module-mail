@@ -46,13 +46,12 @@
     {
       "implementor": "com.reedelk.mail.component.SMTPMailSend",
       "description": "Send Email",
-      "connectionConfiguration": {"ref": "3d8459aa-339f-4532-bb2d-e1a5ab70d5f2"},
       "from": "info@reedelk.com",
       "to": "#[['gironi.lorenzo@gmail.com','info@reedelk.com'].join(',')]",
       "subject": "This is a test",
       "body": {
-        "content": "<h1>Hello<\/h1><p>Super duper<\/p>",
-        "contentType": "text/html"
+        "contentType": "text/html",
+        "content": "<h1>Hello<\/h1><p>Super duper<\/p>"
       },
       "cc": "",
       "bcc": "",

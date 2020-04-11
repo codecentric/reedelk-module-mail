@@ -17,8 +17,12 @@ import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.require
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (IMAP)")
-@Description("The Email listener can be used to trigger events whenever new emails " +
-        "are received on the server.")
+@Description("The Mail Listener connector provides a listener that listens for changes from a remote IMAP mailbox. " +
+        "Every time a new email is received, a new event is triggered and the flow following this component is executed. " +
+        "For IMAP type mailboxes there are two poll strategies: POLLING and IDLE. " +
+        "The polling strategy periodically checks for new emails on the remote server. The IDLE strategy allows the " +
+        "component to receive in real time new emails events from the remote host, without requiring polling. " +
+        "This capability depends on the server and it is not always supported.")
 @Component(service = IMAPMailListener.class, scope = PROTOTYPE)
 public class IMAPMailListener extends AbstractInbound {
 
@@ -26,38 +30,40 @@ public class IMAPMailListener extends AbstractInbound {
     private IMAPConfiguration configuration;
 
     @Property("IMAP Folder")
-    @Example("INBOX")
     @Hint("INBOX")
-    @InitValue("INBOX")
+    @Example("INBOX")
     @DefaultValue("INBOX")
-    @Description("The IMAP folder from which the listener should be listening from.")
+    @Description("The name of the IMAP folder this listener should be checking email from.")
     private String folder;
 
     @Property("Peek")
-    @DefaultValue("false")
     @Example("true")
-    @Group("General")
-    @Description("If true sets the message as 'seen' in the IMAP folder when the processing was successful.")
+    @DefaultValue("false")
+    @Description("If true the mail message is not set as 'seen' in the IMAP folder it was pulled from.")
     private Boolean peek;
 
     @Property("Batch Messages")
-    @DefaultValue("false")
     @Example("true")
-    @Group("General")
-    @Description("If true emails are batched in a list")
+    @DefaultValue("false")
+    @Description("If true and there are multiple emails in the IMAP folder, emails are grouped in a list. " +
+            "The message following the listener is a list containing email data inside a map object.")
     private Boolean batch;
 
     @Property("Delete On success")
-    @DefaultValue("false")
     @Example("true")
-    @Group("General")
-    @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
+    @DefaultValue("false")
+    @Description("If true deletes permanently a message from the IMAP folder whenever the flow completes successfully. " +
+            "If you only want to mark a message 'deleted' without removing it permanently use the property named 'Mark message/s deleted on success'.")
     private Boolean deleteOnSuccess;
 
     @Property("Strategy")
     @Example("IDLE")
     @DefaultValue("POLLING")
     @Group("Listening Strategy")
+    @Description("The polling strategy used by the listener: it could be <i>POLLING</i> or <i>IDLE</i>. " +
+            "The polling strategy periodically checks for new emails on the remote server. The IDLE strategy allows the " +
+            "component to receive in real time new emails events from the remote host, without requiring polling. " +
+            "This capability depends on the server and it is not always supported.")
     private IMAPListeningStrategy strategy;
 
     @Property("Poll Interval")
@@ -65,17 +71,21 @@ public class IMAPMailListener extends AbstractInbound {
     @Example("120000")
     @DefaultValue("60000")
     @Group("Listening Strategy")
-    @Description("Poll interval delay. New messages will be checked every T + 'poll interval' time. Can be applied only when strategy is 'POLLING'.")
+    @Description("Sets the poll interval delay. " +
+            "New messages will be checked every X + 'poll interval' delay time. " +
+            "Can be applied only when strategy is 'POLLING'.")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Integer pollInterval;
 
     @Property("Limit")
-    @Hint("25")
+    @Hint("10")
     @Example("25")
     @DefaultValue("10")
     @Group("Listening Strategy")
-    @Description("Limits the number of emails to be processed for each poll.")
+    @Description("Limits the number of emails to be processed for each poll. " +
+            "If the number of emails fetched during a poll is greater than the limit, " +
+            "the remaining emails will be processed in the next poll iteration.")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Integer limit;
@@ -84,14 +94,15 @@ public class IMAPMailListener extends AbstractInbound {
     @DefaultValue("false")
     @Example("true")
     @Group("Listening Strategy")
-    @Description("If true deletes completely a message from the mailbox. If you only want to mark a message as 'deleted' use the property below.")
+    @Description("If true marks a message to be 'deleted' without removing it permanently.")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Boolean markDeleteOnSuccess;
 
     @Property("Poll Flags")
     @Group("Listening Strategy")
-    @Description("Flags to be used to fetch messages when strategy is 'POLLING'.")
+    @Description("Flags to be used to fetch messages when strategy is 'POLLING'. " +
+            "The flags can be used to fetch seen/deleted or answered messages.")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private IMAPFlags flags;

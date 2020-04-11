@@ -13,28 +13,32 @@ public class IMAPConfiguration implements Implementor {
     @Property("Protocol")
     @Example("IMAPS")
     @DefaultValue("IMAP")
+    @Description("Sets the IMAP protocol to be used in the connection. " +
+            "Use IMAP for a normal connection or IMAPs to use it over SSL")
     private IMAPProtocol protocol;
 
     @Property("Host")
     @Hint("imap.domain.com")
     @Example("imap.gmail.com")
-    @Description("The IMAP server host to be used for listening on new emails.")
+    @Description("The IMAP server host to be used for the connection.")
     private String host;
 
     @Property("Port")
     @Hint("993")
     @Example("993")
-    @Description("The IMAP server port to be used for listening on new emails.")
+    @Description("The IMAP server port to be used for the connection.")
     private Integer port;
 
     @Property("Username")
     @Hint("myUsername")
     @Example("username@domain.com")
+    @Description("Username used to connect with the email server.")
     private String username;
 
     @Property("Password")
     @Password
     @Example("myPassword")
+    @Description("Password used to connect with the email server.")
     private String password;
 
     @Property("Socket Timeout")
@@ -52,21 +56,22 @@ public class IMAPConfiguration implements Implementor {
     private Integer connectTimeout;
 
     @Property("Start TLS Enabled")
-    @DefaultValue("false")
     @Example("true")
+    @DefaultValue("false")
     @Description("If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection " +
             "to a TLS-protected connection before issuing any login commands. " +
-            "If the server does not support STARTTLS, the connection continues without the use of TLS; " +
-            "Note that an appropriate trust store must configured so that the client will trust the server's certificate.")
+            "If the server does not support STARTTLS, the connection continues without the use of TLS.")
     @When(propertyName = "protocol", propertyValue = When.NULL)
-    @When(propertyName = "protocol", propertyValue = "SMTP")
+    @When(propertyName = "protocol", propertyValue = "IMAP")
     private Boolean startTlsEnabled;
 
     @Property("Trusted Hosts")
     @Hint("*")
     @Example("*")
     @When(propertyName = "protocol", propertyValue = "IMAPS")
-    @Description("If set to \"*\", all hosts are trusted. If set to a whitespace separated list of hosts, those hosts are trusted. Otherwise, trust depends on the certificate the server presents.")
+    @Description("If set to \"*\", all hosts are trusted. If set to a whitespace separated list of hosts, " +
+            "those hosts are trusted. Otherwise, trust depends on the certificate the server presents.")
+    @When(propertyName = "protocol", propertyValue = "IMAPS")
     private String trustedHosts;
 
     public IMAPProtocol getProtocol() {
