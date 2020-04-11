@@ -73,6 +73,7 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         Attachment fileAttachment = attachments.get("myfile.txt");
         ByteArrayContent fileContent = fileAttachment.getContent();
         assertThat(fileContent.data()).isEqualTo(attachment);
+        assertThat(fileAttachment.getName()).isEqualTo("myfile.txt");
     }
 
     @Override

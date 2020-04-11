@@ -50,9 +50,9 @@ public class MailMessageToMessageMapper {
         return messageBuilder.build();
     }
 
+    @SuppressWarnings({"rawtypes"})
     public static Message map(Class<? extends Component> componentClazz, javax.mail.Message[] mails) throws Exception {
         List<Map> messages = new ArrayList<>();
-
         for (javax.mail.Message mail : mails) {
             Map<String, Serializable> message = createMailMessageAsMap(mail);
             messages.add(message);
@@ -68,21 +68,26 @@ public class MailMessageToMessageMapper {
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) throws IOException {
         MimeType attachmentMimeType = MimeType.parse(dataSource.getContentType().toLowerCase());
         byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());
+        String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
         Attachment attachment = Attachment.builder()
+                .name(attachmentName)
                 .content(new ByteArrayContent(attachmentData, attachmentMimeType))
                 .build();
-        String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
         attachmentMap.put(attachmentName, attachment);
     }
 
     private static String attachmentNameFrom(MimeType mimeType, String name) {
-        // The name could be null when we have an attachment with forwarded.
-        return Optional.ofNullable(name).orElseGet(() -> mimeType
-                .getFileExtensions()
-                .stream()
-                .findFirst()
-                .map(ext -> UUID.randomUUID().toString() + "." + ext)
-                .orElse(UUID.randomUUID().toString() + ".dat"));
+        // The name could be null for example when we have a forwarded message with an attachment.
+        // If the name is null we come up with a name and an extension for the attachment: in this
+        // case the name is a random UUID and if the mime type is known and there are extensions
+        // associated with it we use that extension, otherwise .dat extension.
+        return Optional.ofNullable(name)
+                .orElseGet(() -> mimeType
+                        .getFileExtensions()
+                        .stream()
+                        .findFirst()
+                        .map(ext -> UUID.randomUUID().toString() + "." + ext)
+                        .orElse(UUID.randomUUID().toString() + "." + Defaults.UNKNOWN_ATTACHMENT_MIME_EXTENSION));
     }
 
     private static Map<String, Serializable> createMailMessageAsMap(javax.mail.Message mail) throws Exception {

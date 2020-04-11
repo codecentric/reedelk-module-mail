@@ -7,14 +7,14 @@
       "implementor": "com.reedelk.mail.component.IMAPMailListener",
       "description": "Google Mail Listener (IMAP)",
       "configuration": {"ref": "25d7ea82-fb02-4df4-94a6-3816dc7a572f"},
-      "strategy": "IDLE",
-      "markDeleteOnSuccess": true
+      "deleteOnSuccess": true,
+      "strategy": "IDLE"
     },
     {
       "implementor": "com.reedelk.core.component.LoggerComponent",
       "description": "Logger",
       "level": "INFO",
-      "message": "#['Received email, content: ' + message.attributes().get('subject')]"
+      "message": "#[message]"
     }
   ]
 }
