@@ -8,6 +8,9 @@ import javax.mail.search.SearchTerm;
 
 public class SearchTermBuilder {
 
+    private SearchTermBuilder() {
+    }
+
     public static SearchTerm from(IMAPFlags matcher) {
         SearchTerm seenFlag = matcher.getSeen().searchTermOf(Flags.Flag.SEEN);
         SearchTerm answeredFlag = matcher.getAnswered().searchTermOf(Flags.Flag.ANSWERED);

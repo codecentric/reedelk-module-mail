@@ -98,13 +98,13 @@ public class POP3PollingStrategy implements PollingStrategy {
         return !Thread.interrupted() && !stopped;
     }
 
-    private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+    private void applyMessageOnSuccessFlags(Message message) {
         if (settings.isDeleteOnSuccess()) {
             FlagUtils.deleted(message);
         }
     }
 
-    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+    private void applyMessagesOnSuccessFlags(Message[] messages) {
         for (Message message : messages) {
             applyMessageOnSuccessFlags(message);
         }

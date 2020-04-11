@@ -6,6 +6,9 @@ import java.io.InputStream;
 
 public class ByteArrayUtils {
 
+    private ByteArrayUtils() {
+    }
+
     public static byte[] from(final InputStream input) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;

@@ -8,6 +8,8 @@ import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import java.util.Optional;
 import java.util.Properties;
 
+import static com.reedelk.runtime.api.commons.StringUtils.isNotBlank;
+
 public class POP3Properties extends Properties {
 
     public POP3Properties(POP3Configuration configuration) {
@@ -43,6 +45,10 @@ public class POP3Properties extends Properties {
             setProperty("mail.pop3s.timeout", String.valueOf(socketTimeout));
             setProperty("mail.pop3s.starttls.enable", String.valueOf(startTlsEnable));
             setProperty("mail.pop3s.connectiontimeout", String.valueOf(connectionTimeout));
+
+            if (isNotBlank(configuration.getTrustedHosts())) {
+                setProperty("mail.pop3s.ssl.trust", configuration.getTrustedHosts());
+            }
         }
     }
 }

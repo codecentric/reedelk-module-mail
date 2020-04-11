@@ -5,15 +5,17 @@ import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import org.apache.commons.mail.Email;
 
-import javax.mail.MessagingException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MailMessageToMessageAttributesMapper {
 
+    private MailMessageToMessageAttributesMapper() {
+    }
+
     public static com.reedelk.runtime.api.message.MessageAttributes from(Class<? extends Component> componentClazz,
-                                                                         Email mail) throws MessagingException {
+                                                                         Email mail) {
         Map<String, Serializable> attributesMap = baseAttributesMap(mail);
         return new DefaultMessageAttributes(componentClazz, attributesMap);
     }

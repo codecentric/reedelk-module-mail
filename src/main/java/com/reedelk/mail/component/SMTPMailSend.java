@@ -21,7 +21,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,7 +142,7 @@ public class SMTPMailSend implements ProcessorSync {
                     .empty()
                     .build();
 
-        } catch (EmailException | MessagingException exception) {
+        } catch (EmailException exception) {
             throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
     }

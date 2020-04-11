@@ -15,6 +15,9 @@ public class FlagUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FlagUtils.class);
 
+    private FlagUtils() {
+    }
+
     public static void notSeen(Message message) {
         try {
             message.setFlag(Flags.Flag.SEEN, false);
@@ -23,7 +26,6 @@ public class FlagUtils {
             logger.error(error, exception);
         }
     }
-
 
     public static void deleted(Message message) {
         try {

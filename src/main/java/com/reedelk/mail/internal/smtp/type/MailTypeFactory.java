@@ -9,6 +9,9 @@ import static com.reedelk.runtime.api.commons.DynamicValueUtils.isNotNullOrBlank
 
 public class MailTypeFactory {
 
+    private MailTypeFactory() {
+    }
+
     public static MailTypeStrategy from(SMTPMailSend component) {
 
         MimeType mimeType = Optional.ofNullable(component.getBody())

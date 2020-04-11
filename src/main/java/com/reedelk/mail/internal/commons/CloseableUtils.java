@@ -5,6 +5,9 @@ import javax.mail.Store;
 
 public class CloseableUtils {
 
+    private CloseableUtils() {
+    }
+
     public static void close(final Store store) {
         if (store == null) return;
         if (!store.isConnected()) return;

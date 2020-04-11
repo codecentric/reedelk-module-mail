@@ -14,6 +14,9 @@ public class OnMessageEvent {
 
     private static final Logger logger = LoggerFactory.getLogger(OnMessageEvent.class);
 
+    private OnMessageEvent() {
+    }
+
     public static boolean fire(Class<? extends Component> componentClazz, InboundEventListener listener, Message mail) {
         try {
             com.reedelk.runtime.api.message.Message message = MailMessageToMessageMapper.map(componentClazz, mail);
@@ -48,8 +51,16 @@ public class OnMessageEvent {
 
         // We give at most X seconds for the flow to complete the processing of the
         // mail message. After X seconds an error will be thrown.
-        latch.await(Defaults.FLOW_MAX_MESSAGE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        boolean processed = latch.await(Defaults.FLOW_MAX_MESSAGE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        return fireEvent.result();
+        if (processed) {
+            // We got an answer from the flow execution: the flow might have been successful or not and
+            // therefore we return the result of the flow execution.
+            return fireEvent.result();
+        } else {
+            // The flow took more than the await time to process the message, therefore the message
+            // is considered as not 'processed'.
+            return false;
+        }
     }
 }

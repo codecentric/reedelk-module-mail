@@ -102,7 +102,7 @@ public class IMAPPollingStrategy implements PollingStrategy {
             }
         } else {
             for (Message message : messages) {
-                applyMessageOnSuccessFlags(message);
+                applyMessageOnFailureFlags(message);
             }
         }
     }
