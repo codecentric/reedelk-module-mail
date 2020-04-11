@@ -3,6 +3,7 @@ package com.reedelk.mail.component;
 import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.pop3.POP3PollingStrategy;
+import com.reedelk.mail.internal.pop3.POP3PollingStrategySettings;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -56,7 +57,13 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit);
+        POP3PollingStrategySettings settings = POP3PollingStrategySettings.create()
+                .deleteOnSuccess(deleteOnSuccess)
+                .configuration(configuration)
+                .batch(batch)
+                .limit(limit)
+                .build();
+        PollingStrategy pollingStrategy = new POP3PollingStrategy(this, settings);
         mailPoller = new MailPoller();
         mailPoller.schedule(pollInterval, pollingStrategy);
     }
