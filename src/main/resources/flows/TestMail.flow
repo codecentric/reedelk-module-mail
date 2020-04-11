@@ -21,7 +21,13 @@
       "openApi": {
         "responses": {"200": {
           "description": "My successful response",
-          "content": {"application/json": {}}
+          "content": {"application/json": {}},
+          "headers": {"x-header-1": {
+            "description": "My header",
+            "style": "simple",
+            "predefinedSchema": "STRING",
+            "example": "myHeaderValue"
+          }}
         }},
         "parameters": [{
           "name": "param1",

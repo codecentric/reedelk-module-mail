@@ -5,8 +5,9 @@ public class Defaults {
     public static final int CONNECT_TIMEOUT = 180000;
     public static final int SOCKET_TIMEOUT = 60000;
     public static final boolean TLS_ENABLE = false;
-    public static final String POP_FOLDER_NAME = "INBOX";
+    public static final boolean PEEK = false;
     public static final String IMAP_FOLDER_NAME = "INBOX";
+    public static final String POP_FOLDER_NAME = "INBOX";
 
     public static class SMTP {
         public static final String TRANSPORT = "smtp";
@@ -40,8 +41,9 @@ public class Defaults {
 
     public static class Poller {
         public static final int DEFAULT_POLL_INTERVAL = 120000;
-        public static final boolean DELETE_ON_SUCCESS = false;
+        public static final int LIMIT = 10;
         public static final boolean MARK_DELETE_ON_SUCCESS = false;
+        public static final boolean DELETE_ON_SUCCESS = false;
         public static final boolean BATCH_EMAILS = false;
     }
 }

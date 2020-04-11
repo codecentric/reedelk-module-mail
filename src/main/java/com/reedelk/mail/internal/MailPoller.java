@@ -9,26 +9,27 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
-public class SchedulerProvider {
+public class MailPoller {
 
     private static final int TERMINATION_AWAIT_TIME = 60000;
 
     private ScheduledExecutorService executorService;
+    private PollingStrategy pollingStrategy;
     private ScheduledFuture<?> scheduled;
 
-    public SchedulerProvider() {
+    public MailPoller() {
          executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void schedule(Integer pollInterval, PollingStrategy pollingStrategy) {
+        this.pollingStrategy = pollingStrategy;
         int realPollInterval = Optional.ofNullable(pollInterval).orElse(Defaults.Poller.DEFAULT_POLL_INTERVAL);
         this.scheduled = executorService.scheduleWithFixedDelay(pollingStrategy, 0L, realPollInterval, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
-        if (this.scheduled != null) {
-            scheduled.cancel(false);
-        }
+        if (pollingStrategy != null) pollingStrategy.stop();
+        if (scheduled != null) scheduled.cancel(false);
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(TERMINATION_AWAIT_TIME, TimeUnit.MILLISECONDS)) {

@@ -2,9 +2,10 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
-import com.reedelk.mail.internal.SchedulerProvider;
+import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.imap.IMAPIdleListener;
 import com.reedelk.mail.internal.imap.IMAPPollingStrategy;
+import com.reedelk.mail.internal.imap.IMAPPollingStrategySettings;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
@@ -67,10 +68,11 @@ public class IMAPMailListener extends AbstractInbound {
     private Integer pollInterval;
 
     @Property("Limit")
-    @Hint("10")
-    @Example("10")
+    @Hint("25")
+    @Example("25")
+    @DefaultValue("10")
     @Group("Listening Strategy")
-    @Description("Limits the number of emails to be processed.")
+    @Description("Limits the number of emails to be processed for each poll.")
     @When(propertyName = "strategy", propertyValue = "POLLING")
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private Integer limit;
@@ -90,8 +92,7 @@ public class IMAPMailListener extends AbstractInbound {
     private IMAPFlags flags;
 
     private IMAPIdleListener idle;
-    private SchedulerProvider schedulerProvider;
-    private IMAPPollingStrategy pollingStrategy;
+    private MailPoller mailPoller;
 
     @Override
     public void onStart() {
@@ -101,9 +102,21 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
-            pollingStrategy = new IMAPPollingStrategy(this, configuration, flags, folder, deleteOnSuccess, markDeleteOnSuccess, batch, peek, limit);
-            schedulerProvider = new SchedulerProvider();
-            schedulerProvider.schedule(pollInterval, pollingStrategy);
+            IMAPPollingStrategySettings settings = IMAPPollingStrategySettings.create()
+                    .markDeleteOnSuccess(markDeleteOnSuccess)
+                    .deleteOnSuccess(deleteOnSuccess)
+                    .configuration(configuration)
+                    .matcher(flags)
+                    .folder(folder)
+                    .batch(batch)
+                    .limit(limit)
+                    .peek(peek)
+                    .build();
+
+            IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, settings);
+            mailPoller = new MailPoller();
+            mailPoller.schedule(pollInterval, pollingStrategy);
+
         } else {
             // IDLE
             idle = new IMAPIdleListener(this, configuration, folder, peek, deleteOnSuccess, batch);
@@ -113,15 +126,8 @@ public class IMAPMailListener extends AbstractInbound {
 
     @Override
     public void onShutdown() {
-        if (pollingStrategy != null) {
-            pollingStrategy.stop();
-        }
-        if (schedulerProvider != null) {
-            schedulerProvider.stop();
-        }
-        if (idle != null) {
-            idle.stop();
-        }
+        if (mailPoller != null) mailPoller.stop();
+        if (idle != null) idle.stop();
     }
 
     public void setConfiguration(IMAPConfiguration configuration) {

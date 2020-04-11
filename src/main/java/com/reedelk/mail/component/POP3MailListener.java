@@ -1,6 +1,7 @@
 package com.reedelk.mail.component;
 
-import com.reedelk.mail.internal.SchedulerProvider;
+import com.reedelk.mail.internal.MailPoller;
+import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.pop3.POP3PollingStrategy;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
@@ -46,8 +47,7 @@ public class POP3MailListener extends AbstractInbound {
     @Description("If true emails are batched in a list")
     private Boolean batch;
 
-    private SchedulerProvider schedulerProvider;
-    private POP3PollingStrategy pollingStrategy;
+    private MailPoller mailPoller;
 
     @Override
     public void onStart() {
@@ -56,19 +56,14 @@ public class POP3MailListener extends AbstractInbound {
         requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
         requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
 
-        pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit);
-        schedulerProvider = new SchedulerProvider();
-        schedulerProvider.schedule(pollInterval, pollingStrategy);
+        PollingStrategy pollingStrategy = new POP3PollingStrategy(this, configuration, deleteOnSuccess, batch, limit);
+        mailPoller = new MailPoller();
+        mailPoller.schedule(pollInterval, pollingStrategy);
     }
 
     @Override
     public void onShutdown() {
-        if (pollingStrategy != null) {
-            pollingStrategy.stop();
-        }
-        if (schedulerProvider != null) {
-            schedulerProvider.stop();
-        }
+        if (mailPoller != null) mailPoller.stop();
     }
 
     public POP3Configuration getConfiguration() {
