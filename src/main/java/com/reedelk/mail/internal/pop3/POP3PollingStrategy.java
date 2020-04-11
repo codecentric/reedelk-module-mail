@@ -2,9 +2,10 @@ package com.reedelk.mail.internal.pop3;
 
 import com.reedelk.mail.component.POP3Configuration;
 import com.reedelk.mail.component.POP3MailListener;
-import com.reedelk.mail.internal.AbstractPollingStrategy;
+import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.commons.Defaults;
+import com.reedelk.mail.internal.commons.OnMessageEvent;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,23 +13,24 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import java.util.Optional;
 
-public class POP3PollingStrategy extends AbstractPollingStrategy {
+public class POP3PollingStrategy implements PollingStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(POP3PollingStrategy.class);
 
     private final POP3Configuration configuration;
 
-    private final boolean batchEmails;
     private final boolean deleteOnSuccess;
-    private final Integer limit;
+    private final boolean batchEmails;
     private boolean stopped;
+    private final Integer limit;
+    private final InboundEventListener listener;
 
-    public POP3PollingStrategy(InboundEventListener eventListener,
+    public POP3PollingStrategy(InboundEventListener listener,
                                POP3Configuration configuration,
                                Boolean deleteOnSuccess,
                                Boolean batchEmails,
                                Integer limit) {
-        super(eventListener);
+        this.listener = listener;
         this.configuration = configuration;
         this.batchEmails = Optional.ofNullable(batchEmails).orElse(Defaults.Poller.BATCH_EMAILS);
         this.deleteOnSuccess = Optional.ofNullable(deleteOnSuccess).orElse(Defaults.Poller.DELETE_ON_SUCCESS);
@@ -38,7 +40,9 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
     @Override
     public void run() {
         Store store = null;
+
         Folder folder = null;
+
         try {
             store = getStore();
             folder = store.getFolder(Defaults.POP_FOLDER_NAME);
@@ -48,7 +52,7 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
 
             Message[] messages = folder.getMessages();
 
-            if (Thread.interrupted()) return;
+            if (Thread.interrupted()) return; // TODO: Fix this
 
             Message[] toProcess = messages;
             if (limit != null) {
@@ -57,21 +61,24 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
             }
 
             if (batchEmails) {
-                boolean success = processMessages(POP3MailListener.class, toProcess);
-                if (success) applyMessagesOnSuccessFlags(toProcess);
+                if(OnMessageEvent.fire(POP3MailListener.class, listener, toProcess)) {
+                    applyMessagesOnSuccessFlags(toProcess);
+                }
 
             } else {
                 for (Message message : toProcess) {
-                    if (Thread.interrupted()) return;
-                    if (stopped) return;
-                    // Process each message one at a time. If the processing was successful,
-                    // then we apply the flags to the message (e.g marking it deleted)
-                    boolean success = processMessage(POP3MailListener.class, message);
-                    if (success) applyMessageOnSuccessFlags(message);
+                    if (isNotStopped()) {
+                        // Process each message one at a time. If the processing was successful,
+                        // then we apply the flags to the message (e.g marking it deleted)
+                        if (OnMessageEvent.fire(POP3MailListener.class, listener, message)) {
+                            applyMessageOnSuccessFlags(message);
+                        }
+                    }
                 }
             }
 
         } catch (Exception exception) {
+            // TODO: The message should be specific here....
             logger.error(exception.getMessage(), exception);
 
         } finally {
@@ -97,6 +104,10 @@ public class POP3PollingStrategy extends AbstractPollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
+    }
+
+    private synchronized boolean isNotStopped() {
+        return !Thread.interrupted() && !stopped;
     }
 
     @Override

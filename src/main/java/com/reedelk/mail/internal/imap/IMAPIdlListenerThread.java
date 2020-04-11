@@ -1,6 +1,8 @@
 package com.reedelk.mail.internal.imap;
 
 import com.sun.mail.imap.IMAPFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -10,7 +12,9 @@ import java.io.Closeable;
 
 public class IMAPIdlListenerThread extends Thread implements Closeable {
 
-    private static final int ON_ERROR_SLEEP_TIME = 1000;
+    private final Logger logger = LoggerFactory.getLogger(IMAPIdlListenerThread.class);
+
+    private static final int ON_ERROR_SLEEP_TIME = 3000;
 
     private volatile boolean running = true;
 
@@ -34,12 +38,13 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
                 ensureFolderOpen();
                 ((IMAPFolder) folder).idle();
             } catch (Exception exception) {
-                // something went wrong
-                // wait and try again
+                // something went wrong wait and try again
+                logger.warn(exception.getMessage());// TODO
+
                 exception.printStackTrace(); // TODO: remove this... (should log with debug)
                 try {
                     Thread.sleep(ON_ERROR_SLEEP_TIME);
-                } catch (InterruptedException e1) {
+                } catch (InterruptedException interrupted) {
                     // ignore
                 }
             }

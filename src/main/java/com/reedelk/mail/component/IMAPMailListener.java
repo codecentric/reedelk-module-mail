@@ -4,6 +4,7 @@ import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.imap.IMAPIdleListener;
+import com.reedelk.mail.internal.imap.IMAPIdleListenerSettings;
 import com.reedelk.mail.internal.imap.IMAPPollingStrategy;
 import com.reedelk.mail.internal.imap.IMAPPollingStrategySettings;
 import com.reedelk.runtime.api.annotation.*;
@@ -118,8 +119,15 @@ public class IMAPMailListener extends AbstractInbound {
             mailPoller.schedule(pollInterval, pollingStrategy);
 
         } else {
-            // IDLE
-            idle = new IMAPIdleListener(this, configuration, folder, peek, deleteOnSuccess, batch);
+            // IDLE Command
+            IMAPIdleListenerSettings settings = IMAPIdleListenerSettings.create()
+                    .deleteOnSuccess(deleteOnSuccess)
+                    .configuration(configuration)
+                    .folder(folder)
+                    .batch(batch)
+                    .peek(peek)
+                    .build();
+            idle = new IMAPIdleListener(this, settings);
             idle.start();
         }
     }

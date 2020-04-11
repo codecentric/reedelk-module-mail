@@ -25,5 +25,4 @@ abstract class AbstractAttachment implements AttachmentSourceStrategy {
                 // Otherwise the file name from the file path.
                 attachmentFilePath.getFileName().toString();
     }
-
 }

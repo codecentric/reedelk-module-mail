@@ -13,6 +13,22 @@ public class Messages {
         String format(Object ...args);
     }
 
+    public enum MailListenerComponent implements FormattedMessage {
+
+        IMAP_IDLE_CAPABILITY_NOT_SUPPORTED("The IMAP server does not support IDLE capability. Use POLLING strategy instead");
+
+        private String msg;
+
+        MailListenerComponent(String msg) {
+            this.msg = msg;
+        }
+
+        @Override
+        public String format(Object... args) {
+            return formatMessage(msg, args);
+        }
+    }
+
     public enum MailSendComponent implements FormattedMessage {
 
         MAIL_BODY_EMPTY_ERROR("The mail body must not be empty"),
@@ -26,8 +42,7 @@ public class Messages {
         CC_ERROR("Could not evaluate 'cc' addresses=[%s] (expression=[%s])"),
         BCC_ERROR("Could not evaluate 'bcc' addresses=[%s] (expression=[%s])"),
         SUBJECT_ERROR("Could not evaluate 'Subject' message=[%s] (expression=[%s])"),
-        REPLY_TO_ERROR("Could not evaluate 'ReplyTo' addresses=[%s] (expression=[%s])"),
-        MAIL_BODY_ERROR("The mail 'body' content=[%s] could not be evaluated (expression=[%s])");
+        REPLY_TO_ERROR("Could not evaluate 'ReplyTo' addresses=[%s] (expression=[%s])");
 
         private String msg;
 

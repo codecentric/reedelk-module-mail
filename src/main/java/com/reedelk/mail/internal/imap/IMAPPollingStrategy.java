@@ -3,8 +3,9 @@ package com.reedelk.mail.internal.imap;
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.component.imap.IMAPFlags;
-import com.reedelk.mail.internal.AbstractPollingStrategy;
+import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.OnMessageEvent;
 import com.reedelk.mail.internal.commons.SearchTermBuilder;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.sun.mail.imap.IMAPMessage;
@@ -17,16 +18,17 @@ import javax.mail.search.SearchTerm;
 import static java.util.Arrays.stream;
 import static javax.mail.Flags.Flag;
 
-public class IMAPPollingStrategy extends AbstractPollingStrategy {
+public class IMAPPollingStrategy implements PollingStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(IMAPPollingStrategy.class);
 
     private final IMAPPollingStrategySettings settings;
+    private final InboundEventListener listener;
 
     private volatile boolean stopped;
 
     public IMAPPollingStrategy(InboundEventListener listener, IMAPPollingStrategySettings settings) {
-        super(listener);
+        this.listener = listener;
         this.settings = settings;
     }
 
@@ -53,7 +55,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         } finally {
             // If expunge == false, messages marked as deleted are not obliterated,
             // meaning they are not removed from the folder. Otherwise they are
-            // completely removed from the imap folder.
+            // completely removed from the IMAP folder.
             if (settings.isMarkDeleteOnSuccess()) CloseableUtils.close(folder, false);
             if (settings.isDeleteOnSuccess()) CloseableUtils.close(folder, true);
             if (!settings.isMarkDeleteOnSuccess() && !settings.isDeleteOnSuccess()) CloseableUtils.close(folder, false);
@@ -62,11 +64,11 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         this.stopped = true;
     }
 
-    private boolean isNotStopped() {
+    private synchronized boolean isNotStopped() {
         return !Thread.interrupted() && !stopped;
     }
 
@@ -85,7 +87,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         if (peek) ((IMAPMessage) message).setPeek(peek);
         // Process each message one at a time. If the processing was successful,
         // then we apply the flags to the message (e.g marking it deleted)
-        if(processMessage(IMAPMailListener.class, message)) {
+        if(OnMessageEvent.fire(IMAPMailListener.class, listener, message)) {
             applyMessageOnSuccessFlags(message);
         } else {
             applyMessageOnFailureFlags(message);
@@ -107,7 +109,7 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         boolean peek = settings.isPeek();
         if (peek) stream(messages).forEach(message -> ((IMAPMessage) message).setPeek(peek));
         // Process all messages as batch.
-        if(processMessages(IMAPMailListener.class, messages)) {
+        if(OnMessageEvent.fire(IMAPMailListener.class, listener, messages)) {
             applyMessagesOnSuccessFlags(messages);
         } else {
             applyMessagesOnFailureFlags(messages);
@@ -132,8 +134,9 @@ public class IMAPPollingStrategy extends AbstractPollingStrategy {
         }
     }
 
-    // If failure, we don't wat to mark the message as 'seen'
     private void applyMessageOnFailureFlags(Message message) throws MessagingException {
+        // If failure, we don't wat to mark the message as 'seen'. This is needed so that
+        // next time we poll, we can fetch the message again and try to process it another time.
         message.setFlag(Flag.SEEN, false);
     }
 

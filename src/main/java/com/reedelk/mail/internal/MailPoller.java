@@ -28,14 +28,23 @@ public class MailPoller {
     }
 
     public void stop() {
-        if (pollingStrategy != null) pollingStrategy.stop();
-        if (scheduled != null) scheduled.cancel(false);
+        if (pollingStrategy != null) {
+            // First we stop the poller in order to stop polling the mail server.
+            pollingStrategy.stop();
+        }
+
+        if (scheduled != null) {
+            // We do not interrupt because we want the current message
+            // being fetched to be processed correctly.
+            scheduled.cancel(false);
+        }
+
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(TERMINATION_AWAIT_TIME, TimeUnit.MILLISECONDS)) {
                 executorService.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException exception) {
             executorService.shutdownNow();
         }
     }

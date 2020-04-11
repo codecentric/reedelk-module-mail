@@ -2,6 +2,7 @@ package com.reedelk.mail.internal.commons;
 
 public class Defaults {
 
+    public static final int FLOW_MAX_MESSAGE_TIMEOUT_SECONDS = 120;
     public static final int CONNECT_TIMEOUT = 180000;
     public static final int SOCKET_TIMEOUT = 60000;
     public static final boolean TLS_ENABLE = false;
