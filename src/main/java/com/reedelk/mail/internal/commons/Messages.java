@@ -15,7 +15,8 @@ public class Messages {
 
     public enum MailListenerComponent implements FormattedMessage {
 
-        IMAP_IDLE_CAPABILITY_NOT_SUPPORTED("The IMAP server does not support IDLE capability. Use POLLING strategy instead");
+        IMAP_IDLE_CAPABILITY_NOT_SUPPORTED("The IMAP server does not support IDLE capability. Use POLLING strategy instead"),
+        IMAP_IDLE_COMMAND_ISSUE_ERROR("Could not issue IDLE command to IMAP server due to error=[%s]. I will try again shortly.");
 
         private String msg;
 

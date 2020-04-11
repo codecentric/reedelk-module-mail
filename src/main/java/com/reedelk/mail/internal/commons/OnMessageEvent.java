@@ -12,17 +12,15 @@ public class OnMessageEvent {
 
     public static boolean fire(Class<? extends Component> componentClazz,
                                InboundEventListener listener,
-                               Message message) throws InterruptedException {
-        com.reedelk.runtime.api.message.Message inMessage =
-                MailMessageToMessageMapper.map(componentClazz, message);
+                               Message mail) throws Exception {
+        com.reedelk.runtime.api.message.Message inMessage = MailMessageToMessageMapper.map(componentClazz, mail);
         return fireEventAndWaitResult(listener, inMessage);
     }
 
     public static boolean fire(Class<? extends Component> componentClazz,
                            InboundEventListener listener,
-                           Message[] messages) throws Exception {
-        com.reedelk.runtime.api.message.Message inMessage =
-                MailMessageToMessageMapper.map(componentClazz, messages);
+                           Message[] mails) throws Exception {
+        com.reedelk.runtime.api.message.Message inMessage = MailMessageToMessageMapper.map(componentClazz, mails);
         return fireEventAndWaitResult(listener, inMessage);
     }
 

@@ -4,11 +4,13 @@ import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.runtime.api.exception.ESBException;
+import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.event.MessageCountListener;
 
@@ -22,8 +24,8 @@ public class IMAPIdleListener {
 
     private final IMAPIdleListenerSettings settings;
 
-    private Folder folder;
     private IMAPStore store;
+    private IMAPFolder folder;
     private IMAPIdlListenerThread listenerThread;
     private MessageCountListener messageCountListener;
 
@@ -49,12 +51,9 @@ public class IMAPIdleListener {
 
             store.connect(username, password);
 
-            if (!store.hasCapability(IDLE_CAPABILITY)) {
-                String error = IMAP_IDLE_CAPABILITY_NOT_SUPPORTED.format();
-                throw new ESBException(error);
-            }
+            checkIdleCapabilityOrThrow();
 
-            folder = store.getFolder(settings.getFolder());
+            folder = (IMAPFolder) store.getFolder(settings.getFolder());
 
             folder.addMessageCountListener(messageCountListener);
 
@@ -74,8 +73,22 @@ public class IMAPIdleListener {
     }
 
     private void cleanup() {
-        CloseableUtils.close(listenerThread);
+        if (listenerThread != null) {
+            listenerThread.terminate();
+            try {
+                listenerThread.join();
+            } catch (InterruptedException e) {
+                // nothing we can do about it.
+            }
+        }
         CloseableUtils.close(folder);
         CloseableUtils.close(store);
+    }
+
+    private void checkIdleCapabilityOrThrow() throws MessagingException {
+        if (!store.hasCapability(IDLE_CAPABILITY)) {
+            String error = IMAP_IDLE_CAPABILITY_NOT_SUPPORTED.format();
+            throw new ESBException(error);
+        }
     }
 }

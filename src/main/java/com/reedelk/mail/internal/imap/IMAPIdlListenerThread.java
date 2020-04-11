@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Store;
-import java.io.Closeable;
 
+import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IMAP_IDLE_COMMAND_ISSUE_ERROR;
 
-public class IMAPIdlListenerThread extends Thread implements Closeable {
+public class IMAPIdlListenerThread extends Thread {
 
     private final Logger logger = LoggerFactory.getLogger(IMAPIdlListenerThread.class);
 
@@ -18,13 +18,13 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
 
     private volatile boolean running = true;
 
-    private final Folder folder;
+    private final IMAPFolder folder;
 
     private final String username;
     private final String password;
     private final int folderOpenMode;
 
-    public IMAPIdlListenerThread(String username, String password, Folder folder, int folderOpenMode) {
+    public IMAPIdlListenerThread(String username, String password, IMAPFolder folder, int folderOpenMode) {
         this.folder = folder;
         this.username = username;
         this.password = password;
@@ -35,27 +35,28 @@ public class IMAPIdlListenerThread extends Thread implements Closeable {
     public void run() {
         while (running) {
             try {
-                ensureFolderOpen();
-                ((IMAPFolder) folder).idle();
-            } catch (Exception exception) {
-                // something went wrong wait and try again
-                logger.warn(exception.getMessage());// TODO
 
-                exception.printStackTrace(); // TODO: remove this... (should log with debug)
+                ensureFolderOpen();
+
+                folder.idle();
+
+            } catch (Exception exception) {
+
+                String message = IMAP_IDLE_COMMAND_ISSUE_ERROR.format(exception.getMessage());
+
+                logger.warn(message);
+
                 try {
                     Thread.sleep(ON_ERROR_SLEEP_TIME);
                 } catch (InterruptedException interrupted) {
-                    // ignore
+                    running = false;
                 }
             }
         }
     }
 
-    @Override
-    public synchronized void close() {
-        if (running) {
-            running = false;
-        }
+    public void terminate() {
+        running = false;
     }
 
     public void ensureFolderOpen() throws MessagingException {

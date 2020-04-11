@@ -2,8 +2,6 @@ package com.reedelk.mail.internal.commons;
 
 import javax.mail.Folder;
 import javax.mail.Store;
-import java.io.Closeable;
-import java.io.IOException;
 
 public class CloseableUtils {
 
@@ -33,15 +31,6 @@ public class CloseableUtils {
         try {
             folder.close(expunge);
         } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    public static void close(Closeable closeable) {
-        if (closeable == null) return;
-        try {
-            closeable.close();
-        } catch (IOException e) {
             // ignore
         }
     }

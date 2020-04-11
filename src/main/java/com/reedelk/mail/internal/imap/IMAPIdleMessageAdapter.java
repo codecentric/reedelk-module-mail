@@ -28,19 +28,19 @@ public class IMAPIdleMessageAdapter extends MessageCountAdapter {
 
     @Override
     public void messagesAdded(MessageCountEvent event) {
-        Message[] messages = event.getMessages();
+        Message[] mails = event.getMessages();
 
         boolean peek = settings.isPeek();
         if (settings.isBatch()) {
             if (peek) {
-                Arrays.stream(messages).forEach(message -> ((IMAPMessage) message).setPeek(peek));
+                Arrays.stream(mails).forEach(mail -> ((IMAPMessage) mail).setPeek(peek));
             }
 
             try {
-                if (OnMessageEvent.fire(IMAPMailListener.class, listener, messages)) {
-                    applyMessagesOnSuccessFlags(messages);
+                if (OnMessageEvent.fire(IMAPMailListener.class, listener, mails)) {
+                    applyMessagesOnSuccessFlags(mails);
                 } else {
-                    applyMessagesOnFailureFlags(messages);
+                    applyMessagesOnFailureFlags(mails);
                 }
             } catch (Exception exception) {
                 String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
@@ -48,11 +48,12 @@ public class IMAPIdleMessageAdapter extends MessageCountAdapter {
             }
 
         } else {
-            for (Message message : messages) {
+            for (Message message : mails) {
 
                 if (peek) {
-                    IMAPMessage imapMessage = (IMAPMessage) message;
-                    imapMessage.setPeek(peek); // Does / or does not set seen flag for processed.
+                    // If peek == true, the message is not marked as 'seen' after it has been processed.
+                    // otherwise the message is flagged as 'seen' after the flow consumed it.
+                    ((IMAPMessage) message).setPeek(peek);
                 }
 
                 try {
