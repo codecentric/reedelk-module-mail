@@ -17,7 +17,9 @@ public class Messages {
 
         IMAP_IDLE_CAPABILITY_NOT_SUPPORTED("The IMAP server does not support IDLE capability. Use POLLING strategy instead."),
         IMAP_FOLDER_COULD_NOT_BE_OPENED_ERROR("IMAP folder named=[%s] could not be opened."),
-        IMAP_IDLE_COMMAND_ISSUE_ERROR("Could not perform IDLE command on IMAP server due to error=[%s]. I will try again shortly.");
+        IMAP_IDLE_COMMAND_ISSUE_ERROR("Could not perform IDLE command on IMAP server due to error=[%s]. I will try again shortly."),
+        FLAG_SET_ERROR("Could not set flag=[%s] to value=[%s], error=[%s]."),
+        POLL_ERROR("Could not poll mail messages, error=[%s].");
 
         private String msg;
 

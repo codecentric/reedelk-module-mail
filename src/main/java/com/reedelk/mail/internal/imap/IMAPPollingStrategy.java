@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import javax.mail.search.SearchTerm;
 
+import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.POLL_ERROR;
 import static java.util.Arrays.stream;
 
 public class IMAPPollingStrategy implements PollingStrategy {
@@ -34,6 +35,7 @@ public class IMAPPollingStrategy implements PollingStrategy {
 
     @Override
     public void run() {
+
         Store store = null;
 
         Folder folder = null;
@@ -57,8 +59,8 @@ public class IMAPPollingStrategy implements PollingStrategy {
             }
 
         } catch (Exception exception) {
-            // TODO: Message here
-            logger.warn(exception.getMessage(), exception);
+            String error = POLL_ERROR.format(exception.getMessage());
+            logger.error(error, exception);
 
         } finally {
             // If expunge == false, messages marked as deleted are not obliterated,

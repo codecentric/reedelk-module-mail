@@ -41,10 +41,9 @@ public class IMAPIdleMessageAdapter extends MessageCountAdapter {
 
         } else {
             for (Message message : mails) {
-
+                // If peek == true, the message is not marked as 'seen' after it has been processed.
+                // otherwise the message is flagged as 'seen' after the flow consumed it.
                 if (peek) {
-                    // If peek == true, the message is not marked as 'seen' after it has been processed.
-                    // otherwise the message is flagged as 'seen' after the flow consumed it.
                     ((IMAPMessage) message).setPeek(peek);
                 }
 

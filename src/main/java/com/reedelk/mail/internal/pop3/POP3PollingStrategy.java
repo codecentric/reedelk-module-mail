@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 
+import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.POLL_ERROR;
+
 public class POP3PollingStrategy implements PollingStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(POP3PollingStrategy.class);
@@ -60,8 +62,8 @@ public class POP3PollingStrategy implements PollingStrategy {
             }
 
         } catch (Exception exception) {
-            // TODO: The message should be specific here....
-            logger.error(exception.getMessage(), exception);
+            String error = POLL_ERROR.format(exception.getMessage());
+            logger.error(error, exception);
 
         } finally {
             CloseableUtils.close(folder, settings.isDeleteOnSuccess());
