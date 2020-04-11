@@ -2,7 +2,7 @@ package com.reedelk.mail.internal.smtp.attachment;
 
 import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.internal.commons.ContentType;
-import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
+import com.reedelk.mail.internal.exception.MailAttachmentException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -32,12 +32,12 @@ public class ExpressionType implements AttachmentSourceStrategy {
         DynamicByteArray contentExpression = definition.getExpression();
 
         if (isNullOrBlank(userDefinedFileName)) {
-            throw new AttachmentConfigurationException(ATTACHMENT_FILE_NAME.format(userDefinedFileName.toString()));
+            throw new MailAttachmentException(ATTACHMENT_FILE_NAME.format(userDefinedFileName.toString()));
         }
 
         // The file name is mandatory, otherwise the attachment cannot be sent.
         String finalFileName = scriptEngine.evaluate(userDefinedFileName, context, message)
-                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_FILE_NAME.format(userDefinedFileName.toString())));
+                .orElseThrow(() -> new MailAttachmentException(ATTACHMENT_FILE_NAME.format(userDefinedFileName.toString())));
 
         try {
 
@@ -51,7 +51,7 @@ public class ExpressionType implements AttachmentSourceStrategy {
             email.attach(dataSource, finalFileName, name);
 
         } catch (EmailException exception) {
-            throw new AttachmentConfigurationException(exception.getMessage(), exception);
+            throw new MailAttachmentException(exception.getMessage(), exception);
         }
     }
 }

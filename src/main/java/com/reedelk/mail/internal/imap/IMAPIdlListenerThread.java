@@ -1,5 +1,6 @@
 package com.reedelk.mail.internal.imap;
 
+import com.reedelk.mail.internal.exception.MailListenerException;
 import com.sun.mail.imap.IMAPFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Store;
 
+import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IMAP_FOLDER_COULD_NOT_BE_OPENED_ERROR;
 import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IMAP_IDLE_COMMAND_ISSUE_ERROR;
 
 public class IMAPIdlListenerThread extends Thread {
@@ -34,6 +36,7 @@ public class IMAPIdlListenerThread extends Thread {
     @Override
     public void run() {
         while (running) {
+
             try {
 
                 ensureFolderOpen();
@@ -64,10 +67,12 @@ public class IMAPIdlListenerThread extends Thread {
         if (store != null && !store.isConnected()) {
             store.connect(username, password);
         }
+
         if (folder.exists() && !folder.isOpen() && (folder.getType() & Folder.HOLDS_MESSAGES) != 0) {
             folder.open(folderOpenMode);
             if (!folder.isOpen()) {
-                throw new MessagingException("Unable to open folder " + folder.getFullName());
+                String error = IMAP_FOLDER_COULD_NOT_BE_OPENED_ERROR.format(folder.getFullName());
+                throw new MailListenerException(error);
             }
         }
     }

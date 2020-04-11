@@ -2,7 +2,7 @@ package com.reedelk.mail.internal.smtp.attachment;
 
 import com.reedelk.mail.internal.commons.AttachmentAttribute;
 import com.reedelk.mail.internal.commons.ContentType;
-import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
+import com.reedelk.mail.internal.exception.MailAttachmentException;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.script.ScriptEngineService;
@@ -40,7 +40,7 @@ public class AttachmentObjectType implements AttachmentSourceStrategy {
             email.attach(dataSource, filename, attachmentName);
 
         } catch (EmailException exception) {
-            throw new AttachmentConfigurationException(exception.getMessage(), exception);
+            throw new MailAttachmentException(exception.getMessage(), exception);
         }
     }
 }

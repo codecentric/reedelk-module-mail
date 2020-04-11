@@ -82,7 +82,7 @@ public class IMAPPollingStrategy implements PollingStrategy {
         }
     }
 
-    private void processMessage(Message message) throws InterruptedException, MessagingException {
+    private void processMessage(Message message) throws Exception {
         boolean peek = settings.isPeek();
         if (peek) ((IMAPMessage) message).setPeek(peek);
         // Process each message one at a time. If the processing was successful,

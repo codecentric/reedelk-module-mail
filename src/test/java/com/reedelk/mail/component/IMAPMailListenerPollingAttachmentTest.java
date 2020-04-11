@@ -71,9 +71,8 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         assertThat(attachments).containsOnlyKeys("myfile.txt");
 
         Attachment fileAttachment = attachments.get("myfile.txt");
-        ByteArrayContent fileContent = (ByteArrayContent) fileAttachment.getContent();// TODO: Fix this typed content with generics
+        ByteArrayContent fileContent = fileAttachment.getContent();
         assertThat(fileContent.data()).isEqualTo(attachment);
-
     }
 
     @Override

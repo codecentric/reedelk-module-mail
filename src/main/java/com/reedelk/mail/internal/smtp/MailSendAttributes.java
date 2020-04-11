@@ -1,6 +1,12 @@
 package com.reedelk.mail.internal.smtp;
 
+import com.reedelk.mail.internal.commons.Address;
+import com.reedelk.runtime.api.message.content.Attachment;
+import org.apache.commons.mail.util.MimeMessageParser;
+
+import javax.mail.Message;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public enum MailSendAttributes {
@@ -24,5 +30,20 @@ public enum MailSendAttributes {
 
     public void set(Map<String, Serializable> attributesMap, Serializable value) {
         attributesMap.put(attributeName, value);
+    }
+
+    public static Map<String, Serializable> from(Message mail, MimeMessageParser parsed, HashMap<String, Attachment> attachments) throws Exception {
+        Map<String, Serializable> attributesMap = new HashMap<>();
+        FROM.set(attributesMap, parsed.getFrom());
+        SUBJECT.set(attributesMap, parsed.getSubject());
+        REPLY_TO.set(attributesMap, parsed.getReplyTo());
+        TO.set(attributesMap, Address.asSerializableList(parsed.getTo()));
+        CC.set(attributesMap, Address.asSerializableList(parsed.getCc()));
+        BCC.set(attributesMap, Address.asSerializableList(parsed.getBcc()));
+        ATTACHMENTS.set(attributesMap, attachments);
+        MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
+        if (mail.getSentDate() != null) SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
+        if (mail.getReceivedDate() != null) RECEIVED_DATE.set(attributesMap, mail.getReceivedDate().getTime());
+        return attributesMap;
     }
 }

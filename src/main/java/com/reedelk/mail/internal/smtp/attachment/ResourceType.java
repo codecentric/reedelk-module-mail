@@ -2,7 +2,7 @@ package com.reedelk.mail.internal.smtp.attachment;
 
 import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.internal.commons.ContentType;
-import com.reedelk.mail.internal.exception.AttachmentConfigurationException;
+import com.reedelk.mail.internal.exception.MailAttachmentException;
 import com.reedelk.runtime.api.commons.StreamUtils;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
@@ -34,7 +34,7 @@ public class ResourceType extends AbstractAttachment {
         DynamicString userDefinedFileName = definition.getFileName();
 
         ResourceBinary resourceFile = Optional.ofNullable(definition.getResourceFile())
-                .orElseThrow(() -> new AttachmentConfigurationException(ATTACHMENT_RESOURCE_MUST_NOT_BE_EMPTY.format()));
+                .orElseThrow(() -> new MailAttachmentException(ATTACHMENT_RESOURCE_MUST_NOT_BE_EMPTY.format()));
 
         Path theResourceFilePath = Paths.get(resourceFile.path());
 
@@ -51,7 +51,7 @@ public class ResourceType extends AbstractAttachment {
             email.attach(dataSource, finalFileName, name);
 
         } catch (EmailException exception) {
-            throw new AttachmentConfigurationException(exception.getMessage(), exception);
+            throw new MailAttachmentException(exception.getMessage(), exception);
         }
     }
 }

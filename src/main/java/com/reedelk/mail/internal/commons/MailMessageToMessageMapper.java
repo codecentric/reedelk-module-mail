@@ -1,8 +1,9 @@
 package com.reedelk.mail.internal.commons;
 
-import com.reedelk.runtime.api.commons.Unchecked;
+import com.reedelk.mail.internal.exception.MailAttachmentException;
+import com.reedelk.mail.internal.smtp.MailSendAttributes;
+import com.reedelk.runtime.api.commons.ImmutableMap;
 import com.reedelk.runtime.api.component.Component;
-import com.reedelk.runtime.api.exception.ESBException;
 import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
@@ -19,9 +20,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.reedelk.mail.internal.smtp.MailSendAttributes.*;
+import static com.reedelk.runtime.api.commons.Unchecked.consumer;
 
 public class MailMessageToMessageMapper {
+
+    private static final String MAIL_MESSAGE_MAP_BODY = "body";
 
     public static Message map(Class<? extends Component> componentClazz, javax.mail.Message mail) throws Exception {
         MimeMessage mimeMessage = (MimeMessage) mail;
@@ -29,7 +32,6 @@ public class MailMessageToMessageMapper {
         MimeMessageParser parsed = parser.parse();
 
         MessageBuilder messageBuilder = MessageBuilder.get();
-
         if (parsed.hasHtmlContent()) {
             StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
             messageBuilder.withTypedContent(htmlContent);
@@ -40,25 +42,8 @@ public class MailMessageToMessageMapper {
             messageBuilder.empty();
         }
 
-        HashMap<String, Attachment> attachmentMap = new HashMap<>();
-
-        List<DataSource> attachmentList = parser.getAttachmentList();
-        attachmentList.forEach(
-                Unchecked.consumer((dataSource) -> processAttachment(attachmentMap, dataSource),
-                        // TODO: Specific AttachmentException should be thrown here.
-                        (dataSource, exception) -> new ESBException(exception.getMessage(), exception)));
-
-        Map<String, Serializable> attributesMap = new HashMap<>();
-        ATTACHMENTS.set(attributesMap, attachmentMap);
-        MESSAGE_NUMBER.set(attributesMap, mail.getMessageNumber());
-        FROM.set(attributesMap, parsed.getFrom());
-        SUBJECT.set(attributesMap, parsed.getSubject());
-        REPLY_TO.set(attributesMap, parsed.getReplyTo());
-        TO.set(attributesMap, Address.asSerializableList(parsed.getTo()));
-        CC.set(attributesMap, Address.asSerializableList(parsed.getCc()));
-        BCC.set(attributesMap, Address.asSerializableList(parsed.getBcc()));
-        if (mail.getSentDate() != null) SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
-        if (mail.getReceivedDate() != null) RECEIVED_DATE.set(attributesMap, mail.getReceivedDate().getTime());
+        HashMap<String, Attachment> attachmentMap = createAttachmentsMap(parser);
+        Map<String, Serializable> attributesMap = MailSendAttributes.from(mail, parsed, attachmentMap);
 
         MessageAttributes messageAttributes = new DefaultMessageAttributes(componentClazz, attributesMap);
         messageBuilder.attributes(messageAttributes);
@@ -68,46 +53,16 @@ public class MailMessageToMessageMapper {
     public static Message map(Class<? extends Component> componentClazz, javax.mail.Message[] mails) throws Exception {
         List<Map> messages = new ArrayList<>();
 
-        for (javax.mail.Message m : mails) {
-            MimeMessage mimeMessage = (MimeMessage) m;
-            MimeMessageParser parser = new MimeMessageParser(mimeMessage);
-            MimeMessageParser parsed = parser.parse();
-
-            HashMap<String, Attachment> attachmentMap = new HashMap<>();
-
-            List<DataSource> attachmentList = parser.getAttachmentList();
-
-            attachmentList.forEach(
-                    Unchecked.consumer((dataSource) -> processAttachment(attachmentMap, dataSource),
-                            // TODO: Specific AttachmentException should be thrown here.
-                            (dataSource, exception) -> new ESBException(exception.getMessage(), exception)));
-
-            Map<String, Serializable> message = new HashMap<>();
-            ATTACHMENTS.set(message, attachmentMap);
-            MESSAGE_NUMBER.set(message, m.getMessageNumber());
-            FROM.set(message, parsed.getFrom());
-            SUBJECT.set(message, parsed.getSubject());
-            REPLY_TO.set(message, parsed.getReplyTo());
-            TO.set(message, Address.asSerializableList(parsed.getTo()));
-            CC.set(message, Address.asSerializableList(parsed.getCc()));
-            BCC.set(message, Address.asSerializableList(parsed.getBcc()));
-            if (m.getSentDate() != null) SENT_DATE.set(message, m.getSentDate().getTime());
-            if (m.getReceivedDate() != null) RECEIVED_DATE.set(message, m.getReceivedDate().getTime());
-
-            if (parsed.hasHtmlContent()) {
-                StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
-                message.put("body", htmlContent);
-            } else if (parsed.hasPlainContent()) {
-                StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
-                message.put("body", plainContent);
-            } else {
-                message.put("body", null);
-            }
-
+        for (javax.mail.Message mail : mails) {
+            Map<String, Serializable> message = createMailMessageAsMap(mail);
             messages.add(message);
         }
 
-        return MessageBuilder.get().withJavaCollection(messages, Map.class).build();
+        // TODO: Shouldn't it be withJavaMap / withJavaList ?
+        MessageAttributes attributes = new DefaultMessageAttributes(componentClazz, ImmutableMap.of());
+        return MessageBuilder.get()
+                .attributes(attributes)
+                .withJavaCollection(messages, Map.class).build();
     }
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) throws IOException {
@@ -128,5 +83,32 @@ public class MailMessageToMessageMapper {
                 .findFirst()
                 .map(ext -> UUID.randomUUID().toString() + "." + ext)
                 .orElse(UUID.randomUUID().toString() + ".dat"));
+    }
+
+    private static Map<String, Serializable> createMailMessageAsMap(javax.mail.Message mail) throws Exception {
+        MimeMessage mimeMessage = (MimeMessage) mail;
+        MimeMessageParser parser = new MimeMessageParser(mimeMessage);
+        MimeMessageParser parsed = parser.parse();
+
+        HashMap<String, Attachment> attachmentMap = createAttachmentsMap(parser);
+        Map<String, Serializable> message = MailSendAttributes.from(mail, parsed, attachmentMap);
+        if (parsed.hasHtmlContent()) {
+            StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
+            message.put(MAIL_MESSAGE_MAP_BODY, htmlContent);
+        } else if (parsed.hasPlainContent()) {
+            StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
+            message.put(MAIL_MESSAGE_MAP_BODY, plainContent);
+        } else {
+            message.put(MAIL_MESSAGE_MAP_BODY, null);
+        }
+        return message;
+    }
+
+    private static HashMap<String, Attachment> createAttachmentsMap(MimeMessageParser parser) {
+        HashMap<String, Attachment> attachmentMap = new HashMap<>();
+        List<DataSource> attachmentList = parser.getAttachmentList();
+        attachmentList.forEach(consumer((dataSource) -> processAttachment(attachmentMap, dataSource),
+                (dataSource, exception) -> new MailAttachmentException(exception.getMessage(), exception)));
+        return attachmentMap;
     }
 }
