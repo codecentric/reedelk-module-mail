@@ -5,6 +5,7 @@ import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.commons.FlagUtils;
 import com.reedelk.mail.internal.commons.OnMessageEvent;
 import com.reedelk.mail.internal.commons.SearchTermBuilder;
 import com.reedelk.runtime.api.component.InboundEventListener;
@@ -16,7 +17,6 @@ import javax.mail.*;
 import javax.mail.search.SearchTerm;
 
 import static java.util.Arrays.stream;
-import static javax.mail.Flags.Flag;
 
 public class IMAPPollingStrategy implements PollingStrategy {
 
@@ -47,9 +47,17 @@ public class IMAPPollingStrategy implements PollingStrategy {
 
             Message[] messages = fetchMessages(folder);
 
-            processPolledMessages(messages);
+            if (settings.isBatch() && isNotStopped()) {
+                processMessages(messages);
+
+            } else {
+                for (Message message : messages) {
+                    if (isNotStopped()) processMessage(message);
+                }
+            }
 
         } catch (Exception exception) {
+            // TODO: Message here
             logger.warn(exception.getMessage(), exception);
 
         } finally {
@@ -72,21 +80,9 @@ public class IMAPPollingStrategy implements PollingStrategy {
         return !Thread.interrupted() && !stopped;
     }
 
-    private void processPolledMessages(Message[] messages) throws Exception {
-        if (settings.isBatch()) {
-            if (isNotStopped()) processBatchMessages(messages);
-        } else {
-            for (Message message : messages) {
-                if (isNotStopped()) processMessage(message);
-            }
-        }
-    }
-
-    private void processMessage(Message message) throws Exception {
+    private void processMessage(Message message) {
         boolean peek = settings.isPeek();
         if (peek) ((IMAPMessage) message).setPeek(peek);
-        // Process each message one at a time. If the processing was successful,
-        // then we apply the flags to the message (e.g marking it deleted)
         if(OnMessageEvent.fire(IMAPMailListener.class, listener, message)) {
             applyMessageOnSuccessFlags(message);
         } else {
@@ -94,50 +90,19 @@ public class IMAPPollingStrategy implements PollingStrategy {
         }
     }
 
-    private Message[] fetchMessages(Folder folder) throws MessagingException {
-        IMAPFlags matcher = settings.getMatcher();
-        int limit = settings.getLimit();
-        SearchTerm searchTerm = SearchTermBuilder.from(matcher);
-        Message[] messages = folder.search(searchTerm);
-        if (messages.length <= limit) return messages;
-        Message[] toProcess = new Message[limit];
-        System.arraycopy(messages, 0, toProcess, 0, limit);
-        return toProcess;
-    }
-
-    private void processBatchMessages(Message[] messages) throws Exception {
+    private void processMessages(Message[] messages) {
         boolean peek = settings.isPeek();
         if (peek) stream(messages).forEach(message -> ((IMAPMessage) message).setPeek(peek));
         // Process all messages as batch.
         if(OnMessageEvent.fire(IMAPMailListener.class, listener, messages)) {
-            applyMessagesOnSuccessFlags(messages);
+            for (Message message : messages) {
+                applyMessageOnSuccessFlags(message);
+            }
         } else {
-            applyMessagesOnFailureFlags(messages);
+            for (Message message : messages) {
+                applyMessageOnSuccessFlags(message);
+            }
         }
-    }
-
-    private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
-        for (Message message : messages) {
-            applyMessageOnSuccessFlags(message);
-        }
-    }
-
-    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
-        for (Message message : messages) {
-            applyMessageOnSuccessFlags(message);
-        }
-    }
-
-    private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
-        if (settings.isDeleteOnSuccess() || settings.isMarkDeleteOnSuccess()) {
-            message.setFlag(Flag.DELETED, true);
-        }
-    }
-
-    private void applyMessageOnFailureFlags(Message message) throws MessagingException {
-        // If failure, we don't wat to mark the message as 'seen'. This is needed so that
-        // next time we poll, we can fetch the message again and try to process it another time.
-        message.setFlag(Flag.SEEN, false);
     }
 
     private Store getStore() throws MessagingException {
@@ -146,5 +111,32 @@ public class IMAPPollingStrategy implements PollingStrategy {
         Store store = session.getStore();
         store.connect(configuration.getHost(), configuration.getUsername(), configuration.getPassword());
         return store;
+    }
+
+    private Message[] fetchMessages(Folder folder) throws MessagingException {
+        IMAPFlags matcher = settings.getMatcher();
+        int limit = settings.getLimit();
+
+        SearchTerm searchTerm = SearchTermBuilder.from(matcher);
+        Message[] messages = folder.search(searchTerm);
+        if (messages.length <= limit) return messages;
+
+        Message[] toProcess = new Message[limit];
+        System.arraycopy(messages, 0, toProcess, 0, limit);
+        return toProcess;
+    }
+
+    private void applyMessageOnSuccessFlags(Message message) {
+        // Process each message one at a time. If the processing was successful,
+        // then we apply the flags to the message (e.g marking it deleted)
+        if (settings.isDeleteOnSuccess() || settings.isMarkDeleteOnSuccess()) {
+            FlagUtils.deleted(message);
+        }
+    }
+
+    private void applyMessageOnFailureFlags(Message message) {
+        // If failure, we don't wat to mark the message as 'seen'. This is needed so that
+        // next time we poll, we can fetch the message again and try to process it another time.
+        FlagUtils.notSeen(message);
     }
 }

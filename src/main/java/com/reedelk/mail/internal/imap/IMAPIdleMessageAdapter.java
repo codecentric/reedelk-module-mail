@@ -1,22 +1,17 @@
 package com.reedelk.mail.internal.imap;
 
 import com.reedelk.mail.component.IMAPMailListener;
+import com.reedelk.mail.internal.commons.FlagUtils;
 import com.reedelk.mail.internal.commons.OnMessageEvent;
 import com.reedelk.runtime.api.component.InboundEventListener;
 import com.sun.mail.imap.IMAPMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.mail.Flags;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
 import java.util.Arrays;
 
 public class IMAPIdleMessageAdapter extends MessageCountAdapter {
-
-    private final Logger logger = LoggerFactory.getLogger(IMAPIdleMessageAdapter.class);
 
     private final IMAPIdleListenerSettings settings;
     private final InboundEventListener listener;
@@ -31,20 +26,17 @@ public class IMAPIdleMessageAdapter extends MessageCountAdapter {
         Message[] mails = event.getMessages();
 
         boolean peek = settings.isPeek();
+
         if (settings.isBatch()) {
+
             if (peek) {
                 Arrays.stream(mails).forEach(mail -> ((IMAPMessage) mail).setPeek(peek));
             }
 
-            try {
-                if (OnMessageEvent.fire(IMAPMailListener.class, listener, mails)) {
-                    applyMessagesOnSuccessFlags(mails);
-                } else {
-                    applyMessagesOnFailureFlags(mails);
-                }
-            } catch (Exception exception) {
-                String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
-                logger.error(error, exception);
+            if (OnMessageEvent.fire(IMAPMailListener.class, listener, mails)) {
+                applyMessagesOnSuccessFlags(mails);
+            } else {
+                applyMessagesOnFailureFlags(mails);
             }
 
         } else {
@@ -56,40 +48,35 @@ public class IMAPIdleMessageAdapter extends MessageCountAdapter {
                     ((IMAPMessage) message).setPeek(peek);
                 }
 
-                try {
-                    if (OnMessageEvent.fire(IMAPMailListener.class, listener, message)) {
-                        applyMessageOnSuccessFlags(message);
-                    } else {
-                        applyMessageOnFailureFlags(message);
-                    }
-                } catch (Exception exception) {
-                    String error = String.format("Could not map IMAP Message=[%s]", exception.getMessage());
-                    logger.error(error, exception);
+                if (OnMessageEvent.fire(IMAPMailListener.class, listener, message)) {
+                    applyMessageOnSuccessFlags(message);
+                } else {
+                    applyMessageOnFailureFlags(message);
                 }
             }
         }
     }
 
-    private void applyMessagesOnFailureFlags(Message[] messages) throws MessagingException {
+    private void applyMessagesOnFailureFlags(Message[] messages) {
         for (Message message : messages) {
             applyMessageOnSuccessFlags(message);
         }
     }
 
-    private void applyMessagesOnSuccessFlags(Message[] messages) throws MessagingException {
+    private void applyMessagesOnSuccessFlags(Message[] messages) {
         for (Message message : messages) {
             applyMessageOnSuccessFlags(message);
         }
     }
 
-    private void applyMessageOnSuccessFlags(Message message) throws MessagingException {
+    private void applyMessageOnSuccessFlags(Message message) {
         if (settings.isDeleteOnSuccess()) {
-            message.setFlag(Flags.Flag.DELETED, true);
+            FlagUtils.deleted(message);
         }
     }
 
-    // If failure, we don't wat to mark the message as 'seen'
-    private void applyMessageOnFailureFlags(Message message) throws MessagingException {
-        message.setFlag(Flags.Flag.SEEN, false);
+    private void applyMessageOnFailureFlags(Message message) {
+        // If failure, we don't wat to mark the message as 'seen'
+        FlagUtils.notSeen(message);
     }
 }
