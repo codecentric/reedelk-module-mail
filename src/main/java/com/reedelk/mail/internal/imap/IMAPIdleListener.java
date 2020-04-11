@@ -3,11 +3,10 @@ package com.reedelk.mail.internal.imap;
 import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
+import com.reedelk.mail.internal.exception.MailListenerException;
 import com.reedelk.runtime.api.exception.ESBException;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -15,11 +14,10 @@ import javax.mail.Session;
 import javax.mail.event.MessageCountListener;
 import java.io.Closeable;
 
+import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IDLE_SETUP_ERROR;
 import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IMAP_IDLE_CAPABILITY_NOT_SUPPORTED;
 
 public class IMAPIdleListener implements Closeable {
-
-    private final Logger logger = LoggerFactory.getLogger(IMAPIdleListener.class);
 
     private static final String IDLE_CAPABILITY = "IDLE";
 
@@ -56,17 +54,22 @@ public class IMAPIdleListener implements Closeable {
 
             folder = (IMAPFolder) store.getFolder(settings.getFolder());
 
-            folder.addMessageCountListener(messageCountListener);
-
-            listenerThread = new IMAPIdlListenerThread(username, password, folder, folderOpenMode);
-
-            listenerThread.start();
-
         } catch (Exception exception) {
-            logger.error(exception.getMessage(), exception);
+
+            // We must clean up partially opened resources such as store and folder.
             cleanup();
-            throw new ESBException(exception.getMessage(), exception);
+
+            String error = IDLE_SETUP_ERROR.format(exception.getMessage());
+
+            throw new MailListenerException(error, exception);
         }
+
+        folder.addMessageCountListener(messageCountListener);
+
+        listenerThread = new IMAPIdlListenerThread(username, password, folder, folderOpenMode);
+
+        listenerThread.start();
+
     }
 
     @Override

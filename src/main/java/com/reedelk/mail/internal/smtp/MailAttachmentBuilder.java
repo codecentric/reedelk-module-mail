@@ -86,11 +86,10 @@ public class MailAttachmentBuilder {
         checkArgument(Attachment.isAttachmentMap(evaluationResult), "Expected Attachments Objects");
 
 
-        Map<String, Attachment> attachments = (Map<String, Attachment>) evaluationResult;
-        attachments.forEach((attachmentName, attachment) -> {
-            AttachmentSourceStrategyFactory
-                    .fromAttachment()
-                    .build(scriptEngine, converterService, email, attachmentName, attachment);
-        });
+        Map<String, Attachment> evaluatedAttachments = (Map<String, Attachment>) evaluationResult;
+        evaluatedAttachments.forEach((attachmentName, attachment) ->
+                AttachmentSourceStrategyFactory
+                        .fromAttachment()
+                        .build(scriptEngine, converterService, email, attachmentName, attachment));
     }
 }

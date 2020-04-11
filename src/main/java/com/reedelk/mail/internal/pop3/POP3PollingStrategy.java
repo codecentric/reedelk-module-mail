@@ -51,12 +51,10 @@ public class POP3PollingStrategy implements PollingStrategy {
 
             } else {
                 for (Message message : messages) {
-                    if (isNotStopped()) {
+                    if (isNotStopped() && OnMessageEvent.fire(POP3MailListener.class, listener, message)) {
                         // Process each message one at a time. If the processing was successful,
                         // then we apply the flags to the message (e.g marking it deleted)
-                        if (OnMessageEvent.fire(POP3MailListener.class, listener, message)) {
-                            applyMessageOnSuccessFlags(message);
-                        }
+                        applyMessageOnSuccessFlags(message);
                     }
                 }
             }

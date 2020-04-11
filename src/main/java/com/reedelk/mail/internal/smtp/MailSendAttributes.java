@@ -1,7 +1,6 @@
 package com.reedelk.mail.internal.smtp;
 
 import com.reedelk.mail.internal.commons.Address;
-import com.reedelk.runtime.api.message.content.Attachment;
 import org.apache.commons.mail.util.MimeMessageParser;
 
 import javax.mail.Message;
@@ -32,7 +31,7 @@ public enum MailSendAttributes {
         attributesMap.put(attributeName, value);
     }
 
-    public static Map<String, Serializable> from(Message mail, MimeMessageParser parsed, HashMap<String, Attachment> attachments) throws Exception {
+    public static Map<String, Serializable> from(Message mail, MimeMessageParser parsed, Serializable attachments) throws Exception {
         Map<String, Serializable> attributesMap = new HashMap<>();
         FROM.set(attributesMap, parsed.getFrom());
         SUBJECT.set(attributesMap, parsed.getSubject());

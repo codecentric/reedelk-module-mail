@@ -26,6 +26,9 @@ public class MailMessageToMessageMapper {
 
     private static final String MAIL_MESSAGE_MAP_BODY = "body";
 
+    private MailMessageToMessageMapper() {
+    }
+
     public static Message map(Class<? extends Component> componentClazz, javax.mail.Message mail) throws Exception {
         MimeMessage mimeMessage = (MimeMessage) mail;
         MimeMessageParser parser = new MimeMessageParser(mimeMessage);

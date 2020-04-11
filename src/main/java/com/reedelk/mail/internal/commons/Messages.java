@@ -15,6 +15,7 @@ public class Messages {
 
     public enum MailListenerComponent implements FormattedMessage {
 
+        IDLE_SETUP_ERROR("Could not open IMAP connection with strategy IDLE, error=[%s]."),
         IMAP_IDLE_CAPABILITY_NOT_SUPPORTED("The IMAP server does not support IDLE capability. Use POLLING strategy instead."),
         IMAP_FOLDER_COULD_NOT_BE_OPENED_ERROR("IMAP folder named=[%s] could not be opened."),
         IMAP_IDLE_COMMAND_ISSUE_ERROR("Could not perform IDLE command on IMAP server due to error=[%s]. I will try again shortly."),

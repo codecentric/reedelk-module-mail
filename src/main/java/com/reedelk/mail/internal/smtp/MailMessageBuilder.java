@@ -91,7 +91,6 @@ public class MailMessageBuilder {
 
             email.setFrom(evaluatedFrom);
 
-
             // Mandatory
             String evaluatedTo = scriptService.evaluate(to, context, message)
                     .orElseThrow(() -> new MailMessageConfigurationException(TO_ERROR.format(to.toString())));
@@ -100,26 +99,26 @@ public class MailMessageBuilder {
             // Optional
             scriptService.evaluate(cc, context, message)
                     .filter(StringUtils::isNotBlank)
-                    .ifPresent(Unchecked.consumer(cc -> email.setCc(asList(InternetAddress.parse(cc))),
-                            (cc, exception) -> new MailMessageConfigurationException(CC_ERROR.format(cc, this.cc.toString()), exception)));
+                    .ifPresent(Unchecked.consumer(notBlankCC -> email.setCc(asList(InternetAddress.parse(notBlankCC))),
+                            (notBlankCC, exception) -> new MailMessageConfigurationException(CC_ERROR.format(notBlankCC, cc.toString()), exception)));
 
             // Optional
             scriptService.evaluate(bcc, context, message)
                     .filter(StringUtils::isNotBlank)
-                    .ifPresent(Unchecked.consumer(bcc -> email.setBcc(asList(InternetAddress.parse(bcc))),
-                            (bcc, exception) -> new MailMessageConfigurationException(BCC_ERROR.format(bcc, this.bcc.toString()), exception)));
+                    .ifPresent(Unchecked.consumer(notBlankBCC -> email.setBcc(asList(InternetAddress.parse(notBlankBCC))),
+                            (notBlankBCC, exception) -> new MailMessageConfigurationException(BCC_ERROR.format(notBlankBCC, bcc.toString()), exception)));
 
             // Optional
             scriptService.evaluate(replyTo, context, message)
                     .filter(StringUtils::isNotBlank)
-                    .ifPresent(Unchecked.consumer(replyTo -> email.setReplyTo(asList(InternetAddress.parse(replyTo))),
-                            (replyTo, exception) -> new MailMessageConfigurationException(REPLY_TO_ERROR.format(replyTo, this.replyTo.toString()), exception)));
+                    .ifPresent(Unchecked.consumer(notBlankReplyTo -> email.setReplyTo(asList(InternetAddress.parse(notBlankReplyTo))),
+                            (notBlankReplyTo, exception) -> new MailMessageConfigurationException(REPLY_TO_ERROR.format(notBlankReplyTo, replyTo.toString()), exception)));
 
             // Optional
             scriptService.evaluate(subject, context, message)
                     .filter(StringUtils::isNotBlank)
                     .ifPresent(Unchecked.consumer(email::setSubject,
-                            (subject, exception) -> new MailMessageConfigurationException(SUBJECT_ERROR.format(subject, this.subject.toString()), exception)));
+                            (notBlankSubject, exception) -> new MailMessageConfigurationException(SUBJECT_ERROR.format(notBlankSubject, subject.toString()), exception)));
 
         } catch (AddressException exception) {
             throw new MailMessageConfigurationException(exception.getMessage(), exception);
