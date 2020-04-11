@@ -60,12 +60,10 @@ public class MailMessageToMessageMapper {
             Map<String, Serializable> message = createMailMessageAsMap(mail);
             messages.add(message);
         }
-
-        // TODO: Shouldn't it be withJavaMap / withJavaList ?
         MessageAttributes attributes = new DefaultMessageAttributes(componentClazz, ImmutableMap.of());
         return MessageBuilder.get()
                 .attributes(attributes)
-                .withJavaCollection(messages, Map.class).build();
+                .withList(messages, Map.class).build();
     }
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) throws IOException {
