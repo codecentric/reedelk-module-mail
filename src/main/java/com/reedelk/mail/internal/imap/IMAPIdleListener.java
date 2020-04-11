@@ -85,8 +85,10 @@ public class IMAPIdleListener implements Closeable {
         if (listenerThread != null) {
             try {
                 listenerThread.join();
-            } catch (InterruptedException e) {
-                // nothing we can do about it.
+            } catch (InterruptedException exception) {
+                // nothing we can do about this exception,
+                // we restore the interruption status.
+                Thread.currentThread().interrupt();
             }
         }
     }

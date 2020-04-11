@@ -47,7 +47,10 @@ public class MailPoller implements Closeable {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException exception) {
+            // nothing we can do about this exception,
+            // we force the executor to shutdown now and restore interruption status.
             executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 }

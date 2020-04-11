@@ -50,9 +50,14 @@ public class IMAPIdlListenerThread extends Thread {
                 logger.warn(message);
 
                 try {
+
                     Thread.sleep(ON_ERROR_SLEEP_TIME);
+
                 } catch (InterruptedException interrupted) {
+
                     running = false;
+
+                    Thread.currentThread().interrupt();
                 }
             }
         }
