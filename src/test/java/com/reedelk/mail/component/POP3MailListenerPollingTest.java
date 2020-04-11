@@ -1,6 +1,7 @@
 package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.pop3.POP3Protocol;
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,8 @@ public class POP3MailListenerPollingTest extends AbstractMailTest {
     private static final String PROTOCOL = "pop3";
     private static final int PORT = 1110;
 
+    private CloseableService closeableService = new CloseableService();
+
     private POP3MailListener listener;
 
     @BeforeEach
@@ -32,6 +35,7 @@ public class POP3MailListenerPollingTest extends AbstractMailTest {
         configuration.setPort(PORT);
 
         listener = new POP3MailListener();
+        listener.closeableService = closeableService;
         listener.setConfiguration(configuration);
         listener.setPollInterval(1000);
     }

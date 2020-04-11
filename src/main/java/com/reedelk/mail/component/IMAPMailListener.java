@@ -2,6 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.imap.IMAPIdleListener;
 import com.reedelk.mail.internal.imap.IMAPIdleListenerSettings;
@@ -10,6 +11,7 @@ import com.reedelk.mail.internal.imap.IMAPPollingStrategySettings;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
@@ -94,8 +96,8 @@ public class IMAPMailListener extends AbstractInbound {
     @When(propertyName = "strategy", propertyValue = When.NULL)
     private IMAPFlags flags;
 
-    private IMAPIdleListener idle;
-    private MailPoller mailPoller;
+    @Reference
+    CloseableService closeableService;
 
     @Override
     public void onStart() {
@@ -117,8 +119,9 @@ public class IMAPMailListener extends AbstractInbound {
                     .build();
 
             IMAPPollingStrategy pollingStrategy = new IMAPPollingStrategy(this, settings);
-            mailPoller = new MailPoller();
-            mailPoller.schedule(pollInterval, pollingStrategy);
+            MailPoller poller = new MailPoller();
+            poller.schedule(pollInterval, pollingStrategy);
+            closeableService.register(this, poller);
 
         } else {
             // IDLE Command
@@ -129,15 +132,15 @@ public class IMAPMailListener extends AbstractInbound {
                     .batch(batch)
                     .peek(peek)
                     .build();
-            idle = new IMAPIdleListener(this, settings);
+            IMAPIdleListener idle = new IMAPIdleListener(this, settings);
             idle.start();
+            closeableService.register(this, idle);
         }
     }
 
     @Override
     public void onShutdown() {
-        if (mailPoller != null) mailPoller.stop();
-        if (idle != null) idle.stop();
+        closeableService.unregister(this);
     }
 
     public void setConfiguration(IMAPConfiguration configuration) {

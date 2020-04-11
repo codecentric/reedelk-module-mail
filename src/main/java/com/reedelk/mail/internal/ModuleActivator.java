@@ -15,7 +15,8 @@ public class ModuleActivator {
 
     @Reference
     private ScriptEngineService scriptEngine;
-
+    @Reference
+    private CloseableService closeableService;
 
     @Activate
     public void start(BundleContext context) {
@@ -25,6 +26,9 @@ public class ModuleActivator {
 
     @Deactivate
     public void stop() {
-
+        // If this module is being stopped, we must close all the listeners.
+        // This is needed because other modules using this component might be shutdown
+        // only later.
+        closeableService.closeAll();
     }
 }

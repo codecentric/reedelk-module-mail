@@ -4,6 +4,7 @@ import com.reedelk.mail.component.imap.IMAPFlag;
 import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.component.imap.IMAPProtocol;
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,8 @@ import static org.junit.Assume.assumeFalse;
 
 class IMAPMailListenerPollingTest extends AbstractMailTest {
 
+    private CloseableService closeableService = new CloseableService();
+
     private static final String PROTOCOL = "imap";
     private static final int PORT = 1143;
 
@@ -38,6 +41,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         configuration.setPort(PORT);
 
         listener = new IMAPMailListener();
+        listener.closeableService = closeableService;
         listener.setStrategy(IMAPListeningStrategy.POLLING);
         listener.setConfiguration(configuration);
         listener.setPollInterval(1000);

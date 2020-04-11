@@ -13,10 +13,11 @@ import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.event.MessageCountListener;
+import java.io.Closeable;
 
 import static com.reedelk.mail.internal.commons.Messages.MailListenerComponent.IMAP_IDLE_CAPABILITY_NOT_SUPPORTED;
 
-public class IMAPIdleListener {
+public class IMAPIdleListener implements Closeable {
 
     private final Logger logger = LoggerFactory.getLogger(IMAPIdleListener.class);
 
@@ -68,7 +69,8 @@ public class IMAPIdleListener {
         }
     }
 
-    public void stop() {
+    @Override
+    public void close() {
         cleanup();
     }
 

@@ -2,6 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.component.imap.IMAPProtocol;
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.content.Attachment;
@@ -10,6 +11,7 @@ import com.reedelk.runtime.api.message.content.MimeType;
 import com.reedelk.runtime.api.message.content.TypedContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
@@ -24,6 +26,9 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
     private static final String PROTOCOL = "imap";
     private static final int PORT = 1143;
 
+    @Mock
+    private CloseableService closeableService;
+
     private IMAPMailListener listener;
 
     @BeforeEach
@@ -37,6 +42,7 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         configuration.setPort(PORT);
 
         listener = new IMAPMailListener();
+        listener.closeableService = closeableService;
         listener.setStrategy(IMAPListeningStrategy.POLLING);
         listener.setConfiguration(configuration);
         listener.setPollInterval(1000);

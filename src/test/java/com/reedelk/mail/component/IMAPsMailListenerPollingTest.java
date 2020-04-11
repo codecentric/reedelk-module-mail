@@ -2,6 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.component.imap.IMAPProtocol;
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,8 @@ public class IMAPsMailListenerPollingTest extends AbstractMailTest {
 
     private static final String PROTOCOL = "imaps";
     private static final int PORT = 9993;
+
+    private CloseableService closeableService = new CloseableService();
 
     private IMAPMailListener listener;
 
@@ -34,6 +37,7 @@ public class IMAPsMailListenerPollingTest extends AbstractMailTest {
         configuration.setTrustedHosts("*");
 
         listener = new IMAPMailListener();
+        listener.closeableService = closeableService;
         listener.setStrategy(IMAPListeningStrategy.POLLING);
         listener.setConfiguration(configuration);
         listener.setPollInterval(1000);

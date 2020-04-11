@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.pop3.POP3PollingStrategy;
@@ -7,6 +8,7 @@ import com.reedelk.mail.internal.pop3.POP3PollingStrategySettings;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
@@ -48,7 +50,8 @@ public class POP3MailListener extends AbstractInbound {
     @Description("If true emails are batched in a list")
     private Boolean batch;
 
-    private MailPoller mailPoller;
+    @Reference
+    CloseableService closeableService;
 
     @Override
     public void onStart() {
@@ -64,13 +67,14 @@ public class POP3MailListener extends AbstractInbound {
                 .limit(limit)
                 .build();
         PollingStrategy pollingStrategy = new POP3PollingStrategy(this, settings);
-        mailPoller = new MailPoller();
+        MailPoller mailPoller = new MailPoller();
         mailPoller.schedule(pollInterval, pollingStrategy);
+        closeableService.register(this, mailPoller);
     }
 
     @Override
     public void onShutdown() {
-        if (mailPoller != null) mailPoller.stop();
+        closeableService.unregister(this);
     }
 
     public POP3Configuration getConfiguration() {
@@ -112,5 +116,4 @@ public class POP3MailListener extends AbstractInbound {
     public void setLimit(Integer limit) {
         this.limit = limit;
     }
-
 }
