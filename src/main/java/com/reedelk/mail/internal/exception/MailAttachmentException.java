@@ -1,8 +1,8 @@
 package com.reedelk.mail.internal.exception;
 
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.runtime.api.exception.PlatformException;
 
-public class MailAttachmentException extends ESBException {
+public class MailAttachmentException extends PlatformException {
 
     public MailAttachmentException(String message) {
         super(message);

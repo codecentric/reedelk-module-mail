@@ -4,7 +4,7 @@ import com.reedelk.mail.component.IMAPConfiguration;
 import com.reedelk.mail.component.IMAPMailListener;
 import com.reedelk.mail.internal.commons.CloseableUtils;
 import com.reedelk.mail.internal.exception.MailListenerException;
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.runtime.api.exception.PlatformException;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 
@@ -99,7 +99,7 @@ public class IMAPIdleListener implements Closeable {
     private void checkIdleCapabilityOrThrow() throws MessagingException {
         if (!store.hasCapability(IDLE_CAPABILITY)) {
             String error = IMAP_IDLE_CAPABILITY_NOT_SUPPORTED.format();
-            throw new ESBException(error);
+            throw new PlatformException(error);
         }
     }
 }

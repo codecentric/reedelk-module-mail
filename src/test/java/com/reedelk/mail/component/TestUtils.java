@@ -2,7 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.runtime.api.component.Inbound;
 import com.reedelk.runtime.api.component.InboundEventListener;
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.runtime.api.exception.PlatformException;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
 
@@ -21,7 +21,7 @@ public class TestUtils {
     public static Optional<Message> pollAndOnResultError(IMAPMailListener listener, FlowContext context) throws InterruptedException {
         return poll(listener,
                 (message, onResult) ->
-                        onResult.onError(context, new ESBException("my exception")));
+                        onResult.onError(context, new PlatformException("my exception")));
     }
 
     public static Optional<Message> poll(POP3MailListener listener, FlowContext context) throws InterruptedException {
@@ -33,7 +33,7 @@ public class TestUtils {
     public static Optional<Message> pollAndOnResultError(POP3MailListener listener, FlowContext context) throws InterruptedException {
         return poll(listener,
                 (message, onResult) ->
-                        onResult.onError(context, new ESBException("my exception")));
+                        onResult.onError(context, new PlatformException("my exception")));
     }
 
     public static Optional<Message> poll(Inbound listener, InboundEventListener inboundEventListener) throws InterruptedException {

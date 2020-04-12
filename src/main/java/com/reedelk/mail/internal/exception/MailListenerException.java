@@ -1,8 +1,8 @@
 package com.reedelk.mail.internal.exception;
 
-import com.reedelk.runtime.api.exception.ESBException;
+import com.reedelk.runtime.api.exception.PlatformException;
 
-public class MailListenerException extends ESBException {
+public class MailListenerException extends PlatformException {
 
     public MailListenerException(String message) {
         super(message);

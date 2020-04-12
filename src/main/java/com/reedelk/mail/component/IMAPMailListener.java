@@ -112,7 +112,7 @@ public class IMAPMailListener extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration");
+        requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration is not defined.");
         requireNotNull(IMAPMailListener.class, configuration.getHost(), "IMAP hostname must not be empty.");
         requireNotNull(IMAPMailListener.class, configuration.getUsername(), "IMAP username must not be empty.");
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");

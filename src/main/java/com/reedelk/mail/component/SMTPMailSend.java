@@ -121,10 +121,10 @@ public class SMTPMailSend implements ProcessorSync {
 
     @Override
     public void initialize() {
-        requireNotNullOrBlank(SMTPMailSend.class, to, "To must not be blank");
-        requireNotNullOrBlank(SMTPMailSend.class, from, "From must not be blank");
-        requireNotNull(SMTPMailSend.class, body, "Email body definition must be defined");
-        requireNotNull(SMTPMailSend.class, configuration, "Connection configuration is mandatory");
+        requireNotNull(SMTPMailSend.class, configuration, "SMTP Configuration is not defined.");
+        requireNotNull(SMTPMailSend.class, body, "Email body is not defined.");
+        requireNotNullOrBlank(SMTPMailSend.class, from, "'From' must not be blank");
+        requireNotNullOrBlank(SMTPMailSend.class, to, "'To' must not be blank");
     }
 
     @Override
