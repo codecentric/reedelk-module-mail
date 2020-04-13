@@ -46,7 +46,7 @@ abstract class AbstractMailTest {
 
     @BeforeEach
     void setUp() {
-        ServerSetup serverSetup = new ServerSetup(port(), address, protocol());
+        ServerSetup serverSetup = serverSetup();
         mailServer = new GreenMail(serverSetup);
         mailUser = mailServer.setUser(emailUserAddress, username, password);
         mailServer.start();
@@ -59,9 +59,7 @@ abstract class AbstractMailTest {
         }
     }
 
-    protected abstract String protocol();
-
-    protected abstract int port();
+    protected abstract ServerSetup serverSetup();
 
     protected void deliverMessage(MimeMessage message) {
         mailUser.deliver(message);

@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.component.smtp.AttachmentSourceType;
 import com.reedelk.mail.component.smtp.BodyDefinition;
@@ -16,12 +17,13 @@ import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.util.Collections;
 
+import static com.icegreen.greenmail.util.ServerSetup.PORT_SMTP;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_SMTP;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SMTPMailSendAttachmentTest extends AbstractMailTest {
 
-    private static final int SMTP_PORT = 2525;
-    private static final String PROTOCOL = "smtp";
+    private ServerSetup serverSetup = new ServerSetup(1000 + PORT_SMTP, null, PROTOCOL_SMTP);
 
     private SMTPMailSend component = new SMTPMailSend();
 
@@ -29,10 +31,10 @@ public class SMTPMailSendAttachmentTest extends AbstractMailTest {
     void setUp() {
         super.setUp();
         SMTPConfiguration configuration = new SMTPConfiguration();
-        configuration.setPort(SMTP_PORT);
         configuration.setHost(address);
         configuration.setUsername(username);
         configuration.setPassword(password);
+        configuration.setPort(serverSetup.getPort());
 
         mockScriptEngineEvaluation();
         component.setConfiguration(configuration);
@@ -84,12 +86,7 @@ public class SMTPMailSendAttachmentTest extends AbstractMailTest {
     }
 
     @Override
-    protected String protocol() {
-        return PROTOCOL;
-    }
-
-    @Override
-    protected int port() {
-        return SMTP_PORT;
+    protected ServerSetup serverSetup() {
+        return serverSetup;
     }
 }

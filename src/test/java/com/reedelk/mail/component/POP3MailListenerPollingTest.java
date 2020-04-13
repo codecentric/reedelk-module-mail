@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.pop3.POP3Protocol;
 import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
@@ -13,12 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.icegreen.greenmail.util.ServerSetup.PORT_POP3;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_POP3;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class POP3MailListenerPollingTest extends AbstractMailTest {
 
-    private static final String PROTOCOL = "pop3";
-    private static final int PORT = 1110;
+    private ServerSetup serverSetup = new ServerSetup(1000 + PORT_POP3, null, PROTOCOL_POP3);
 
     private CloseableService closeableService = new CloseableService();
 
@@ -32,7 +34,7 @@ public class POP3MailListenerPollingTest extends AbstractMailTest {
         configuration.setUsername(username);
         configuration.setPassword(password);
         configuration.setHost(address);
-        configuration.setPort(PORT);
+        configuration.setPort(serverSetup.getPort());
 
         listener = new POP3MailListener();
         listener.closeableService = closeableService;
@@ -129,12 +131,7 @@ public class POP3MailListenerPollingTest extends AbstractMailTest {
     }
 
     @Override
-    protected String protocol() {
-        return PROTOCOL;
-    }
-
-    @Override
-    protected int port() {
-        return PORT;
+    protected ServerSetup serverSetup() {
+        return serverSetup;
     }
 }

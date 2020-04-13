@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.imap.IMAPFlag;
 import com.reedelk.mail.component.imap.IMAPFlags;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.icegreen.greenmail.util.ServerSetup.PORT_IMAP;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAP;
 import static javax.mail.Flags.Flag.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeFalse;
@@ -25,8 +28,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
 
     private CloseableService closeableService = new CloseableService();
 
-    private static final String PROTOCOL = "imap";
-    private static final int PORT = 1143;
+    private ServerSetup serverSetup = new ServerSetup(1000 + PORT_IMAP, null, PROTOCOL_IMAP);
 
     private IMAPMailListener listener;
 
@@ -38,7 +40,7 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
         configuration.setUsername(username);
         configuration.setPassword(password);
         configuration.setHost(address);
-        configuration.setPort(PORT);
+        configuration.setPort(serverSetup.getPort());
 
         listener = new IMAPMailListener();
         listener.closeableService = closeableService;
@@ -315,13 +317,8 @@ class IMAPMailListenerPollingTest extends AbstractMailTest {
     }
 
     @Override
-    protected String protocol() {
-        return PROTOCOL;
-    }
-
-    @Override
-    protected int port() {
-        return PORT;
+    protected ServerSetup serverSetup() {
+        return serverSetup;
     }
 
     private boolean existMessageWithFlag(Flags.Flag flag) throws MessagingException {

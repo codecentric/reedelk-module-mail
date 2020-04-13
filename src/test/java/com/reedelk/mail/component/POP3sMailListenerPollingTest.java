@@ -1,5 +1,6 @@
 package com.reedelk.mail.component;
 
+import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.pop3.POP3Protocol;
 import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.runtime.api.message.Message;
@@ -11,12 +12,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Optional;
 
+import static com.icegreen.greenmail.util.ServerSetup.PORT_POP3S;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_POP3S;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class POP3sMailListenerPollingTest extends AbstractMailTest {
 
-    private static final String PROTOCOL = "pop3s";
-    private static final int PORT = 9995;
+    private ServerSetup serverSetup = new ServerSetup(1000 + PORT_POP3S, null, PROTOCOL_POP3S);
 
     private CloseableService closeableService = new CloseableService();
 
@@ -30,7 +32,7 @@ public class POP3sMailListenerPollingTest extends AbstractMailTest {
         configuration.setUsername(username);
         configuration.setPassword(password);
         configuration.setHost(address);
-        configuration.setPort(PORT);
+        configuration.setPort(serverSetup.getPort());
 
         // the test server would not be trusted, because the certificate
         // would not be in the Java distribution. Therefore we need to set this condition.
@@ -70,12 +72,7 @@ public class POP3sMailListenerPollingTest extends AbstractMailTest {
     }
 
     @Override
-    protected String protocol() {
-        return PROTOCOL;
-    }
-
-    @Override
-    protected int port() {
-        return PORT;
+    protected ServerSetup serverSetup() {
+        return serverSetup;
     }
 }
