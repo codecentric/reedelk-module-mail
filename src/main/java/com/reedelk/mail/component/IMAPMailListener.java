@@ -13,6 +13,8 @@ import com.reedelk.runtime.api.component.AbstractInbound;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Optional;
+
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
@@ -116,6 +118,11 @@ public class IMAPMailListener extends AbstractInbound {
         requireNotNull(IMAPMailListener.class, configuration.getHost(), "IMAP hostname must not be empty.");
         requireNotNull(IMAPMailListener.class, configuration.getUsername(), "IMAP username must not be empty.");
         requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
+
+        // Default strategy is polling.
+        IMAPListeningStrategy strategy =
+                Optional.ofNullable(this.strategy)
+                        .orElse(IMAPListeningStrategy.POLLING);
 
         if (IMAPListeningStrategy.POLLING.equals(strategy)) {
             IMAPPollingStrategySettings settings = IMAPPollingStrategySettings.create()

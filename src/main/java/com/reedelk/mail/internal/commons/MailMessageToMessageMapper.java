@@ -2,6 +2,7 @@ package com.reedelk.mail.internal.commons;
 
 import com.reedelk.mail.internal.exception.MailAttachmentException;
 import com.reedelk.mail.internal.smtp.MailSendAttributes;
+import com.reedelk.runtime.api.commons.ByteArrayUtils;
 import com.reedelk.runtime.api.commons.ImmutableMap;
 import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.message.DefaultMessageAttributes;
