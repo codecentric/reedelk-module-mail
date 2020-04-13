@@ -18,6 +18,7 @@ import org.apache.commons.mail.util.MimeMessageParser;
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -69,13 +70,15 @@ public class MailMessageToMessageMapper {
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) throws IOException {
         MimeType attachmentMimeType = MimeType.parse(dataSource.getContentType().toLowerCase());
-        byte[] attachmentData = ByteArrayUtils.from(dataSource.getInputStream());
-        String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
-        Attachment attachment = Attachment.builder()
-                .name(attachmentName)
-                .content(new ByteArrayContent(attachmentData, attachmentMimeType))
-                .build();
-        attachmentMap.put(attachmentName, attachment);
+        try (InputStream inputStream = dataSource.getInputStream()) {
+            byte[] attachmentData = ByteArrayUtils.from(inputStream);
+            String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
+            Attachment attachment = Attachment.builder()
+                    .name(attachmentName)
+                    .content(new ByteArrayContent(attachmentData, attachmentMimeType))
+                    .build();
+            attachmentMap.put(attachmentName, attachment);
+        }
     }
 
     private static String attachmentNameFrom(MimeType mimeType, String name) {
