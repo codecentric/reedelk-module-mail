@@ -25,6 +25,8 @@ public class BodyDefinition implements Implementor {
     private String contentType;
 
     @Property("Content")
+    @Hint("My email content")
+    @Example("My email content")
     @Description("The result of the evaluation of this expression is set as mail body content.")
     private DynamicString content;
 
