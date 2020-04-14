@@ -99,6 +99,8 @@ public class SMTPMailSend implements ProcessorSync {
     private DynamicString replyTo;
 
     @Property("Attachments Map")
+    @InitValue("#[]")
+    @Example("<code>context.emailAttachments</code>")
     @Group("Attachments")
     @Description("Sets the attachments map to be used as a source of the mail attachments. " +
             "An attachments map can be created using: " +
