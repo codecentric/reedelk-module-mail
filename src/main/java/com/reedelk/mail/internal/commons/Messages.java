@@ -1,16 +1,10 @@
 package com.reedelk.mail.internal.commons;
 
+import com.reedelk.runtime.api.commons.FormattedMessage;
+
 public class Messages {
 
     private Messages() {
-    }
-
-    private static String formatMessage(String template, Object ...args) {
-        return String.format(template, args);
-    }
-
-    interface FormattedMessage {
-        String format(Object ...args);
     }
 
     public enum MailListenerComponent implements FormattedMessage {
@@ -22,15 +16,15 @@ public class Messages {
         FLAG_SET_ERROR("Could not set flag=[%s] to value=[%s], error=[%s]."),
         POLL_ERROR("Could not poll mail messages, error=[%s].");
 
-        private String msg;
+        private String message;
 
-        MailListenerComponent(String msg) {
-            this.msg = msg;
+        MailListenerComponent(String message) {
+            this.message = message;
         }
 
         @Override
-        public String format(Object... args) {
-            return formatMessage(msg, args);
+        public String template() {
+            return message;
         }
     }
 
@@ -49,15 +43,15 @@ public class Messages {
         SUBJECT_ERROR("Could not evaluate 'Subject' message=[%s] (expression=[%s])"),
         REPLY_TO_ERROR("Could not evaluate 'ReplyTo' addresses=[%s] (expression=[%s])");
 
-        private String msg;
+        private String message;
 
-        MailSendComponent(String msg) {
-            this.msg = msg;
+        MailSendComponent(String message) {
+            this.message = message;
         }
 
         @Override
-        public String format(Object... args) {
-            return formatMessage(msg, args);
+        public String template() {
+            return message;
         }
     }
 }
