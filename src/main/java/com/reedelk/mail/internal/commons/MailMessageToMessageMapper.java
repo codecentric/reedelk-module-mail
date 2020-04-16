@@ -38,11 +38,9 @@ public class MailMessageToMessageMapper {
 
         MessageBuilder messageBuilder = MessageBuilder.get();
         if (parsed.hasHtmlContent()) {
-            StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
-            messageBuilder.withTypedContent(htmlContent);
+            messageBuilder.withString(parsed.getHtmlContent(), MimeType.TEXT_HTML);
         } else if (parsed.hasPlainContent()) {
-            StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
-            messageBuilder.withTypedContent(plainContent);
+            messageBuilder.withString(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
         } else {
             messageBuilder.empty();
         }
