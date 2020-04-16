@@ -10,7 +10,6 @@ import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
@@ -21,8 +20,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_MESSAGE_ERROR;
 import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
@@ -137,9 +138,9 @@ public class SMTPMailSend implements ProcessorSync {
 
             email.send();
 
-            MessageAttributes attributes = MailMessageToMessageAttributesMapper.from(SMTPMailSend.class, email);
+            Map<String, Serializable> attributes = MailMessageToMessageAttributesMapper.from(email);
 
-            return MessageBuilder.get()
+            return MessageBuilder.get(SMTPMailSend.class)
                     .attributes(attributes)
                     .empty()
                     .build();

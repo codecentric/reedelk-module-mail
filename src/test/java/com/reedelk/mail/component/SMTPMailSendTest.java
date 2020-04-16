@@ -152,7 +152,7 @@ class SMTPMailSendTest extends AbstractMailTest {
 
         MessageAttributes attributes = actual.getAttributes();
         assertThat(attributes).containsKeys("sentDate");
-        assertThat(attributes).containsEntry("componentName", "SMTPMailSend");
+        assertThat(attributes).containsEntry("component", "com.reedelk.mail.component.SMTPMailSend");
         assertThat(attributes).containsEntry("subject", "My email subject");
 
         assertThat(attributes).containsEntry("from","from@test.com");

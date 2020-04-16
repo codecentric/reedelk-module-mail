@@ -3,11 +3,8 @@ package com.reedelk.mail.internal.commons;
 import com.reedelk.mail.internal.exception.MailAttachmentException;
 import com.reedelk.mail.internal.smtp.MailSendAttributes;
 import com.reedelk.runtime.api.commons.ByteArrayUtils;
-import com.reedelk.runtime.api.commons.ImmutableMap;
 import com.reedelk.runtime.api.component.Component;
-import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.message.content.ByteArrayContent;
@@ -36,7 +33,7 @@ public class MailMessageToMessageMapper {
         MimeMessageParser parser = new MimeMessageParser(mimeMessage);
         MimeMessageParser parsed = parser.parse();
 
-        MessageBuilder messageBuilder = MessageBuilder.get();
+        MessageBuilder messageBuilder = MessageBuilder.get(componentClazz);
         if (parsed.hasHtmlContent()) {
             messageBuilder.withString(parsed.getHtmlContent(), MimeType.TEXT_HTML);
         } else if (parsed.hasPlainContent()) {
@@ -48,8 +45,7 @@ public class MailMessageToMessageMapper {
         HashMap<String, Attachment> attachmentMap = createAttachmentsMap(parser);
         Map<String, Serializable> attributesMap = MailSendAttributes.from(mail, parsed, attachmentMap);
 
-        MessageAttributes messageAttributes = new DefaultMessageAttributes(componentClazz, attributesMap);
-        messageBuilder.attributes(messageAttributes);
+        messageBuilder.attributes(attributesMap);
         return messageBuilder.build();
     }
 
@@ -60,10 +56,10 @@ public class MailMessageToMessageMapper {
             Map<String, Serializable> message = createMailMessageAsMap(mail);
             messages.add(message);
         }
-        MessageAttributes attributes = new DefaultMessageAttributes(componentClazz, ImmutableMap.of());
-        return MessageBuilder.get()
-                .attributes(attributes)
-                .withList(messages, Map.class).build();
+
+        return MessageBuilder.get(componentClazz)
+                .withList(messages, Map.class)
+                .build();
     }
 
     private static void processAttachment(HashMap<String, Attachment> attachmentMap, DataSource dataSource) throws IOException {

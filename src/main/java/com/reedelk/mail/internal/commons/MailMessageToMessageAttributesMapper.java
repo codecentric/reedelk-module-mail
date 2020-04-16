@@ -1,8 +1,6 @@
 package com.reedelk.mail.internal.commons;
 
 import com.reedelk.mail.internal.smtp.MailSendAttributes;
-import com.reedelk.runtime.api.component.Component;
-import com.reedelk.runtime.api.message.DefaultMessageAttributes;
 import org.apache.commons.mail.Email;
 
 import java.io.Serializable;
@@ -14,13 +12,7 @@ public class MailMessageToMessageAttributesMapper {
     private MailMessageToMessageAttributesMapper() {
     }
 
-    public static com.reedelk.runtime.api.message.MessageAttributes from(Class<? extends Component> componentClazz,
-                                                                         Email mail) {
-        Map<String, Serializable> attributesMap = baseAttributesMap(mail);
-        return new DefaultMessageAttributes(componentClazz, attributesMap);
-    }
-
-    private static Map<String, Serializable> baseAttributesMap(Email mail) {
+    public static Map<String, Serializable> from(Email mail) {
         Map<String, Serializable> attributesMap = new HashMap<>();
         MailSendAttributes.SUBJECT.set(attributesMap, mail.getSubject());
         MailSendAttributes.SENT_DATE.set(attributesMap, mail.getSentDate().getTime());
