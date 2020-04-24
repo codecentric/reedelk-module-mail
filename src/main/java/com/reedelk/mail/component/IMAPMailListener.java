@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Optional;
 
-import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
+import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuration.requireNotNull;
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (IMAP)")

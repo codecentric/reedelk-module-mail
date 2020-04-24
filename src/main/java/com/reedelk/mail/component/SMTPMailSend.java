@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_MESSAGE_ERROR;
-import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNull;
-import static com.reedelk.runtime.api.commons.ConfigurationPreconditions.requireNotNullOrBlank;
+import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuration.requireNotNull;
+import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuration.requireNotNullOrBlank;
 
 @ModuleComponent("Mail Send (SMTP)")
 @Description("Sends an email using SMTP or SMPTs. " +
