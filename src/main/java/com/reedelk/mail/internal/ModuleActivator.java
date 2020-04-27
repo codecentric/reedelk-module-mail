@@ -1,6 +1,6 @@
 package com.reedelk.mail.internal;
 
-import com.reedelk.mail.internal.script.MailScriptModules;
+import com.reedelk.mail.internal.script.GlobalFunctions;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,8 +20,9 @@ public class ModuleActivator {
 
     @Activate
     public void start(BundleContext context) {
-        MailScriptModules mailScript = new MailScriptModules(context.getBundle().getBundleId());
-        scriptEngine.register(mailScript);
+        long moduleId = context.getBundle().getBundleId();
+        GlobalFunctions globalFunctions = new GlobalFunctions(moduleId);
+        scriptEngine.register(globalFunctions);
     }
 
     @Deactivate
