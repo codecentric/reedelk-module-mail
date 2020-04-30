@@ -2,7 +2,7 @@ package com.reedelk.mail.component;
 
 import com.reedelk.mail.component.smtp.AttachmentDefinition;
 import com.reedelk.mail.component.smtp.BodyDefinition;
-import com.reedelk.mail.internal.commons.MailMessageToMessageAttributesMapper;
+import com.reedelk.mail.internal.attribute.SMTPAttributes;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.smtp.type.MailTypeFactory;
 import com.reedelk.runtime.api.annotation.*;
@@ -10,20 +10,18 @@ import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.flow.FlowContext;
 import com.reedelk.runtime.api.message.Message;
+import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.reedelk.mail.internal.commons.Messages.MailSendComponent.MAIL_MESSAGE_ERROR;
 import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuration.requireNotNull;
@@ -138,14 +136,14 @@ public class SMTPMailSend implements ProcessorSync {
 
             email.send();
 
-            Map<String, Serializable> attributes = MailMessageToMessageAttributesMapper.from(email);
+            MessageAttributes attributes = new SMTPAttributes(email);
 
             return MessageBuilder.get(SMTPMailSend.class)
                     .attributes(attributes)
                     .empty()
                     .build();
 
-        } catch (EmailException exception) {
+        } catch (Exception exception) {
             throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
     }

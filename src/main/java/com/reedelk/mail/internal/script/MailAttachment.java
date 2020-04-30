@@ -1,14 +1,14 @@
 package com.reedelk.mail.internal.script;
 
 import com.reedelk.mail.internal.commons.AttachmentAttribute;
-import com.reedelk.runtime.api.annotation.AutocompleteItem;
-import com.reedelk.runtime.api.annotation.AutocompleteType;
+import com.reedelk.runtime.api.annotation.Type;
+import com.reedelk.runtime.api.annotation.TypeFunction;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.message.content.ByteArrayContent;
 import com.reedelk.runtime.api.message.content.MimeType;
 import com.reedelk.runtime.api.message.content.StringContent;
 
-@AutocompleteType(description = "A MailAttachment object encapsulates an Mail attachment " +
+@Type(description = "A MailAttachment object encapsulates an Mail attachment " +
         "to be used as attachments when sending emails.")
 public class MailAttachment {
 
@@ -18,7 +18,7 @@ public class MailAttachment {
         current = Attachment.builder();
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "attribute(key: String, value: String)",
             example = "MailAttachmentBuilder.create().attribute('filename','my_image.png')",
             description = "Adds a new attribute with the given key and value to the attachment object.")
@@ -27,7 +27,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "charset(charset: String)",
             example = "MailAttachmentBuilder.create().charset('UTF-8')",
             description = "Sets the charset of the attachment object.")
@@ -36,7 +36,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "filename(filename: String)",
             example = "MailAttachmentBuilder.create().filename('my-picture.png')",
             description = "Sets the filename of the attachment object.")
@@ -45,7 +45,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "contentType(contentType: String)",
             example = "MailAttachmentBuilder.create().contentType('image/png')",
             description = "Sets the content type of the attachment object.")
@@ -54,7 +54,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "binary(data: byte[])",
             example = "MailAttachmentBuilder.create().binary(message.payload())",
             description = "Sets binary data to the current attachment object. Default mime type is 'application/octet-stream'.")
@@ -65,7 +65,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "text(data: String)",
             example = "MailAttachmentBuilder.create().text(message.payload())",
             description = "Sets text data to the current attachment object. Default mime type is 'text/plain'.")
@@ -76,7 +76,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "binaryWithMimeType(data: byte[], mimeType: String)",
             example = "MailAttachmentBuilder.create().binaryWithMimeType(message.payload(), 'application/octet-stream')",
             description = "Sets binary data to the current attachment object with the given mime type.")
@@ -88,7 +88,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(cursorOffset = 1,
+    @TypeFunction(cursorOffset = 1,
             signature = "textWithMimeType(data: String, mimeType: String)",
             example = "MailAttachmentBuilder.create().textWithMimeType(message.payload(), 'text/plain')",
             description = "Sets text data to the current attachment object with the given mime type.")
@@ -100,7 +100,7 @@ public class MailAttachment {
         return this;
     }
 
-    @AutocompleteItem(signature = "build()",
+    @TypeFunction(signature = "build()",
             example = "MailAttachmentBuilder.create().text('sample text').build()",
             description = "Creates an MailAttachment object with the configured settings.")
     public Attachment build() {

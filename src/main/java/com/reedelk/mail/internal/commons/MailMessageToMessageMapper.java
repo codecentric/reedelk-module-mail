@@ -1,10 +1,11 @@
 package com.reedelk.mail.internal.commons;
 
+import com.reedelk.mail.internal.attribute.IMAPorPOP3Attributes;
 import com.reedelk.mail.internal.exception.MailAttachmentException;
-import com.reedelk.mail.internal.smtp.MailSendAttributes;
 import com.reedelk.runtime.api.commons.ByteArrayUtils;
 import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.message.Message;
+import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.message.content.ByteArrayContent;
@@ -43,9 +44,11 @@ public class MailMessageToMessageMapper {
         }
 
         HashMap<String, Attachment> attachmentMap = createAttachmentsMap(parser);
-        Map<String, Serializable> attributesMap = MailSendAttributes.from(mail, parsed, attachmentMap);
 
-        messageBuilder.attributes(attributesMap);
+        MessageAttributes attributes = new IMAPorPOP3Attributes(mail, parsed, attachmentMap);
+
+        messageBuilder.attributes(attributes);
+
         return messageBuilder.build();
     }
 
@@ -89,23 +92,23 @@ public class MailMessageToMessageMapper {
                         .orElse(UUID.randomUUID().toString() + "." + Defaults.UNKNOWN_ATTACHMENT_MIME_EXTENSION));
     }
 
-    private static Map<String, Serializable> createMailMessageAsMap(javax.mail.Message mail) throws Exception {
+    private static MessageAttributes createMailMessageAsMap(javax.mail.Message mail) throws Exception {
         MimeMessage mimeMessage = (MimeMessage) mail;
         MimeMessageParser parser = new MimeMessageParser(mimeMessage);
         MimeMessageParser parsed = parser.parse();
 
         HashMap<String, Attachment> attachmentMap = createAttachmentsMap(parser);
-        Map<String, Serializable> message = MailSendAttributes.from(mail, parsed, attachmentMap);
+        MessageAttributes attributes = new IMAPorPOP3Attributes(mail, parsed, attachmentMap);
         if (parsed.hasHtmlContent()) {
             StringContent htmlContent = new StringContent(parsed.getHtmlContent(), MimeType.TEXT_HTML);
-            message.put(MAIL_MESSAGE_MAP_BODY, htmlContent);
+            attributes.put(MAIL_MESSAGE_MAP_BODY, htmlContent);
         } else if (parsed.hasPlainContent()) {
             StringContent plainContent = new StringContent(parsed.getPlainContent(), MimeType.TEXT_PLAIN);
-            message.put(MAIL_MESSAGE_MAP_BODY, plainContent);
+            attributes.put(MAIL_MESSAGE_MAP_BODY, plainContent);
         } else {
-            message.put(MAIL_MESSAGE_MAP_BODY, null);
+            attributes.put(MAIL_MESSAGE_MAP_BODY, null);
         }
-        return message;
+        return attributes;
     }
 
     private static HashMap<String, Attachment> createAttachmentsMap(MimeMessageParser parser) {

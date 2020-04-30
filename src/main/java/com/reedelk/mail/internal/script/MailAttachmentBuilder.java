@@ -1,14 +1,14 @@
 package com.reedelk.mail.internal.script;
 
-import com.reedelk.runtime.api.annotation.AutocompleteItem;
-import com.reedelk.runtime.api.annotation.AutocompleteType;
+import com.reedelk.runtime.api.annotation.Type;
+import com.reedelk.runtime.api.annotation.TypeFunction;
 
-@AutocompleteType(
+@Type(
         global = true,
-        description = "The MailAttachmentBuilder creates new Mail Attachment objects.")
+        description = "The MailAttachmentBuilder creates new Mail Attachment object.")
 public class MailAttachmentBuilder {
 
-    @AutocompleteItem(signature = "create()",
+    @TypeFunction(signature = "create()",
             example = "MailAttachmentBuilder.create()",
             description = "Creates a new MailAttachment object.")
     public MailAttachment create() {
