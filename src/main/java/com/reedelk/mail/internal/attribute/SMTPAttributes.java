@@ -5,10 +5,13 @@ import com.reedelk.runtime.api.annotation.TypeProperty;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import org.apache.commons.mail.Email;
 
+import javax.mail.internet.InternetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.reedelk.mail.internal.attribute.SMTPAttributes.*;
 import static com.reedelk.runtime.api.commons.SerializableUtils.asSerializableList;
+import static java.util.stream.Collectors.toList;
 
 @Type
 @TypeProperty(name = FROM, type = String.class)
@@ -34,10 +37,17 @@ public class SMTPAttributes extends MessageAttributes {
         put(SUBJECT, mail.getSubject());
         put(SENT_DATE, mail.getSentDate().getTime());
         put(MESSAGE_NUMBER, mail.getMimeMessage().getMessageNumber());
-        put(FROM, mail.getFromAddress().toString());
-        put(REPLY_TO, asSerializableList(mail.getReplyToAddresses()));
-        put(TO, asSerializableList(mail.getToAddresses()));
-        put(CC, asSerializableList(mail.getCcAddresses()));
-        put(BCC, asSerializableList(mail.getBccAddresses()));
+        put(FROM, mail.getFromAddress().toUnicodeString());
+        put(REPLY_TO, asList(mail.getReplyToAddresses()));
+        put(TO, asList(mail.getToAddresses()));
+        put(CC, asList(mail.getCcAddresses()));
+        put(BCC, asList(mail.getBccAddresses()));
+    }
+
+    private ArrayList<String> asList(List<InternetAddress> addresses) {
+        if (addresses == null) return new ArrayList<>();
+        return asSerializableList(addresses.stream()
+                .map(InternetAddress::toUnicodeString)
+                .collect(toList()));
     }
 }

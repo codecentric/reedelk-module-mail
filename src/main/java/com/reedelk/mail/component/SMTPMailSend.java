@@ -143,6 +143,8 @@ public class SMTPMailSend implements ProcessorSync {
                     .empty()
                     .build();
 
+        } catch (MailMessageConfigurationException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new MailMessageConfigurationException(MAIL_MESSAGE_ERROR.format(exception.getMessage()), exception);
         }
