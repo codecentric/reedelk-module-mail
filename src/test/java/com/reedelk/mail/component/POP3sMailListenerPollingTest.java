@@ -40,7 +40,7 @@ public class POP3sMailListenerPollingTest extends AbstractMailTest {
 
         listener = new POP3MailListener();
         listener.closeableService = closeableService;
-        listener.setConfiguration(configuration);
+        listener.setConnection(configuration);
         listener.setPollInterval(1000);
     }
 

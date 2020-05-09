@@ -19,8 +19,9 @@ import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 @Component(service = POP3MailListener.class, scope = PROTOTYPE)
 public class POP3MailListener extends AbstractInbound {
 
+    @DialogTitle("POP3 Connection")
     @Property("POP3 Connection")
-    private POP3Configuration configuration;
+    private POP3Configuration connection;
 
     @Property("Poll Interval")
     @Hint("120000")
@@ -57,14 +58,14 @@ public class POP3MailListener extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(POP3MailListener.class, configuration, "POP3 Configuration is not defined.");
-        requireNotNull(POP3MailListener.class, configuration.getHost(), "POP3 hostname must not be empty.");
-        requireNotNull(POP3MailListener.class, configuration.getUsername(), "POP3 username must not be empty.");
-        requireNotNull(POP3MailListener.class, configuration.getPassword(), "POP3 password must not be empty.");
+        requireNotNull(POP3MailListener.class, connection, "POP3 Configuration is not defined.");
+        requireNotNull(POP3MailListener.class, connection.getHost(), "POP3 hostname must not be empty.");
+        requireNotNull(POP3MailListener.class, connection.getUsername(), "POP3 username must not be empty.");
+        requireNotNull(POP3MailListener.class, connection.getPassword(), "POP3 password must not be empty.");
 
         POP3PollingStrategySettings settings = POP3PollingStrategySettings.create()
                 .deleteOnSuccess(deleteOnSuccess)
-                .configuration(configuration)
+                .configuration(connection)
                 .batch(batch)
                 .limit(limit)
                 .build();
@@ -79,12 +80,12 @@ public class POP3MailListener extends AbstractInbound {
         closeableService.unregister(this);
     }
 
-    public POP3Configuration getConfiguration() {
-        return configuration;
+    public POP3Configuration getConnection() {
+        return connection;
     }
 
-    public void setConfiguration(POP3Configuration configuration) {
-        this.configuration = configuration;
+    public void setConnection(POP3Configuration connection) {
+        this.connection = connection;
     }
 
     public Integer getPollInterval() {

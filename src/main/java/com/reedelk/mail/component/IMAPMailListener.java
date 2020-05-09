@@ -28,8 +28,9 @@ import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 @Component(service = IMAPMailListener.class, scope = PROTOTYPE)
 public class IMAPMailListener extends AbstractInbound {
 
+    @DialogTitle("IMAP Connection")
     @Property("IMAP Connection")
-    private IMAPConfiguration configuration;
+    private IMAPConfiguration connection;
 
     @Property("IMAP Folder")
     @Hint("INBOX")
@@ -114,10 +115,10 @@ public class IMAPMailListener extends AbstractInbound {
 
     @Override
     public void onStart() {
-        requireNotNull(IMAPMailListener.class, configuration, "IMAP Configuration is not defined.");
-        requireNotNull(IMAPMailListener.class, configuration.getHost(), "IMAP hostname must not be empty.");
-        requireNotNull(IMAPMailListener.class, configuration.getUsername(), "IMAP username must not be empty.");
-        requireNotNull(IMAPMailListener.class, configuration.getPassword(), "IMAP password must not be empty.");
+        requireNotNull(IMAPMailListener.class, connection, "IMAP Configuration is not defined.");
+        requireNotNull(IMAPMailListener.class, connection.getHost(), "IMAP hostname must not be empty.");
+        requireNotNull(IMAPMailListener.class, connection.getUsername(), "IMAP username must not be empty.");
+        requireNotNull(IMAPMailListener.class, connection.getPassword(), "IMAP password must not be empty.");
 
         // Default strategy is polling.
         IMAPListeningStrategy strategy =
@@ -128,7 +129,7 @@ public class IMAPMailListener extends AbstractInbound {
             IMAPPollingStrategySettings settings = IMAPPollingStrategySettings.create()
                     .markDeleteOnSuccess(markDeleteOnSuccess)
                     .deleteOnSuccess(deleteOnSuccess)
-                    .configuration(configuration)
+                    .configuration(connection)
                     .matcher(flags)
                     .folder(folder)
                     .batch(batch)
@@ -145,7 +146,7 @@ public class IMAPMailListener extends AbstractInbound {
             // IDLE Command
             IMAPIdleListenerSettings settings = IMAPIdleListenerSettings.create()
                     .deleteOnSuccess(deleteOnSuccess)
-                    .configuration(configuration)
+                    .configuration(connection)
                     .folder(folder)
                     .batch(batch)
                     .peek(peek)
@@ -161,8 +162,8 @@ public class IMAPMailListener extends AbstractInbound {
         closeableService.unregister(this);
     }
 
-    public void setConfiguration(IMAPConfiguration configuration) {
-        this.configuration = configuration;
+    public void setConnection(IMAPConfiguration connection) {
+        this.connection = connection;
     }
 
     public void setFolder(String folder) {

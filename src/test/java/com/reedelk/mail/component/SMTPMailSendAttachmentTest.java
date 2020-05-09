@@ -37,7 +37,7 @@ public class SMTPMailSendAttachmentTest extends AbstractMailTest {
         configuration.setPort(serverSetup.getPort());
 
         mockScriptEngineEvaluation();
-        component.setConfiguration(configuration);
+        component.setConnection(configuration);
         component.scriptService = scriptEngine;
     }
 

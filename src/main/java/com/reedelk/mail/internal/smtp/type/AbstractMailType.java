@@ -25,7 +25,7 @@ abstract class AbstractMailType implements MailTypeStrategy {
 
     protected void configureConnection(Email email) {
         MailSessionBuilder.builder(email)
-                .configuration(component.getConfiguration())
+                .configuration(component.getConnection())
                 .build();
     }
 

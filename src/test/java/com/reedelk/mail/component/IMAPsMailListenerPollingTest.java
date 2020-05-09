@@ -41,7 +41,7 @@ public class IMAPsMailListenerPollingTest extends AbstractMailTest {
         listener = new IMAPMailListener();
         listener.closeableService = closeableService;
         listener.setStrategy(IMAPListeningStrategy.POLLING);
-        listener.setConfiguration(configuration);
+        listener.setConnection(configuration);
         listener.setPollInterval(1000);
     }
 

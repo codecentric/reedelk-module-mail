@@ -35,8 +35,9 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 @Component(service = SMTPMailSend.class, scope = ServiceScope.PROTOTYPE)
 public class SMTPMailSend implements ProcessorSync {
 
+    @DialogTitle("SMTP Connection")
     @Property("SMTP Connection")
-    private SMTPConfiguration configuration;
+    private SMTPConfiguration connection;
 
     @Property("From address")
     @Hint("from@domain.com")
@@ -122,7 +123,7 @@ public class SMTPMailSend implements ProcessorSync {
 
     @Override
     public void initialize() {
-        requireNotNull(SMTPMailSend.class, configuration, "SMTP Configuration is not defined.");
+        requireNotNull(SMTPMailSend.class, connection, "SMTP Configuration is not defined.");
         requireNotNull(SMTPMailSend.class, body, "Email body is not defined.");
         requireNotNullOrBlank(SMTPMailSend.class, from, "'From' must not be blank");
         requireNotNullOrBlank(SMTPMailSend.class, to, "'To' must not be blank");
@@ -150,12 +151,12 @@ public class SMTPMailSend implements ProcessorSync {
         }
     }
 
-    public SMTPConfiguration getConfiguration() {
-        return configuration;
+    public SMTPConfiguration getConnection() {
+        return connection;
     }
 
-    public void setConfiguration(SMTPConfiguration configuration) {
-        this.configuration = configuration;
+    public void setConnection(SMTPConfiguration connection) {
+        this.connection = connection;
     }
 
     public DynamicString getFrom() {
