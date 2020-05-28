@@ -15,7 +15,7 @@ import java.util.List;
 import static com.reedelk.mail.internal.type.MailMessage.*;
 import static com.reedelk.runtime.api.commons.SerializableUtils.asSerializableList;
 
-@Type(mapKeyType = String.class, mapValueType = Serializable.class)
+@Type(displayName = "MailMessage", mapKeyType = String.class, mapValueType = Serializable.class)
 @TypeProperty(name = FROM, type = String.class)
 @TypeProperty(name = TO, type = List.class)
 @TypeProperty(name = CC, type = List.class)
