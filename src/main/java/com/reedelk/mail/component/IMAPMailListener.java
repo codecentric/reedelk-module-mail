@@ -8,8 +8,11 @@ import com.reedelk.mail.internal.imap.IMAPIdleListener;
 import com.reedelk.mail.internal.imap.IMAPIdleListenerSettings;
 import com.reedelk.mail.internal.imap.IMAPPollingStrategy;
 import com.reedelk.mail.internal.imap.IMAPPollingStrategySettings;
+import com.reedelk.mail.internal.type.ListOfMailMessage;
+import com.reedelk.mail.internal.type.MailMessage;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
+import com.reedelk.runtime.api.message.MessageAttributes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,6 +22,7 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (IMAP)")
+@ComponentOutput(attributes = MessageAttributes.class, payload = { MailMessage.class, ListOfMailMessage.class } )
 @Description("The Mail Listener connector provides a listener that listens for changes from a remote IMAP mailbox. " +
         "Every time a new email is received, a new event is triggered and the flow following this component is executed. " +
         "For IMAP type mailboxes there are two poll strategies: POLLING and IDLE. " +

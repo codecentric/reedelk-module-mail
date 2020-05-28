@@ -5,8 +5,11 @@ import com.reedelk.mail.internal.MailPoller;
 import com.reedelk.mail.internal.PollingStrategy;
 import com.reedelk.mail.internal.pop3.POP3PollingStrategy;
 import com.reedelk.mail.internal.pop3.POP3PollingStrategySettings;
+import com.reedelk.mail.internal.type.ListOfMailMessage;
+import com.reedelk.mail.internal.type.MailMessage;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.AbstractInbound;
+import com.reedelk.runtime.api.message.MessageAttributes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -14,6 +17,7 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (POP3)")
+@ComponentOutput(attributes = MessageAttributes.class, payload = { MailMessage.class, ListOfMailMessage.class } )
 @Description("The Mail Listener connector provides a listener that polls for changes from a remote POP3 mailbox. " +
         "Every time a new email is received, a new event is triggered and the flow following this component is executed.")
 @Component(service = POP3MailListener.class, scope = PROTOTYPE)

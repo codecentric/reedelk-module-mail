@@ -4,8 +4,8 @@ import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.component.imap.IMAPProtocol;
 import com.reedelk.mail.internal.CloseableService;
+import com.reedelk.mail.internal.type.MailMessage;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.message.content.Attachment;
 import com.reedelk.runtime.api.message.content.ByteArrayContent;
 import com.reedelk.runtime.api.message.content.MimeType;
@@ -71,11 +71,11 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         assertThat(inputMessage).isNotNull();
 
         TypedContent<String, String> content = inputMessage.getContent();
-        assertThat(content.getMimeType()).isEqualTo(MimeType.TEXT_PLAIN);
-        assertThat(content.data()).isEqualTo(body);
 
-        MessageAttributes attributes = inputMessage.getAttributes();
-        Map<String, Attachment> attachments = attributes.get("attachments");
+        MailMessage payload = inputMessage.payload();
+        assertThat(payload.get("bodyMimeType")).isEqualTo(MimeType.TEXT_PLAIN);
+
+        Map<String, Attachment> attachments = (Map<String, Attachment>) payload.get("attachments");
         assertThat(attachments).containsOnlyKeys("myfile.txt");
 
         Attachment fileAttachment = attachments.get("myfile.txt");

@@ -4,8 +4,8 @@ import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.imap.IMAPListeningStrategy;
 import com.reedelk.mail.component.imap.IMAPProtocol;
 import com.reedelk.mail.internal.CloseableService;
+import com.reedelk.mail.internal.type.MailMessage;
 import com.reedelk.runtime.api.message.Message;
-import com.reedelk.runtime.api.message.MessageAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,12 +61,10 @@ public class IMAPsMailListenerPollingTest extends AbstractMailTest {
 
         Message inputMessage = maybeInputMessage.get();
 
-        String payload = inputMessage.payload();
-        assertThat(payload).isEqualTo(body);
-
-        MessageAttributes attributes = inputMessage.getAttributes();
-        assertThat(attributes).containsEntry("subject", subject);
-        assertThat(attributes).containsEntry("from", from);
+        MailMessage payload = inputMessage.payload();
+        assertThat(payload.get("body")).isEqualTo(body);
+        assertThat(payload.get("subject")).isEqualTo(subject);
+        assertThat(payload.get("from")).isEqualTo(from);
     }
 
     @Override
