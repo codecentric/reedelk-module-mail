@@ -27,7 +27,7 @@ public class BodyDefinition implements Implementor {
     @Property("Content")
     @Hint("My email content")
     @Example("My email content")
-    @Description("The result of the evaluation of this expression is set as mail body content.")
+    @Description("The result of the evaluation of this expression is set as mail body content. If not present, the message payload is used as mail message.")
     private DynamicString content;
 
     public DynamicString getContent() {

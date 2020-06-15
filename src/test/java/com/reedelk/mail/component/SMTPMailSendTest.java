@@ -2,12 +2,13 @@ package com.reedelk.mail.component;
 
 import com.icegreen.greenmail.util.ServerSetup;
 import com.reedelk.mail.component.smtp.BodyDefinition;
-import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
+import com.reedelk.runtime.api.converter.ConverterService;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageAttributes;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import static com.icegreen.greenmail.util.ServerSetup.PORT_SMTP;
 import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_SMTP;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
 
 
 class SMTPMailSendTest extends AbstractMailTest {
@@ -26,6 +27,9 @@ class SMTPMailSendTest extends AbstractMailTest {
     private ServerSetup serverSetup = new ServerSetup(1000 + PORT_SMTP, null, PROTOCOL_SMTP);
 
     private SMTPMailSend component = new SMTPMailSend();
+
+    @Mock
+    private ConverterService converterService;
 
     @BeforeEach
     void setUp() {
@@ -39,25 +43,36 @@ class SMTPMailSendTest extends AbstractMailTest {
         mockScriptEngineEvaluation();
         component.setConnection(configuration);
         component.scriptService = scriptEngine;
+        component.converterService = converterService;
     }
 
     @Test
-    void shouldThrowExceptionWhenBodyNotPresent() {
+    void shouldUseMessagePayloadAsMessageBody() throws MessagingException, IOException {
         // Given
+        String mailMessageBodyText = "Mail message body";
+        byte[] payload = mailMessageBodyText.getBytes();
+        doReturn(payload).when(message).payload();
+        doReturn(mailMessageBodyText).when(converterService).convert(payload, String.class);
         BodyDefinition bodyDefinition = new BodyDefinition();
 
         component.setBody(bodyDefinition);
         component.setTo(DynamicString.from("to@test.com"));
         component.setFrom(DynamicString.from("from@test.com"));
+        component.setSubject(DynamicString.from("My email subject"));
         component.initialize();
 
         // When
-        MailMessageConfigurationException thrown = assertThrows(MailMessageConfigurationException.class,
-                () -> component.apply(context, message));
+        component.apply(context, message);
 
         // Then
-        assertThat(thrown).hasMessage("The mail body must not be empty");
-        assertReceivedMessagesCountIs(0);
+        assertReceivedMessagesCountIs(1);
+
+        MimeMessage received = firstReceivedMessage();
+
+        assertThatToIs(received, "to@test.com");
+        assertThatFromIs(received, "from@test.com");
+        assertThatSubjectIs(received, "My email subject");
+        assertThatBodyContentIs(received, "Mail message body\r\n");
     }
 
     @Test

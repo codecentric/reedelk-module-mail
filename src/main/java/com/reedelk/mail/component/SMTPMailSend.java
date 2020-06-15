@@ -126,7 +126,6 @@ public class SMTPMailSend implements ProcessorSync {
     @Override
     public void initialize() {
         requireNotNull(SMTPMailSend.class, connection, "SMTP Configuration is not defined.");
-        requireNotNull(SMTPMailSend.class, body, "Email body is not defined.");
         requireNotNullOrBlank(SMTPMailSend.class, from, "'From' must not be blank");
         requireNotNullOrBlank(SMTPMailSend.class, to, "'To' must not be blank");
     }
@@ -135,7 +134,7 @@ public class SMTPMailSend implements ProcessorSync {
     public Message apply(FlowContext flowContext, Message message) {
         try {
 
-            Email email = MailTypeFactory.from(this).create(flowContext, message);
+            Email email = MailTypeFactory.from(this, converterService).create(flowContext, message);
 
             email.send();
 
