@@ -7,9 +7,7 @@ import com.reedelk.mail.internal.CloseableService;
 import com.reedelk.mail.internal.type.MailMessage;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.content.Attachment;
-import com.reedelk.runtime.api.message.content.ByteArrayContent;
 import com.reedelk.runtime.api.message.content.MimeType;
-import com.reedelk.runtime.api.message.content.TypedContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -70,7 +68,7 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         Message inputMessage = maybeInputMessage.get();
         assertThat(inputMessage).isNotNull();
 
-        TypedContent<String, String> content = inputMessage.getContent();
+
 
         MailMessage payload = inputMessage.payload();
         assertThat(payload.get("bodyMimeType")).isEqualTo(MimeType.TEXT_PLAIN);
@@ -79,9 +77,9 @@ public class IMAPMailListenerPollingAttachmentTest extends AbstractMailTest {
         assertThat(attachments).containsOnlyKeys("myfile.txt");
 
         Attachment fileAttachment = attachments.get("myfile.txt");
-        ByteArrayContent fileContent = fileAttachment.getContent();
-        assertThat(fileContent.data()).isEqualTo(attachment);
-        assertThat(fileAttachment.getName()).isEqualTo("myfile.txt");
+        byte[] fileContent = fileAttachment.data();
+        assertThat(fileContent).isEqualTo(attachment);
+        assertThat(fileAttachment.name()).isEqualTo("myfile.txt");
     }
 
     @Override

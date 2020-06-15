@@ -21,14 +21,14 @@ public class AttachmentObjectType implements AttachmentSourceStrategy {
                       String attachmentName,
                       Attachment attachment) {
 
-        Map<String, String> attachmentAttributes = attachment.getAttributes();
+        Map<String, String> attachmentAttributes = attachment.attributes();
         String charset = AttachmentAttribute.CHARSET.get(attachmentAttributes);
         String filename = AttachmentAttribute.FILENAME.get(attachmentAttributes);
         String contentType = AttachmentAttribute.CONTENT_TYPE.get(attachmentAttributes);
 
         String contentTypeWithCharset = ContentType.from(contentType, charset);
 
-        Object data = attachment.content().data();
+        Object data = attachment.data();
 
         byte[] bytes = converterService.convert(data, byte[].class);
 

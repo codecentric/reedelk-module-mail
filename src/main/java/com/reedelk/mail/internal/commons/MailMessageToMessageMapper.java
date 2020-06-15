@@ -7,7 +7,6 @@ import com.reedelk.runtime.api.component.Component;
 import com.reedelk.runtime.api.message.Message;
 import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.message.content.Attachment;
-import com.reedelk.runtime.api.message.content.ByteArrayContent;
 import com.reedelk.runtime.api.message.content.MimeType;
 import org.apache.commons.mail.util.MimeMessageParser;
 
@@ -49,7 +48,8 @@ public class MailMessageToMessageMapper {
             String attachmentName = attachmentNameFrom(attachmentMimeType, dataSource.getName());
             Attachment attachment = Attachment.builder()
                     .name(attachmentName)
-                    .content(new ByteArrayContent(attachmentData, attachmentMimeType))
+                    .data(attachmentData)
+                    .mimeType(attachmentMimeType)
                     .build();
             attachmentMap.put(attachmentName, attachment);
         }
