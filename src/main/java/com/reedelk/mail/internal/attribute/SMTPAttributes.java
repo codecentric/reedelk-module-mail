@@ -3,6 +3,7 @@ package com.reedelk.mail.internal.attribute;
 import com.reedelk.runtime.api.annotation.Type;
 import com.reedelk.runtime.api.annotation.TypeProperty;
 import com.reedelk.runtime.api.message.MessageAttributes;
+import com.reedelk.runtime.api.type.ListOfString;
 import org.apache.commons.mail.Email;
 
 import javax.mail.internet.InternetAddress;
@@ -15,11 +16,11 @@ import static java.util.stream.Collectors.toList;
 
 @Type
 @TypeProperty(name = FROM, type = String.class)
-@TypeProperty(name = TO, type = List.class)
-@TypeProperty(name = CC, type = List.class)
-@TypeProperty(name = BCC, type = List.class)
+@TypeProperty(name = TO, type = ListOfString.class)
+@TypeProperty(name = CC, type = ListOfString.class)
+@TypeProperty(name = BCC, type = ListOfString.class)
 @TypeProperty(name = SUBJECT, type = String.class)
-@TypeProperty(name = REPLY_TO, type = List.class)
+@TypeProperty(name = REPLY_TO, type = ListOfString.class)
 @TypeProperty(name = SENT_DATE, type = long.class)
 @TypeProperty(name = MESSAGE_NUMBER, type = int.class)
 public class SMTPAttributes extends MessageAttributes {
