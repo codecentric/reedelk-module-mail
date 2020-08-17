@@ -5,6 +5,7 @@ import com.reedelk.mail.component.smtp.BodyDefinition;
 import com.reedelk.mail.internal.attribute.SMTPAttributes;
 import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import com.reedelk.mail.internal.smtp.type.MailTypeFactory;
+import com.reedelk.mail.internal.smtp.type.MailTypeStrategyResult;
 import com.reedelk.runtime.api.annotation.*;
 import com.reedelk.runtime.api.component.ProcessorSync;
 import com.reedelk.runtime.api.converter.ConverterService;
@@ -15,7 +16,6 @@ import com.reedelk.runtime.api.message.MessageBuilder;
 import com.reedelk.runtime.api.script.ScriptEngineService;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicObject;
 import com.reedelk.runtime.api.script.dynamicvalue.DynamicString;
-import org.apache.commons.mail.Email;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -134,15 +134,17 @@ public class SMTPMailSend implements ProcessorSync {
     public Message apply(FlowContext flowContext, Message message) {
         try {
 
-            Email email = MailTypeFactory.from(this, converterService).create(flowContext, message);
+            MailTypeStrategyResult result = MailTypeFactory
+                    .from(this, converterService)
+                    .create(flowContext, message);
 
-            email.send();
+            result.email.send();
 
-            MessageAttributes attributes = new SMTPAttributes(email);
+            MessageAttributes attributes = new SMTPAttributes(result.email);
 
             return MessageBuilder.get(SMTPMailSend.class)
+                    .withString(result.text, result.mimeType)
                     .attributes(attributes)
-                    .empty()
                     .build();
 
         } catch (MailMessageConfigurationException exception) {
