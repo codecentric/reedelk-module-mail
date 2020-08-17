@@ -28,8 +28,8 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuration.requireNotNullOrBlank;
 
 @ModuleComponent("Mail Send (SMTP)")
-@ComponentOutput(attributes = SMTPAttributes.class, payload = Void.class)
-@ComponentInput(payload = Object.class)
+@ComponentOutput(attributes = SMTPAttributes.class, payload = String.class, description = "The text of the Mail message sent.")
+@ComponentInput(payload = String.class, description = "The text (or HTML) of the Mail message to send.")
 @Description("Sends an email using SMTP or SMPTs. " +
         "Several attachments can be configured to be sent together in the email. " +
         "Attachments might come from different sources such as " +
