@@ -1,4 +1,10 @@
 [
+
+  {
+    "version": "1.0.1",
+    "date": "//TODO: Add date",
+    "release-notes": "<ul><li>Bugfix: SMATPMailSend component should return as component output the body of the message sent.</li><ul>"
+  },
   {
     "version": "1.0.0",
     "date": "22/6/2020",

@@ -163,7 +163,7 @@ class SMTPMailSendTest extends AbstractMailTest {
 
         // Then
         Object payload = actual.payload();
-        assertThat(payload).isNull();
+        assertThat(payload).isEqualTo("My email body");
 
         MessageAttributes attributes = actual.getAttributes();
         assertThat(attributes).containsKeys("sentDate");
