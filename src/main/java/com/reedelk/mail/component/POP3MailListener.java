@@ -17,7 +17,9 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (POP3)")
-@ComponentOutput(attributes = MessageAttributes.class, payload = { MailMessage.class, ListOfMailMessage.class } )
+@ComponentOutput(
+        attributes = MessageAttributes.class,
+        payload = { MailMessage.class, ListOfMailMessage.class } )
 @Description("The Mail Listener connector provides a listener that polls for changes from a remote POP3 mailbox. " +
         "Every time a new email is received, a new event is triggered and the flow following this component is executed.")
 @Component(service = POP3MailListener.class, scope = PROTOTYPE)

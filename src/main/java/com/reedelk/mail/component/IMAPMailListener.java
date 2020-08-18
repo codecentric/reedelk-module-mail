@@ -22,7 +22,9 @@ import static com.reedelk.runtime.api.commons.ComponentPrecondition.Configuratio
 import static org.osgi.service.component.annotations.ServiceScope.PROTOTYPE;
 
 @ModuleComponent("Mail Listener (IMAP)")
-@ComponentOutput(attributes = MessageAttributes.class, payload = { MailMessage.class, ListOfMailMessage.class } )
+@ComponentOutput(
+        attributes = MessageAttributes.class,
+        payload = { MailMessage.class, ListOfMailMessage.class } )
 @Description("The Mail Listener connector provides a listener that listens for changes from a remote IMAP mailbox. " +
         "Every time a new email is received, a new event is triggered and the flow following this component is executed. " +
         "For IMAP type mailboxes there are two poll strategies: POLLING and IDLE. " +
