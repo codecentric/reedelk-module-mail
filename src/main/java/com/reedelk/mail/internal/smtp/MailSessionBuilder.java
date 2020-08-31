@@ -1,10 +1,13 @@
 package com.reedelk.mail.internal.smtp;
 
 import com.reedelk.mail.component.SMTPConfiguration;
+import com.reedelk.mail.component.smtp.SMTPProtocol;
+import com.reedelk.mail.internal.commons.Defaults;
+import com.reedelk.mail.internal.exception.MailMessageConfigurationException;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 
-import javax.mail.Session;
+import java.util.Optional;
 
 public class MailSessionBuilder {
 
@@ -25,13 +28,26 @@ public class MailSessionBuilder {
     }
 
     public void build() {
-        SMTPProperties smtpProperties = new SMTPProperties(configuration);
+        SMTPProtocol protocol = Optional.ofNullable(configuration.getProtocol()).orElse(SMTPProtocol.SMTP);
 
-        String username = configuration.getUsername();
-        String password = configuration.getPassword();
+        String host = Optional.ofNullable(configuration.getHost())
+                .orElseThrow(() -> new MailMessageConfigurationException("Host is mandatory"));
 
-        Session session = Session.getInstance(smtpProperties, new DefaultAuthenticator(username, password));
+        boolean startTlsEnable = Optional.ofNullable(configuration.getStartTlsEnabled()).orElse(Defaults.TLS_ENABLE);
+        Integer connectionTimeout = Optional.ofNullable(configuration.getConnectTimeout()).orElse(Defaults.CONNECT_TIMEOUT);
+        Integer socketTimeout = Optional.ofNullable(configuration.getSocketTimeout()).orElse(Defaults.SOCKET_TIMEOUT);
 
-        email.setMailSession(session);
+        email.setHostName(host);
+        email.setSmtpPort(configuration.getPort());
+        email.setSocketTimeout(socketTimeout);
+        email.setSocketConnectionTimeout(connectionTimeout);
+        email.setAuthenticator(new DefaultAuthenticator(configuration.getUsername(), configuration.getPassword()));
+        if (SMTPProtocol.SMTPS.equals(protocol)) {
+            email.setSSLOnConnect(true);
+            email.setSslSmtpPort(Integer.toString(configuration.getPort()));
+        }
+        if (startTlsEnable) {
+            email.setStartTLSEnabled(configuration.getStartTlsEnabled());
+        }
     }
 }
