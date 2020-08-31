@@ -2,7 +2,7 @@
   {
     "version": "1.0.4",
     "date": "//TODO",
-    "release-notes": "<ul><li>bugfix: SMTP session builder did not work correctly for SSL connections.</li></ul>"
+    "release-notes": "<ul><li>bugfix: SMTP session builder did not work correctly for SSL connections.</li><li>bugfix: HTML email did not resolve inline images correctly.</li></ul>"
   },
   {
     "version": "1.0.2",
