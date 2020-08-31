@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.4",
+    "date": "//TODO",
+    "release-notes": "<ul><li>bugfix: SMTP session builder did not work correctly for SSL connections.</li></ul>"
+  },
+  {
     "version": "1.0.2",
     "date": "26/8/2020",
     "release-notes": "<ul><li>Runtime v1.0.2 release.</li><ul>"
@@ -7,7 +12,7 @@
   {
     "version": "1.0.1",
     "date": "18/8/2020",
-    "release-notes": "<ul><li>Bugfix: SMATPMailSend component should return as component output the body of the message sent.</li><ul>"
+    "release-notes": "<ul><li>bugfix: SMATPMailSend component should return as component output the body of the message sent.</li><ul>"
   },
   {
     "version": "1.0.0",
