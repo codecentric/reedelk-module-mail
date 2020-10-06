@@ -1,5 +1,10 @@
 [
   {
+    "version": "1.0.6",
+    "date": "6/10/2020",
+    "release-notes": "<ul><li>Runtime v1.0.6 release.</li><ul>"
+  },
+  {
     "version": "1.0.5",
     "date": "16/9/2020",
     "release-notes": "<ul><li>Runtime v1.0.5 release.</li><ul>"
